@@ -50,3 +50,31 @@ if (storySteps.length && visualFrames.length) {
   }, { threshold: 0.6 });
   storySteps.forEach(step => storyObserver.observe(step));
 }
+
+// Waitlist form: envía a Netlify Forms (respaldo nativo) y en paralelo
+// a Google Sheets vía Apps Script, para que ambos queden con el registro.
+const waitlistForm = document.getElementById('waitlistForm');
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxhz74l9n1PCKNku_VWTPmDdMZbLjQUOPZoNnzFfbPkk7B27O4swPro7n8cPujAFI2J/exec';
+
+if (waitlistForm) {
+  waitlistForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(waitlistForm);
+
+    // 1) Netlify Forms (respaldo nativo, se ve en el panel de Forms)
+    fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(formData).toString()
+    }).catch(() => {});
+
+    // 2) Google Sheets, vía Apps Script (no-cors: solo enviamos, no leemos respuesta)
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: formData
+    }).catch(() => {});
+
+    waitlistForm.innerHTML = '<p style="font-size:14px;line-height:1.8;color:var(--cream)">Gracias — quedaste en la lista de acceso prioritario de FLOAT. Te avisamos apenas haya novedades.</p>';
+  });
+}
