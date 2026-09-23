@@ -123,6 +123,12 @@ button,input{font:inherit}
 .light-visual img{width:100%;height:auto}
 .light-kicker{font-family:"Cormorant Garamond",serif;font-size:clamp(32px,4vw,52px);font-style:italic;margin:0 0 24px;line-height:1.05}
 .light-copy p:not(.light-kicker){font-size:14px;line-height:1.8;color:rgba(27,23,18,.75);max-width:420px}
+.light-visual img{aspect-ratio:4/5;object-fit:cover}
+/* Datos sobre la piedra y la luz: etiqueta pequeña en mayúsculas + texto, separados por líneas finas */
+.light-facts{margin:36px 0 0;max-width:460px;border-top:1px solid var(--line-light)}
+.light-facts div{display:grid;grid-template-columns:110px 1fr;gap:20px;padding:18px 0;border-bottom:1px solid var(--line-light)}
+.light-facts dt{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);padding-top:3px}
+.light-facts dd{margin:0;font-size:13px;line-height:1.7;color:rgba(27,23,18,.75)}
 
 /* 7. STICKY OBJECT */
 .sticky-story{position:relative;display:grid;grid-template-columns:55% 45%;background:var(--carbon)}
@@ -151,8 +157,8 @@ button,input{font:inherit}
 .access-visual img{width:100%;height:100%;object-fit:cover;filter:saturate(.82) brightness(.78)}
 .access-content{padding:11vh 8vw;display:flex;flex-direction:column;justify-content:center}
 .access-content .eyebrow{font-size:10px;letter-spacing:.16em;color:rgba(243,234,217,.6)}
-.access-content h2.float-title{font-size:clamp(38px,4.2vw,62px);letter-spacing:.18em;padding-left:0;margin:40px 0 20px;white-space:nowrap}
-.access-lead{font-family:"Cormorant Garamond",serif;font-size:32px;margin:0 0 6px}
+.access-content h2.float-title{font-family:"Bodoni Moda",serif;font-weight:400;font-size:clamp(34px,3.8vw,56px);letter-spacing:.16em;padding-left:0;margin:40px 0 20px;white-space:nowrap}
+.access-lead{font-family:"Bodoni Moda",serif;font-style:italic;font-size:26px;margin:0 0 10px}
 .access-content>p:not(.eyebrow):not(.access-lead){font-size:13px;color:rgba(243,234,217,.65);max-width:430px;line-height:1.65}
 .access-form{margin-top:44px;max-width:620px}
 .access-form .form-row{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
@@ -199,7 +205,8 @@ button,input{font:inherit}
   .access-section{grid-template-columns:1fr;min-height:auto}
   .access-visual{min-height:60vh}
   .access-content{padding:70px 20px 90px}
-  .access-content h2.float-title{font-size:11vw}
+  .access-content h2.float-title{font-size:10vw}
+  .light-facts div{grid-template-columns:1fr;gap:6px}
   .access-form .form-row{grid-template-columns:1fr}
   .footer{height:auto;padding:28px 20px;flex-direction:column;align-items:flex-start;gap:16px}
 }
