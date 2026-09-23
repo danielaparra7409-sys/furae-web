@@ -1,68 +1,87 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#14120f" />
-  <meta name="description" content="FLOAT — the first piece by FURÁE. A Colombian emerald suspended in light." />
+  <meta name="description" content="FLOAT, la primera pieza de FURÁE. Una esmeralda colombiana suspendida en luz." />
   <title>FLOAT — FURÁE</title>
+
+  <!-- Vista previa al compartir el link (WhatsApp, Instagram, Facebook).
+       OJO: og:image y og:url funcionan mejor con la URL completa del dominio
+       (ej. https://furae.co/assets/og-float.jpg). Cambiar cuando el dominio esté definido. -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="FURÁE" />
+  <meta property="og:title" content="FLOAT — FURÁE" />
+  <meta property="og:description" content="Una esmeralda colombiana suspendida en luz. Únete a la lista de acceso prioritario." />
+  <meta property="og:image" content="assets/og-float.jpg" />
+  <meta property="og:locale" content="es_CO" />
+  <meta name="twitter:card" content="summary_large_image" />
+
   <link rel="icon" href="assets/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Se añade el peso 300 (light) de Cormorant para el título FLOAT, más fino y elegante -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="site-header" id="siteHeader">
-    <a class="brand" href="#top" aria-label="FURÁE home">
+    <a class="brand" href="#top" aria-label="Inicio FURÁE">
       <img src="assets/wordmark_on_dark.png" alt="FURÁE" />
     </a>
-    <nav class="desktop-nav" aria-label="Main navigation">
+    <nav class="desktop-nav" aria-label="Navegación principal">
       <a href="#float">FLOAT</a>
-      <a href="#origin">ORIGIN</a>
-      <a href="#object">OBJECT</a>
-      <a href="#access">ACCESS</a>
+      <a href="#origin">ORIGEN</a>
+      <a href="#object">OBJETO</a>
+      <a href="#access">ACCESO</a>
     </nav>
-    <a class="header-cta" href="#access">Request access</a>
-    <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="mobileNav" aria-label="Open menu">
+    <a class="header-cta" href="#access">Solicitar acceso</a>
+    <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="mobileNav" aria-label="Abrir menú">
       <span></span><span></span>
     </button>
   </header>
 
-  <nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
+  <nav class="mobile-nav" id="mobileNav" aria-label="Navegación móvil">
     <a href="#float">FLOAT</a>
-    <a href="#origin">ORIGIN</a>
-    <a href="#object">OBJECT</a>
-    <a href="#access">ACCESS</a>
+    <a href="#origin">ORIGEN</a>
+    <a href="#object">OBJETO</a>
+    <a href="#access">ACCESO</a>
   </nav>
 
   <main id="top">
 
-    <!-- 1. HERO / TERRITORIO -->
+    <!-- 1. HERO / TERRITORIO
+         preload="metadata": solo descarga lo mínimo al inicio (antes "auto" bajaba el video completo) -->
     <section class="hero" id="hero">
-      <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/jungle_poster.jpg">
+      <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="assets/jungle_poster.jpg">
         <source src="assets/jungle.mp4" type="video/mp4" />
       </video>
       <div class="hero-scrim" aria-hidden="true"></div>
       <div class="hero-inner">
         <img class="hero-logo" src="assets/wordmark_on_dark.png" alt="FURÁE" />
-        <p class="hero-copy">From the earth.</p>
+        <p class="hero-copy">Desde la tierra.</p>
       </div>
       <div class="scroll-cue">
-        <span>Scroll to reveal</span>
+        <span>Desliza para descubrir</span>
         <div class="scroll-line"></div>
       </div>
     </section>
 
-    <!-- 2. REVEAL DE FLOAT -->
+    <!-- 2. REVEAL DE FLOAT: título arriba, foto nueva del anillo en haz de luz abajo -->
     <section class="reveal-section" id="float">
-      <div class="reveal-glow" aria-hidden="true"></div>
-      <img class="reveal-ring reveal" src="assets/anillo-float-front.jpg" alt="FLOAT ring, a Colombian emerald suspended in light" />
-      <div class="reveal-copy reveal delay1">
-        <p class="eyebrow">THE FIRST PIECE BY FURÁE</p>
-        <h1>FLOAT</h1>
-        <p class="hero-line">A Colombian emerald suspended in light.</p>
+      <div class="reveal-copy reveal">
+        <p class="eyebrow">LA PRIMERA PIEZA DE FURÁE</p>
+        <h1 class="float-title">FLOAT</h1>
+        <p class="hero-line">Una esmeralda colombiana suspendida en luz.</p>
       </div>
+      <!-- srcset: el navegador elige la versión liviana (1100px) en celular y la grande (2000px) en escritorio -->
+      <img class="reveal-ring reveal delay1"
+           src="assets/float-luz-2000.jpg"
+           srcset="assets/float-luz-1100.jpg 1100w, assets/float-luz-2000.jpg 2000w"
+           sizes="(max-width: 900px) 100vw, 80vw"
+           width="2000" height="1117"
+           alt="Anillo FLOAT: una esmeralda colombiana dentro de un volumen transparente, bajo un haz de luz" />
     </section>
 
     <!-- 3. QUÉ ES FLOAT -->
@@ -70,39 +89,40 @@
       <div class="section-index">01 / FLOAT</div>
       <div class="statement-grid">
         <div class="statement-visual reveal">
-          <img src="assets/anillo-float-34.jpg" alt="FLOAT ring, three-quarter view" loading="lazy" />
+          <img src="assets/anillo-float-34.jpg" alt="Anillo FLOAT en vista de tres cuartos" loading="lazy" />
         </div>
         <div class="statement-copy reveal delay1">
-          <h2>The stone doesn't sit<br>on the ring.<br><em>It exists inside it.</em></h2>
-          <p>A Colombian emerald, revealed inside a transparent optical volume. The stone is not hidden behind a traditional setting.</p>
-          <p class="statement-key">The design exists to reveal, not to conceal.</p>
+          <h2>La piedra no se posa<br>sobre el anillo.<br><em>Existe dentro de él.</em></h2>
+          <p>Una esmeralda colombiana revelada dentro de un volumen óptico transparente. La piedra no se esconde detrás de un engaste tradicional.</p>
+          <p class="statement-key">El diseño existe para revelar, no para ocultar.</p>
         </div>
       </div>
     </section>
 
     <!-- 4. LA ESMERALDA -->
     <section class="stone-section" id="stone">
-      <img class="stone-image" src="assets/anillo-float-macro.jpg" alt="Macro detail of the Colombian emerald inside FLOAT" loading="lazy" />
+      <img class="stone-image" src="assets/anillo-float-macro.jpg" alt="Detalle macro de la esmeralda colombiana dentro de FLOAT" loading="lazy" />
       <div class="stone-scrim" aria-hidden="true"></div>
       <div class="stone-copy reveal">
-        <p class="stone-lead">No two stones are the same.</p>
+        <p class="stone-lead">No hay dos piedras iguales.</p>
         <ul class="stone-facts">
-          <li>Colombian emerald</li>
-          <li>Natural stone</li>
-          <li>Individually selected</li>
-          <li>Unique inclusions and characteristics</li>
+          <li>Esmeralda colombiana</li>
+          <li>Piedra natural</li>
+          <li>Seleccionada una a una</li>
+          <li>Inclusiones y características únicas</li>
         </ul>
       </div>
     </section>
 
-    <!-- 5. COLOMBIA / GEOLOGÍA / TIEMPO -->
+    <!-- 5. COLOMBIA / GEOLOGÍA / TIEMPO
+         preload="none": este video no se descarga hasta que el usuario llega a la sección (ver script.js) -->
     <section class="origin-section section-pad" id="origin">
-      <video class="origin-video" autoplay muted loop playsinline preload="auto" poster="assets/jungle_poster.jpg">
+      <video class="origin-video lazy-video" muted loop playsinline preload="none" poster="assets/jungle_poster.jpg">
         <source src="assets/jungle.mp4" type="video/mp4" />
       </video>
       <div class="origin-scrim" aria-hidden="true"></div>
       <div class="origin-inner">
-        <div class="section-index section-index--light">02 / ORIGIN</div>
+        <div class="section-index section-index--light">02 / ORIGEN</div>
         <div class="fact-grid">
           <article class="fact reveal">
             <p class="fact-number">65M</p>
@@ -124,75 +144,71 @@
     <section class="light-section section-pad">
       <div class="light-grid">
         <div class="light-visual reveal">
-          <img src="assets/float-front.webp" alt="Light passing through the transparent body of FLOAT" loading="lazy" />
+          <img src="assets/float-front.webp" alt="La luz atravesando el cuerpo transparente de FLOAT" loading="lazy" />
         </div>
         <div class="light-copy reveal delay1">
-          <p class="light-kicker">Light is part of the object.</p>
-          <p>Light passes through the volume, changes how the stone is perceived, creates refractions, and reveals the emerald from angles a traditional setting would hide.</p>
+          <p class="light-kicker">La luz es parte del objeto.</p>
+          <p>La luz atraviesa el volumen, cambia cómo se percibe la piedra, crea refracciones y revela la esmeralda desde ángulos que un engaste tradicional escondería.</p>
         </div>
       </div>
     </section>
 
     <!-- 7. OBJETO / PRECISIÓN -->
-    <section class="sticky-story" aria-label="FLOAT details" id="object">
+    <section class="sticky-story" aria-label="Detalles de FLOAT" id="object">
       <div class="sticky-visual">
         <div class="visual-frame visual-frame--one is-visible">
-          <img src="assets/anillo-float-front.jpg" alt="FLOAT, front view" loading="lazy" />
+          <img src="assets/anillo-float-front.jpg" alt="FLOAT, vista frontal" loading="lazy" />
         </div>
         <div class="visual-frame visual-frame--two">
-          <img src="assets/anillo-float-side.jpg" alt="FLOAT, side view" loading="lazy" />
+          <img src="assets/anillo-float-side.jpg" alt="FLOAT, vista lateral" loading="lazy" />
         </div>
         <div class="visual-frame visual-frame--three">
-          <img src="assets/anillo-float-macro.jpg" alt="FLOAT, macro detail" loading="lazy" />
+          <img src="assets/anillo-float-macro.jpg" alt="FLOAT, detalle macro" loading="lazy" />
         </div>
       </div>
       <div class="story-steps">
-        <div class="section-index">03 / OBJECT</div>
+        <div class="section-index">03 / OBJETO</div>
         <article class="story-step is-active" data-visual="one">
-          <p class="eyebrow">01 — OPTICAL CLARITY</p>
-          <h3>A transparent volume of high visual clarity.</h3>
-          <p>Suspended. Transparent. Revealed.</p>
+          <p class="eyebrow">01 — CLARIDAD ÓPTICA</p>
+          <h3>Un volumen transparente de alta claridad visual.</h3>
+          <p>Suspendida. Transparente. Revelada.</p>
         </article>
         <article class="story-step" data-visual="two">
-          <p class="eyebrow">02 — COLOMBIAN EMERALD</p>
-          <h3>A natural Colombian emerald, individually selected.</h3>
-          <p>Light. Suspended. Revealed.</p>
+          <p class="eyebrow">02 — ESMERALDA COLOMBIANA</p>
+          <h3>Una esmeralda colombiana natural, seleccionada una a una.</h3>
+          <p>Luz. Suspensión. Revelación.</p>
         </article>
         <article class="story-step" data-visual="three">
-          <p class="eyebrow">03 — PRECISION</p>
-          <h3>Control of material, position, transparency and finish.</h3>
-          <p>This requires development, precision and control.</p>
+          <p class="eyebrow">03 — PRECISIÓN</p>
+          <h3>Control del material, la posición, la transparencia y el acabado.</h3>
+          <p>Esto exige desarrollo, precisión y control.</p>
         </article>
       </div>
     </section>
 
-    <!-- 8. FLOAT EN EL CUERPO -->
+    <!-- 8. FLOAT EN EL CUERPO (única foto de mano; se quitó la sección de la mano sobre el musgo)
+         La frase "De la tierra a la luz." ahora vive aquí -->
     <section class="body-section">
-      <img class="body-image" src="assets/hand-stream.jpg" alt="FLOAT worn on the hand, in a Colombian stream" loading="lazy" />
+      <img class="body-image" src="assets/hand-stream.jpg" alt="FLOAT puesto en la mano, en una quebrada colombiana" loading="lazy" />
       <div class="body-scrim" aria-hidden="true"></div>
+      <p class="body-copy reveal">De la tierra a la luz.</p>
     </section>
 
-    <!-- 9. FLOAT + NATURALEZA -->
-    <section class="nature-section">
-      <img class="nature-image" src="assets/ring-moss.jpg" alt="FLOAT resting on moss in the Colombian jungle" loading="lazy" />
-      <div class="nature-scrim" aria-hidden="true"></div>
-      <p class="nature-copy reveal">From earth to light.</p>
-    </section>
-
-    <!-- 10. WAITLIST / ACCESS -->
+    <!-- 9. WAITLIST / ACCESO -->
     <section class="access-section" id="access">
       <div class="access-visual">
-        <img src="assets/anillo-float-front.jpg" alt="FLOAT ring" loading="lazy" />
+        <img src="assets/anillo-float-front.jpg" alt="Anillo FLOAT" loading="lazy" />
       </div>
       <div class="access-content">
-        <p class="eyebrow">04 / ACCESS</p>
-        <h2>FLOAT 01</h2>
+        <p class="eyebrow">04 / ACCESO</p>
+        <h2 class="float-title">FLOAT 01</h2>
         <p class="access-lead">Acceso prioritario</p>
         <p>Cuéntanos qué te interesa y te avisamos apenas el anillo FLOAT quede validado, con precio y condiciones reales. No prometemos fecha ni stock todavía, solo que serás de las primeras personas en saberlo.</p>
 
         <form name="float-access" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="access-form" id="waitlistForm">
           <input type="hidden" name="form-name" value="float-access" />
-          <p class="hidden-field"><label>Don't fill this out: <input name="bot-field" /></label></p>
+          <!-- Honeypot anti-bots: invisible para personas; si llega lleno, es un bot -->
+          <p class="hidden-field"><label>No llenar: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
           <div class="form-row">
             <label>
               <span>Nombre</span>
@@ -200,9 +216,12 @@
             </label>
             <label>
               <span>Ciudad / país</span>
-              <input type="text" name="ciudad" autocomplete="country-name" placeholder="Bogotá, Colombia" required />
+              <input type="text" name="ciudad" autocomplete="address-level2" placeholder="Bogotá, Colombia" required />
             </label>
           </div>
+          <!-- Cada <select> empieza en "Elige una opción" (value vacío + required).
+               Antes venían con la primera opción ya marcada, y quien no tocaba el menú
+               quedaba registrado como "Redonda" / "Menos de 1.000.000 COP": eso sesgaba los datos de precio. -->
           <div class="form-row">
             <label>
               <span>Correo</span>
@@ -210,7 +229,8 @@
             </label>
             <label>
               <span>Producto de interés</span>
-              <select name="producto">
+              <select name="producto" required>
+                <option value="" disabled selected>Elige una opción</option>
                 <option>Anillo FLOAT</option>
                 <option>Collar FLOAT</option>
                 <option>Constellation</option>
@@ -221,16 +241,19 @@
           <div class="form-row">
             <label>
               <span>Forma de piedra</span>
-              <select name="forma">
+              <select name="forma" required>
+                <option value="" disabled selected>Elige una opción</option>
                 <option>Redonda</option>
                 <option>Ovalada</option>
                 <option>Cuadrada</option>
                 <option>Gota</option>
+                <option>Aún no lo sé</option>
               </select>
             </label>
             <label>
               <span>Rango de precio</span>
-              <select name="precio">
+              <select name="precio" required>
+                <option value="" disabled selected>Elige una opción</option>
                 <option>Menos de 1.000.000 COP</option>
                 <option>1.000.000 – 3.000.000 COP</option>
                 <option>3.000.000 – 6.000.000 COP</option>
@@ -241,17 +264,22 @@
           <div class="form-row">
             <label>
               <span>Intención</span>
-              <select name="intencion">
+              <select name="intencion" required>
+                <option value="" disabled selected>Elige una opción</option>
                 <option>Curiosidad</option>
                 <option>Compra propia</option>
                 <option>Regalo</option>
               </select>
             </label>
+            <!-- Autorización de datos: ahora SIN marcar por defecto y obligatoria.
+                 La Ley 1581 de 2012 (habeas data) pide consentimiento previo y expreso. -->
             <label class="checkbox-label">
-              <span class="checkbox-row"><input type="checkbox" name="autoriza" value="Sí" checked /> Autorizo a FURÁE a avisarme cuando haya diseños, precios y condiciones listos.</span>
+              <span class="checkbox-row"><input type="checkbox" name="autoriza" value="Sí" required /> Autorizo a FURÁE a usar mis datos para avisarme sobre FLOAT (Ley 1581 de 2012). Puedo pedir que los borren cuando quiera escribiendo a hello@furae.co.</span>
             </label>
           </div>
-          <button type="submit">Unirme a la lista <span>↗</span></button>
+          <button type="submit" id="waitlistSubmit">Unirme a la lista <span>↗</span></button>
+          <!-- Aquí se muestran errores de envío; aria-live hace que los lectores de pantalla lo anuncien -->
+          <p class="form-status" id="formStatus" aria-live="polite"></p>
         </form>
       </div>
     </section>
@@ -260,8 +288,8 @@
   <footer class="footer">
     <span>© FURÁE 2026</span>
     <div>
-      <a href="#">Instagram</a>
-      <a href="mailto:hello@furae.co">Contact</a>
+      <a href="https://www.instagram.com/furae.co/" target="_blank" rel="noopener">Instagram</a>
+      <a href="mailto:hello@furae.co">Contacto</a>
     </div>
   </footer>
 

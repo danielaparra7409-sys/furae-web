@@ -61,19 +61,25 @@ button,input{font:inherit}
 @keyframes scrollLine{50%,100%{transform:translateX(100%)}}
 
 /* 2. REVEAL FLOAT */
-.reveal-section{position:relative;min-height:100vh;background:var(--carbon-3);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14vh 6vw 10vh;overflow:hidden}
-.reveal-glow{position:absolute;left:50%;top:46%;width:60vw;height:60vw;max-width:780px;max-height:780px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(60,55,45,.55),rgba(20,18,15,0) 68%);pointer-events:none}
+.reveal-section{position:relative;min-height:100vh;background:#0b0a09;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16vh 0 8vh;overflow:hidden}
+/* Foto ancha del anillo. La máscara difumina los bordes para que se funda con el fondo oscuro */
 .reveal-ring{
-  position:relative;z-index:1;width:min(50vw,600px);
-  aspect-ratio:1/1;object-fit:cover;
-  -webkit-mask-image:radial-gradient(circle,#000 46%,rgba(0,0,0,.75) 58%,transparent 75%);
-  mask-image:radial-gradient(circle,#000 46%,rgba(0,0,0,.75) 58%,transparent 75%);
-  filter:brightness(.94) contrast(1.05);
+  position:relative;z-index:1;width:min(100%,1400px);height:auto;margin-top:4vh;
+  -webkit-mask-image:radial-gradient(ellipse closest-side at 50% 50%,#000 62%,transparent 100%);
+  mask-image:radial-gradient(ellipse closest-side at 50% 50%,#000 62%,transparent 100%);
 }
-.reveal-copy{position:relative;z-index:1;text-align:center;margin-top:56px}
+.reveal-copy{position:relative;z-index:2;text-align:center;padding:0 6vw}
 .reveal-copy .eyebrow{margin:0 0 14px;font-size:10px;letter-spacing:.22em;color:var(--cream-2)}
-.reveal-copy h1{font-size:clamp(70px,12vw,150px);font-weight:400;letter-spacing:.02em;line-height:.85;margin:0;font-family:"Cormorant Garamond",serif}
-.hero-line{font-family:"Cormorant Garamond",serif;font-size:clamp(20px,2vw,30px);margin:26px 0 0;color:var(--cream-2)}
+.hero-line{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:clamp(18px,1.7vw,24px);margin:18px 0 0;color:var(--cream-2)}
+
+/* Título FLOAT: más pequeño, peso light (300) y letras espaciadas, estilo joyería editorial.
+   Se usa igual en el reveal y en "FLOAT 01" del formulario para que la marca sea consistente. */
+.float-title{
+  font-family:"Cormorant Garamond",serif;font-weight:300;
+  font-size:clamp(46px,6vw,88px);letter-spacing:.22em;
+  margin:0;line-height:1;
+  padding-left:.22em; /* compensa el espacio extra que letter-spacing deja al final y lo mantiene centrado */
+}
 
 /* shared section spacing */
 .section-pad{padding:120px 6vw}
@@ -119,13 +125,13 @@ button,input{font:inherit}
 .light-copy p:not(.light-kicker){font-size:14px;line-height:1.8;color:rgba(27,23,18,.75);max-width:420px}
 
 /* 7. STICKY OBJECT */
-.sticky-story{position:relative;display:grid;grid-template-columns:55% 45%;min-height:300vh;background:var(--carbon)}
+.sticky-story{position:relative;display:grid;grid-template-columns:55% 45%;background:var(--carbon)}
 .sticky-visual{position:sticky;top:0;height:100vh;overflow:hidden;background:#0d0c0a}
 .visual-frame{position:absolute;inset:0;opacity:0;transition:opacity .65s ease}
 .visual-frame.is-visible{opacity:1}
 .visual-frame img{width:100%;height:100%;object-fit:cover}
 .story-steps{padding:0 6vw}
-.story-steps .section-index{padding-top:14vh}
+.story-steps .section-index{padding-top:14vh;margin-bottom:0}
 .story-step{min-height:86vh;display:flex;flex-direction:column;justify-content:center;opacity:.28;transition:opacity .45s ease}
 .story-step.is-active{opacity:1}
 .story-step .eyebrow{font-size:10px;letter-spacing:.16em;margin-bottom:22px;color:rgba(243,234,217,.6)}
@@ -133,15 +139,11 @@ button,input{font:inherit}
 .story-step p:last-child{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:rgba(243,234,217,.55)}
 
 /* 8. BODY */
-.body-section{position:relative;min-height:100vh;overflow:hidden}
+.body-section{position:relative;min-height:100vh;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
 .body-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.body-scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,7,6,.25) 0%,transparent 20%,transparent 80%,rgba(8,7,6,.35) 100%)}
+.body-scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,7,6,.25) 0%,transparent 20%,transparent 62%,rgba(8,7,6,.75) 100%)}
+.body-copy{position:relative;z-index:1;margin:0 0 9vh;font-family:"Cormorant Garamond",serif;font-style:italic;font-size:clamp(24px,3vw,38px);color:var(--cream)}
 
-/* 9. NATURE */
-.nature-section{position:relative;min-height:100vh;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
-.nature-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.nature-scrim{position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,6,5,.75) 0%,transparent 30%)}
-.nature-copy{position:relative;z-index:1;margin:0 0 9vh;font-family:"Cormorant Garamond",serif;font-style:italic;font-size:clamp(24px,3vw,38px);color:var(--cream)}
 
 /* 10. ACCESS */
 .access-section{display:grid;grid-template-columns:1.08fr .92fr;min-height:100vh;background:var(--carbon-3);color:var(--cream)}
@@ -149,7 +151,7 @@ button,input{font:inherit}
 .access-visual img{width:100%;height:100%;object-fit:cover;filter:saturate(.82) brightness(.78)}
 .access-content{padding:11vh 8vw;display:flex;flex-direction:column;justify-content:center}
 .access-content .eyebrow{font-size:10px;letter-spacing:.16em;color:rgba(243,234,217,.6)}
-.access-content h2{font-size:clamp(60px,7vw,110px);font-weight:400;letter-spacing:.01em;line-height:.9;margin:50px 0 24px;font-family:"Cormorant Garamond",serif}
+.access-content h2.float-title{font-size:clamp(38px,4.2vw,62px);letter-spacing:.18em;padding-left:0;margin:40px 0 20px;white-space:nowrap}
 .access-lead{font-family:"Cormorant Garamond",serif;font-size:32px;margin:0 0 6px}
 .access-content>p:not(.eyebrow):not(.access-lead){font-size:13px;color:rgba(243,234,217,.65);max-width:430px;line-height:1.65}
 .access-form{margin-top:44px;max-width:620px}
@@ -159,6 +161,11 @@ button,input{font:inherit}
 .access-form input[type="text"],.access-form input[type="email"]{background:transparent;border:0;color:var(--cream);outline:none;padding:2px 0;font-size:14px}
 .access-form select{background:transparent;border:0;color:var(--cream);outline:none;padding:2px 0;font-size:14px;-webkit-appearance:none;appearance:none;font-family:Inter,sans-serif}
 .access-form select option{color:var(--ink)}
+.access-form select:invalid{color:rgba(243,234,217,.45)} /* "Elige una opción" se ve gris como un placeholder */
+.access-form select{cursor:pointer}
+.access-form label:focus-within{border-bottom-color:var(--gold)} /* línea dorada en el campo activo */
+.form-status{font-size:12px;line-height:1.6;color:#e7b98a;margin:14px 0 0;min-height:1em}
+.access-form button:disabled{opacity:.6;cursor:wait;transform:none}
 .access-form .checkbox-label{border-bottom:0;justify-content:center}
 .access-form .checkbox-row{display:flex;align-items:flex-start;gap:10px;font-size:11px;line-height:1.5;color:rgba(243,234,217,.7);text-transform:none;letter-spacing:.02em}
 .access-form .checkbox-row input{margin-top:3px;accent-color:var(--gold)}
@@ -177,8 +184,9 @@ button,input{font:inherit}
   .mobile-nav{display:flex;position:fixed;z-index:99;top:64px;right:0;left:0;background:var(--carbon-2);padding:26px 20px 34px;flex-direction:column;gap:22px;font-size:12px;letter-spacing:.14em;transform:translateY(-130%);transition:transform .35s ease;border-bottom:1px solid var(--line-dark)}
   .mobile-nav.is-open{transform:translateY(0)}
   .hero-logo{width:70vw}
-  .reveal-ring{width:80vw}
-  .reveal-copy h1{font-size:22vw}
+  .reveal-section{min-height:auto;padding:110px 0 40px}
+  .reveal-ring{width:140%;max-width:none}
+  .float-title{font-size:15vw;letter-spacing:.18em;padding-left:.18em}
   .section-pad{padding:80px 20px}
   .statement-grid{grid-template-columns:1fr;gap:36px}
   .fact-grid{grid-template-columns:1fr;gap:36px}
@@ -191,6 +199,7 @@ button,input{font:inherit}
   .access-section{grid-template-columns:1fr;min-height:auto}
   .access-visual{min-height:60vh}
   .access-content{padding:70px 20px 90px}
+  .access-content h2.float-title{font-size:11vw}
   .access-form .form-row{grid-template-columns:1fr}
   .footer{height:auto;padding:28px 20px;flex-direction:column;align-items:flex-start;gap:16px}
 }
