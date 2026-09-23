@@ -32,8 +32,8 @@
     </a>
     <nav class="desktop-nav" aria-label="Navegación principal">
       <a href="#float">FLOAT</a>
-      <a href="#origin">ORIGEN</a>
       <a href="#object">OBJETO</a>
+      <a href="#origin">ORIGEN</a>
       <a href="#access">ACCESO</a>
     </nav>
     <a class="header-cta" href="#access">Solicitar acceso</a>
@@ -44,18 +44,21 @@
 
   <nav class="mobile-nav" id="mobileNav" aria-label="Navegación móvil">
     <a href="#float">FLOAT</a>
-    <a href="#origin">ORIGEN</a>
     <a href="#object">OBJETO</a>
+    <a href="#origin">ORIGEN</a>
     <a href="#access">ACCESO</a>
   </nav>
 
   <main id="top">
 
-    <!-- 1. HERO / TERRITORIO
-         preload="metadata": solo descarga lo mínimo al inicio (antes "auto" bajaba el video completo) -->
+    <!-- 1. HERO / TERRITORIO: video propio de FURÁE (original 4K de 75 MB, convertido a 1080p y 720p para web)
+         preload="metadata": solo descarga lo mínimo al inicio.
+         <source media="...">: en pantallas de hasta 900px (celular) el navegador toma la versión de 720p (~3 MB);
+         si no aplica, usa la de 1080p (~6,5 MB). El video no tiene audio porque en la web siempre va silenciado. -->
     <section class="hero" id="hero">
-      <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="assets/jungle_poster.jpg">
-        <source src="assets/jungle.mp4" type="video/mp4" />
+      <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="assets/hero-furae-poster.jpg">
+        <source src="assets/hero-furae-720.mp4" type="video/mp4" media="(max-width: 900px)" />
+        <source src="assets/hero-furae-1080.mp4" type="video/mp4" />
       </video>
       <div class="hero-scrim" aria-hidden="true"></div>
       <div class="hero-inner">
@@ -84,18 +87,47 @@
            alt="Anillo FLOAT: una esmeralda colombiana dentro de un volumen transparente, bajo un haz de luz" />
     </section>
 
-    <!-- 3. QUÉ ES FLOAT -->
-    <section class="statement-section section-pad" id="que-es-float">
-      <div class="section-index">01 / FLOAT</div>
-      <div class="statement-grid">
-        <div class="statement-visual reveal">
-          <img src="assets/anillo-float-34.jpg" alt="Anillo FLOAT en vista de tres cuartos" loading="lazy" />
+    <!-- 3. OBJETO: "La piedra no se posa..." + los 3 pasos, en una sola sección con la foto fija (sticky).
+         Antes eran dos secciones separadas; ahora el texto de presentación es el primer paso
+         y la foto de tres cuartos es la primera imagen. -->
+    <section class="sticky-story" aria-label="Detalles de FLOAT" id="object">
+      <div class="sticky-visual">
+        <div class="visual-frame visual-frame--zero is-visible">
+          <img src="assets/anillo-float-34.jpg" alt="Anillo FLOAT en vista de tres cuartos" />
         </div>
-        <div class="statement-copy reveal delay1">
+        <div class="visual-frame visual-frame--one">
+          <img src="assets/anillo-float-front.jpg" alt="FLOAT, vista frontal" loading="lazy" />
+        </div>
+        <div class="visual-frame visual-frame--two">
+          <img src="assets/anillo-float-side.jpg" alt="FLOAT, vista lateral" loading="lazy" />
+        </div>
+        <div class="visual-frame visual-frame--three">
+          <img src="assets/float-luz-1100.jpg" alt="FLOAT bajo un haz de luz" loading="lazy" />
+        </div>
+      </div>
+      <div class="story-steps">
+        <div class="section-index">01 / OBJETO</div>
+        <!-- Paso de presentación (antes era la sección "01 / FLOAT") -->
+        <article class="story-step story-step--intro is-active" data-visual="zero">
           <h2>La piedra no se posa<br>sobre el anillo.<br><em>Existe dentro de él.</em></h2>
-          <p>Una esmeralda colombiana revelada dentro de un volumen óptico transparente. La piedra no se esconde detrás de un engaste tradicional.</p>
+          <p class="story-body">Una esmeralda colombiana revelada dentro de un volumen óptico transparente. La piedra no se esconde detrás de un engaste tradicional.</p>
           <p class="statement-key">El diseño existe para revelar, no para ocultar.</p>
-        </div>
+        </article>
+        <article class="story-step" data-visual="one">
+          <p class="eyebrow">01 — CLARIDAD ÓPTICA</p>
+          <h3>Un volumen transparente de alta claridad visual.</h3>
+          <p>Suspendida. Transparente. Revelada.</p>
+        </article>
+        <article class="story-step" data-visual="two">
+          <p class="eyebrow">02 — ESMERALDA COLOMBIANA</p>
+          <h3>Una esmeralda colombiana natural, seleccionada una a una.</h3>
+          <p>Luz. Suspensión. Revelación.</p>
+        </article>
+        <article class="story-step" data-visual="three">
+          <p class="eyebrow">03 — PRECISIÓN</p>
+          <h3>Control del material, la posición, la transparencia y el acabado.</h3>
+          <p>Esto exige desarrollo, precisión y control.</p>
+        </article>
       </div>
     </section>
 
@@ -169,39 +201,6 @@
       </div>
     </section>
 
-    <!-- 7. OBJETO / PRECISIÓN -->
-    <section class="sticky-story" aria-label="Detalles de FLOAT" id="object">
-      <div class="sticky-visual">
-        <div class="visual-frame visual-frame--one is-visible">
-          <img src="assets/anillo-float-front.jpg" alt="FLOAT, vista frontal" loading="lazy" />
-        </div>
-        <div class="visual-frame visual-frame--two">
-          <img src="assets/anillo-float-side.jpg" alt="FLOAT, vista lateral" loading="lazy" />
-        </div>
-        <div class="visual-frame visual-frame--three">
-          <img src="assets/anillo-float-macro.jpg" alt="FLOAT, detalle macro" loading="lazy" />
-        </div>
-      </div>
-      <div class="story-steps">
-        <div class="section-index">03 / OBJETO</div>
-        <article class="story-step is-active" data-visual="one">
-          <p class="eyebrow">01 — CLARIDAD ÓPTICA</p>
-          <h3>Un volumen transparente de alta claridad visual.</h3>
-          <p>Suspendida. Transparente. Revelada.</p>
-        </article>
-        <article class="story-step" data-visual="two">
-          <p class="eyebrow">02 — ESMERALDA COLOMBIANA</p>
-          <h3>Una esmeralda colombiana natural, seleccionada una a una.</h3>
-          <p>Luz. Suspensión. Revelación.</p>
-        </article>
-        <article class="story-step" data-visual="three">
-          <p class="eyebrow">03 — PRECISIÓN</p>
-          <h3>Control del material, la posición, la transparencia y el acabado.</h3>
-          <p>Esto exige desarrollo, precisión y control.</p>
-        </article>
-      </div>
-    </section>
-
     <!-- 8. FLOAT EN EL CUERPO (única foto de mano; se quitó la sección de la mano sobre el musgo)
          La frase "De la tierra a la luz." ahora vive aquí -->
     <section class="body-section">
@@ -216,7 +215,7 @@
         <img src="assets/anillo-float-front.jpg" alt="Anillo FLOAT" loading="lazy" />
       </div>
       <div class="access-content">
-        <p class="eyebrow">04 / ACCESO</p>
+        <p class="eyebrow">03 / ACCESO</p>
         <h2 class="float-title">FLOAT 01</h2>
         <p class="access-lead">Acceso prioritario</p>
         <p>Cuéntanos qué te interesa y te avisamos apenas el anillo FLOAT quede validado, con precio y condiciones reales. No prometemos fecha ni stock todavía, solo que serás de las primeras personas en saberlo.</p>

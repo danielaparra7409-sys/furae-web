@@ -72,6 +72,15 @@ if (prefersReducedMotion) {
   document.querySelectorAll('video').forEach(v => { v.removeAttribute('autoplay'); v.pause(); });
 }
 
+// Video del inicio: en celular usamos la versión de 720p (~3 MB) en vez de la de 1080p (~6,5 MB).
+// El HTML ya lo pide con <source media>, pero algunos navegadores ignoran ese atributo;
+// esto lo asegura: si estamos en pantalla pequeña y cargó la de 1080p, la cambiamos.
+const heroVideo = document.querySelector('.hero-video');
+if (heroVideo && window.matchMedia('(max-width: 900px)').matches && !heroVideo.currentSrc.includes('720')) {
+  heroVideo.src = 'assets/hero-furae-720.mp4';
+  if (!prefersReducedMotion) heroVideo.play().catch(() => {});
+}
+
 // Los videos con .lazy-video (ORIGEN) solo se descargan y reproducen cuando
 // están en pantalla, y se pausan al salir. Así el celular no baja el video
 // dos veces al abrir la página.
