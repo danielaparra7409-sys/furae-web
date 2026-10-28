@@ -97,7 +97,68 @@ if (lazyVideos.length && !prefersReducedMotion) {
 }
 
 // ─────────────────────────────────────────────
-// 6. Formulario de la lista de espera
+// 6. Experimento de precio de FLOAT
+// Cada visitante ve UNO de estos tres precios (COP, IVA y envío incluidos), elegido al azar.
+// Con las respuestas de los tres grupos se arma la curva: % que diría "sí" a cada precio.
+// Para cambiar los precios, se cambia SOLO esta lista (y se avisa en el análisis desde qué fecha).
+// ─────────────────────────────────────────────
+const PRECIOS_PRUEBA = [1360000, 1684000, 2040000];
+const CLAVE_PRECIO = 'floatPrecioPrueba'; // nombre con el que se guarda en el navegador
+
+// Si la persona recarga o vuelve otro día, ve el MISMO precio. Si le tocara otro,
+// podría comparar y la respuesta ya no sería solo sobre el precio que vio.
+let precioAsignado = null;
+try { precioAsignado = Number(localStorage.getItem(CLAVE_PRECIO)); } catch (e) { /* navegador sin almacenamiento: seguimos */ }
+
+// .includes() descarta valores viejos (p. ej. de la lista anterior de 4 precios) o vacíos:
+// en ese caso se sortea de nuevo entre los tres precios vigentes, con la misma probabilidad (1/3).
+if (!PRECIOS_PRUEBA.includes(precioAsignado)) {
+  precioAsignado = PRECIOS_PRUEBA[Math.floor(Math.random() * PRECIOS_PRUEBA.length)];
+  try { localStorage.setItem(CLAVE_PRECIO, String(precioAsignado)); } catch (e) {}
+}
+
+// Formato colombiano: 1684000 → "$1.684.000"
+const formatoCOP = (n) => '$' + n.toLocaleString('es-CO');
+
+// Mostramos el precio en la tarjeta y en la pregunta, y lo guardamos en el campo oculto
+// (sin precio_mostrado, la respuesta no se puede analizar).
+const priceCard = document.getElementById('priceCard');
+const precioTexto = document.getElementById('precioTexto');
+const precioPregunta = document.getElementById('precioPregunta');
+const precioMostrado = document.getElementById('precioMostrado');
+if (precioTexto) precioTexto.textContent = formatoCOP(precioAsignado);
+if (precioPregunta) precioPregunta.textContent = '¿Comprarías FLOAT a ' + formatoCOP(precioAsignado) + ' en la preventa?';
+if (precioMostrado) precioMostrado.value = String(precioAsignado);
+if (priceCard) priceCard.hidden = false; // la tarjeta empieza oculta para que nadie vea un precio vacío
+
+// Origen de la visita: ?o=pauta, ?o=historia, ?utm_source=instagram... en el enlace.
+// Si no viene en el enlace, usamos el sitio desde el que llegó; si no hay nada, "directo".
+// Sirve para separar en el análisis a la gente de la pauta de los conocidos (que suelen decir más "sí").
+const origenEl = document.getElementById('origen');
+if (origenEl) {
+  const params = new URLSearchParams(window.location.search);
+  let origen = params.get('o') || params.get('utm_source') || '';
+  if (!origen && document.referrer) {
+    try {
+      const host = new URL(document.referrer).hostname;
+      if (host !== window.location.hostname) origen = host; // ignoramos clics dentro de la misma página
+    } catch (e) {}
+  }
+  origenEl.value = (origen || 'directo').toLowerCase().slice(0, 40);
+}
+
+// Precio "demasiado caro": mientras escriben, dejamos solo números y los mostramos con puntos de mil.
+// Al guardar, Apps Script recibe el texto "1.800.000"; en el análisis se le quitan los puntos.
+const precioCaro = document.getElementById('precioCaro');
+if (precioCaro) {
+  precioCaro.addEventListener('input', () => {
+    const digitos = precioCaro.value.replace(/\D/g, '').slice(0, 9); // \D = todo lo que no sea número
+    precioCaro.value = digitos ? formatoCOP(Number(digitos)) : '';
+  });
+}
+
+// ─────────────────────────────────────────────
+// 7. Formulario de la lista de espera
 // Envía a Netlify Forms (respaldo nativo) y en paralelo a Google Sheets
 // vía Apps Script, para que ambos queden con el registro.
 // ─────────────────────────────────────────────
@@ -135,7 +196,9 @@ if (waitlistForm) {
 
       // 2) Google Sheets vía Apps Script. mode 'no-cors': Google no deja leer la
       //    respuesta, así que solo sabemos si falló la conexión, no si guardó.
-      fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData })
+      fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(formData) })
+      // URLSearchParams = formato "campo=valor&...", el formato más simple para que Apps Script
+      // reciba cada campo en e.parameter (es el que pide el doPost actualizado).
     ]);
 
     // Si al menos uno de los dos llegó bien, damos las gracias.
@@ -145,7 +208,7 @@ if (waitlistForm) {
     } else {
       submitBtn.disabled = false;
       submitBtn.firstChild.textContent = 'Unirme a la lista ';
-      formStatus.textContent = 'No pudimos enviar tus datos. Revisa tu conexión e inténtalo de nuevo, o escríbenos a hello@furae.co.';
+      formStatus.textContent = 'No pudimos enviar tus datos. Revisa tu conexión e inténtalo de nuevo, o escríbenos a furae.co@gmail.com.';
     }
   });
 }

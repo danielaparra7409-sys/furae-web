@@ -222,12 +222,50 @@
         <p class="eyebrow">ACCESO</p>
         <h2 class="float-title">FLOAT 01</h2>
         <p class="access-lead">Acceso prioritario</p>
-        <p>Cuéntanos qué te interesa y te avisamos apenas el anillo FLOAT quede validado, con precio y condiciones reales. No prometemos fecha ni stock todavía, solo que serás de las primeras personas en saberlo.</p>
+        <p>Cuéntanos si te interesa y te avisamos apenas FLOAT quede validado, con las condiciones finales. No prometemos fecha ni stock todavía, solo que serás de las primeras personas en saberlo.</p>
+
+        <!-- EXPERIMENTO DE PRECIO
+             Cada visitante ve UNO de tres precios, elegido al azar por script.js (data-precio).
+             Así, si un grupo responde distinto, la diferencia se debe al precio y no a quién llegó.
+             Nadie ve dos precios a la vez (Ley 1480: si se anuncian dos precios, se paga el menor). -->
+        <div class="price-card" id="priceCard" hidden>
+          <p class="price-card__label">Precio estimado de FLOAT</p>
+          <p class="price-card__value"><span id="precioTexto"></span> <small>COP</small></p>
+          <p class="price-card__meta">IVA y envío incluidos · Esmeralda natural colombiana de ~0,3 ct, talla esmeralda, suspendida en un volumen transparente.</p>
+          <p class="price-card__note">Esto es un estudio de interés: no es una venta y no se cobra nada. Antes de la preventa te confirmamos precio y condiciones.</p>
+        </div>
 
         <form name="float-access" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="access-form" id="waitlistForm">
           <input type="hidden" name="form-name" value="float-access" />
           <!-- Honeypot anti-bots: invisible para personas; si llega lleno, es un bot -->
           <p class="hidden-field"><label>No llenar: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
+          <!-- Campos ocultos que llena script.js. Tienen que estar en el HTML para que Netlify Forms los guarde.
+               producto: esta fase solo valida FLOAT · precio_mostrado: el precio que vio la persona
+               origen: de dónde llegó (?o=pauta, ?o=historia, ?utm_source=..., o el sitio que lo enlazó) -->
+          <input type="hidden" name="producto" value="Anillo FLOAT" />
+          <input type="hidden" name="precio_mostrado" id="precioMostrado" value="" />
+          <input type="hidden" name="origen" id="origen" value="" />
+
+          <!-- La pregunta principal del experimento va primero: es la que no puede faltar -->
+          <div class="form-row form-row--single">
+            <label>
+              <span id="precioPregunta">¿Comprarías FLOAT a este precio en la preventa?</span>
+              <select name="compraria" id="compraria" required>
+                <option value="" disabled selected>Elige una opción</option>
+                <option>Sí, en la preventa</option>
+                <option>Tal vez</option>
+                <option>No</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-row form-row--single">
+            <label>
+              <!-- Precio "demasiado caro": da una segunda señal de precio, independiente del precio asignado.
+                   Es opcional para no bajar las respuestas. inputmode="numeric" abre el teclado de números en el celular. -->
+              <span>¿Desde qué precio FLOAT te parecería demasiado caro? (opcional)</span>
+              <input type="text" name="precio_caro" id="precioCaro" inputmode="numeric" autocomplete="off" placeholder="$ 0" />
+            </label>
+          </div>
           <div class="form-row">
             <label>
               <span>Nombre</span>
@@ -238,64 +276,25 @@
               <input type="text" name="ciudad" autocomplete="address-level2" placeholder="Bogotá, Colombia" required />
             </label>
           </div>
-          <!-- Cada <select> empieza en "Elige una opción" (value vacío + required).
-               Antes venían con la primera opción ya marcada, y quien no tocaba el menú
-               quedaba registrado como "Redonda" / "Menos de 1.000.000 COP": eso sesgaba los datos de precio. -->
           <div class="form-row">
             <label>
               <span>Correo</span>
               <input type="email" name="correo" autocomplete="email" placeholder="tucorreo@ejemplo.com" required />
             </label>
             <label>
-              <span>Producto de interés</span>
-              <select name="producto" required>
-                <option value="" disabled selected>Elige una opción</option>
-                <option>Anillo FLOAT</option>
-                <option>Collar FLOAT</option>
-                <option>Constellation</option>
-                <option>Aún no lo sé</option>
-              </select>
-            </label>
-          </div>
-          <div class="form-row">
-            <label>
-              <span>Forma de piedra</span>
-              <select name="forma" required>
-                <option value="" disabled selected>Elige una opción</option>
-                <option>Redonda</option>
-                <option>Ovalada</option>
-                <option>Cuadrada</option>
-                <option>Gota</option>
-                <option>Aún no lo sé</option>
-              </select>
-            </label>
-            <label>
-              <span>Rango de precio</span>
-              <select name="precio" required>
-                <option value="" disabled selected>Elige una opción</option>
-                <option>Menos de 1.000.000 COP</option>
-                <option>1.000.000 – 3.000.000 COP</option>
-                <option>3.000.000 – 6.000.000 COP</option>
-                <option>Más de 6.000.000 COP</option>
-              </select>
-            </label>
-          </div>
-          <div class="form-row">
-            <label>
-              <span>Intención</span>
+              <span>¿Para quién sería?</span>
               <select name="intencion" required>
                 <option value="" disabled selected>Elige una opción</option>
-                <option>Curiosidad</option>
-                <option>Compra propia</option>
-                <option>Regalo</option>
+                <option>Para mí</option>
+                <option>Para regalar</option>
+                <option>Solo tengo curiosidad</option>
               </select>
             </label>
-            <!-- Autorización de datos: ahora SIN marcar por defecto y obligatoria.
-                 La Ley 1581 de 2012 (habeas data) pide consentimiento previo y expreso. -->
-            <label class="checkbox-label">
-              <span class="checkbox-row"><input type="checkbox" name="autoriza" value="Sí" required /> Autorizo a FURÁE a usar mis datos para avisarme sobre FLOAT (Ley 1581 de 2012). Puedo pedir que los borren cuando quiera escribiendo a hello@furae.co.</span>
-            </label>
           </div>
+          <!-- Autorización de datos: sin marcar por defecto y obligatoria (Ley 1581 de 2012: consentimiento previo y expreso) -->
+          <label class="checkbox-label consent-label">
+            <span class="checkbox-row"><input type="checkbox" name="autoriza" value="Sí" required /> <span>Autorizo el tratamiento de mis datos según la <a href="privacidad.html" target="_blank" rel="noopener">política de tratamiento de datos</a>: FURÁE los usará para avisarme sobre FLOAT y, de forma agregada, para decisiones de producto y precio.</span></span>
+          </label>
           <button type="submit" id="waitlistSubmit">Unirme a la lista <span>↗</span></button>
           <!-- Aquí se muestran errores de envío; aria-live hace que los lectores de pantalla lo anuncien -->
           <p class="form-status" id="formStatus" aria-live="polite"></p>
@@ -308,7 +307,8 @@
     <span>© FURÁE 2026</span>
     <div>
       <a href="https://www.instagram.com/furae.co/" target="_blank" rel="noopener">Instagram</a>
-      <a href="mailto:hello@furae.co">Contacto</a>
+      <a href="privacidad.html">Privacidad</a>
+      <a href="mailto:furae.co@gmail.com">Contacto</a>
     </div>
   </footer>
 
