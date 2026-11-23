@@ -110,6 +110,12 @@ const WHATSAPP_NUMERO = '573124539112';            // ej. '573001234567' (57 + c
 const PASARELA_LINK = '';              // link de pago del apartado (Wompi / Bold / Mercado Pago). Vacío = se confirma por chat.
 const PEDIDOS_URL = '';                // (opcional) URL de Google Apps Script para guardar cada pedido en la hoja
 
+// ★ CUPÓN ★ precio fijo con el cupón. Vale para anillos YA HECHOS siempre y para pedidos sobre medida confirmados hasta "hasta".
+const CUPON = { codigo: 'FURAVIDAD', precio: 1083000, hasta: '2026-12-01', hastaTexto: '1 de diciembre' };
+// ★ ANILLOS YA HECHOS ★ (entrega desde 5 días hábiles). Uno por esmeralda y talla fija, por ejemplo: [{ gem: '01', talla: '6' }].
+// Vacío = no se muestra la opción "Ya hecho".
+const LISTOS = [];
+
 // ★ ESMERALDAS ★ Para agregar una: copia un bloque, cambia foto y textos.
 // ct / alto / ancho / profundidad en null = se usan los datos base de abajo. OJO: los textos y nombres son un BORRADOR,
 // deben ajustarse a cada piedra real (color, inclusiones, quilates y medidas reales).
@@ -135,11 +141,75 @@ const GEMS = [
 
 // Formato colombiano: 1240000 → "$1.240.000"
 const formatoCOP = (n) => '$' + n.toLocaleString('es-CO');
-const apartado = Math.round(PRECIO_FLOAT * PORCENTAJE_APARTADO);
+// ── Estado de la compra: modo (sobre pedido / ya hecho) y cupón ──
+const estado = { modo: 'pedido', cupon: '' };
+const listoDe = (id) => LISTOS.find((l) => l.gem === id);
+const cuponVale = () => estado.cupon === CUPON.codigo && (estado.modo === 'listo' || new Date() <= new Date(CUPON.hasta + 'T23:59:59'));
+const precioFinal = () => (cuponVale() ? CUPON.precio : PRECIO_FLOAT);
+const apartadoDe = () => Math.round(precioFinal() * PORCENTAJE_APARTADO);
 const precioTexto = document.getElementById('precioTexto');
+const precioViejo = document.getElementById('precioViejo');
 const apartadoTexto = document.getElementById('apartadoTexto');
-if (precioTexto) precioTexto.textContent = formatoCOP(PRECIO_FLOAT);
-if (apartadoTexto) apartadoTexto.textContent = formatoCOP(apartado);
+const modeBox = document.getElementById('mode');
+const modeBtns = modeBox ? [...modeBox.querySelectorAll('.mode__btn')] : [];
+const modeListoBtn = document.getElementById('modeListo');
+const dlvTitle = document.getElementById('dlvTitle');
+const dlvText = document.getElementById('dlvText');
+const dlvSteps = document.getElementById('dlvSteps');
+const stageReady = document.getElementById('stageReady');
+const couponInput = document.getElementById('coupon');
+const couponBtn = document.getElementById('couponBtn');
+const couponMsg = document.getElementById('couponMsg');
+
+// El precio aparece de una vez (sin cuenta regresiva) y se actualiza con el cupón
+function pintarPrecio() {
+  if (precioTexto) precioTexto.textContent = formatoCOP(precioFinal());
+  if (precioViejo) { precioViejo.hidden = !cuponVale(); precioViejo.textContent = formatoCOP(PRECIO_FLOAT); }
+  if (apartadoTexto) apartadoTexto.textContent = formatoCOP(apartadoDe());
+  const bt = document.getElementById('buyBtnText');
+  if (bt && PASARELA_LINK) bt.textContent = 'Apartar con ' + formatoCOP(apartadoDe());
+}
+function mensajeCupon() {
+  if (!couponMsg) return;
+  if (!estado.cupon) { couponMsg.textContent = ''; return; }
+  if (estado.cupon !== CUPON.codigo) { couponMsg.textContent = 'Ese cupón no es válido. Revisa que esté bien escrito.'; return; }
+  couponMsg.textContent = cuponVale()
+    ? '✦ ' + CUPON.codigo + ' aplicado: tu precio es ' + formatoCOP(CUPON.precio) + '.'
+    : 'El cupón ' + CUPON.codigo + ' aplica a pedidos confirmados hasta el ' + CUPON.hastaTexto + ' o a anillos ya hechos.';
+}
+// Pinta el modo elegido: textos de entrega, talla fija si es "ya hecho", insignia y precio
+function modoPintar() {
+  const listo = estado.modo === 'listo';
+  const l = listoDe(gemElegida.id);
+  modeBtns.forEach((b) => { const on = b.dataset.mode === estado.modo; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
+  if (dlvTitle) dlvTitle.innerHTML = listo
+    ? 'Ya está hecho · sale en <strong>5 días hábiles</strong>'
+    : 'Hecho sobre pedido · llega en aprox. <strong>10 días hábiles</strong>';
+  if (dlvText) dlvText.textContent = listo
+    ? 'Este anillo ya está terminado y pulido. Lo revisamos, lo empacamos y lo enviamos asegurado: sale en 5 días hábiles, más lo que tarde la transportadora a tu ciudad.'
+    : 'Cada FLOAT se fabrica después de tu pedido. Es un proceso real y por eso toma tiempo; vale la pena saberlo antes de comprar, sobre todo si es un regalo para Navidad.';
+  if (dlvSteps) dlvSteps.hidden = listo;
+  const xm = document.getElementById('xmasMsg'); if (xm) xm.style.display = listo ? 'none' : '';
+  if (stageReady) stageReady.hidden = !(listo && l);
+  const ts = document.getElementById('talla');
+  if (ts) { if (listo && l) { ts.value = 'US ' + l.talla; ts.disabled = true; } else ts.disabled = false; }
+  pintarPrecio(); mensajeCupon();
+}
+// Se llama cada vez que cambia la esmeralda
+function refrescarModo() {
+  const l = listoDe(gemElegida.id);
+  if (modeBox) {
+    modeBox.hidden = !LISTOS.length;
+    if (modeListoBtn) {
+      modeListoBtn.disabled = !l;
+      modeListoBtn.querySelector('span').textContent = l ? 'desde 5 días hábiles · talla US ' + l.talla : 'no hay anillo listo de esta esmeralda';
+    }
+  }
+  if (!l || !LISTOS.length) estado.modo = 'pedido';
+  modoPintar();
+}
+modeBtns.forEach((b) => b.addEventListener('click', () => { if (b.disabled) return; estado.modo = b.dataset.mode; modoPintar(); }));
+pintarPrecio();
 
 // Canal de chat: WhatsApp si hay número; si no, Instagram
 const urlChat = (texto) => WHATSAPP_NUMERO
@@ -149,6 +219,8 @@ const waLink = document.getElementById('waLink');
 const waCanal = document.getElementById('waCanal');
 const faqChat = document.getElementById('faqChat');
 if (faqChat) { faqChat.href = urlChat('Hola FURÁE, tengo una pregunta sobre FLOAT.'); faqChat.textContent = WHATSAPP_NUMERO ? 'por WhatsApp' : 'por Instagram'; }
+const chatFab = document.getElementById('chatFab');
+if (chatFab) chatFab.href = urlChat('Hola FURÁE, quiero más información sobre FLOAT.');
 const envioValor = document.getElementById('envioValor');
 if (envioValor) envioValor.textContent = formatoCOP(ENVIO_VALOR);
 const xmasMsg = document.getElementById('xmasMsg');
@@ -206,6 +278,7 @@ function elegirGema(g, primera) {
   if (stageMark) stageMark.textContent = 'FLOAT 01 · ' + g.nombre;
   stage.classList.remove('is-zoomed');
   pintarFicha(g);
+  refrescarModo();
   if (primera) { stageImg.src = g.img; return; }
   stageImg.classList.add('is-swapping');               // se desvanece...
   setTimeout(() => { stageImg.src = g.img; stageImg.classList.remove('is-swapping'); }, 250); // ...cambia y vuelve
@@ -216,7 +289,7 @@ if (gemsBox && stage && stageImg) {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'gem'; b.dataset.gem = g.id;
     b.setAttribute('aria-label', 'Esmeralda ' + g.id + ' ' + g.nombre);
-    b.innerHTML = '<img src="' + g.img + '" alt="" loading="lazy" /><span>' + g.nombre + '</span>';
+    b.innerHTML = '<img src="' + g.img + '" alt="" loading="lazy" /><span>' + g.nombre + '</span>' + (listoDe(g.id) ? '<em>Listo</em>' : '');
     b.addEventListener('click', () => elegirGema(g));
     gemsBox.appendChild(b);
   });
@@ -244,19 +317,16 @@ if (gemsBox && stage && stageImg) {
   });
 }
 
-// ── Cupón "Especial para ti": por ahora solo se guarda; NO se valida (la validación real va en un servidor) ──
-const couponInput = document.getElementById('coupon');
-const couponBtn = document.getElementById('couponBtn');
-const couponMsg = document.getElementById('couponMsg');
-let cuponGuardado = '';
+// ── Cupón: se valida aquí mismo (el código y el precio están en CUPON, arriba) ──
+function aplicarCupon() {
+  estado.cupon = couponInput.value.trim().toUpperCase();
+  couponInput.value = estado.cupon;
+  if (!estado.cupon) { couponMsg.textContent = 'Escribe tu cupón.'; pintarPrecio(); return; }
+  pintarPrecio(); mensajeCupon();
+}
 if (couponBtn && couponInput) {
-  couponBtn.addEventListener('click', () => {
-    const codigo = couponInput.value.trim().toUpperCase();
-    couponInput.value = codigo;
-    if (!codigo) { cuponGuardado = ''; couponMsg.textContent = 'Escribe tu cupón.'; return; }
-    cuponGuardado = codigo;
-    couponMsg.textContent = 'Cupón ' + codigo + ' guardado. Lo aplicamos al confirmar tu compra.';
-  });
+  couponBtn.addEventListener('click', aplicarCupon);
+  couponInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); aplicarCupon(); } });
 }
 
 // ── Botón "Comprar ahora" ──
@@ -266,7 +336,7 @@ const buyBtn = document.getElementById('buyBtn');
 const buyStatus = document.getElementById('buyStatus');
 const tallaSel = document.getElementById('talla');
 const buyBtnText = document.getElementById('buyBtnText');
-if (buyBtnText && PASARELA_LINK) buyBtnText.textContent = 'Apartar con ' + formatoCOP(apartado);
+if (buyBtnText && PASARELA_LINK) buyBtnText.textContent = 'Apartar con ' + formatoCOP(apartadoDe());
 if (buyBtn && tallaSel) {
   buyBtn.addEventListener('click', async () => {
     if (!tallaSel.value) {
@@ -274,13 +344,13 @@ if (buyBtn && tallaSel) {
       tallaSel.focus();
       return;
     }
-    let pedido = 'Hola FURÁE, quiero comprar FLOAT 01 · Esmeralda ' + gemElegida.id + ' ' + gemElegida.nombre + ' · Talla ' + tallaSel.value + ' · Envío incluido';
-    if (cuponGuardado) pedido += ' · Cupón ' + cuponGuardado;
+    let pedido = 'Hola FURÁE, quiero comprar FLOAT 01 · Esmeralda ' + gemElegida.id + ' ' + gemElegida.nombre + ' · Talla ' + tallaSel.value + ' · ' + (estado.modo === 'listo' ? 'Anillo ya hecho (entrega desde 5 días hábiles)' : 'Sobre pedido (~10 días hábiles)') + ' · Envío incluido · ' + formatoCOP(precioFinal());
+    if (cuponVale()) pedido += ' · Cupón ' + estado.cupon;
     if (PEDIDOS_URL) { // guarda el pedido sin bloquear al usuario
-      try { navigator.sendBeacon(PEDIDOS_URL, new URLSearchParams({ pedido, esmeralda: gemElegida.nombre, talla: tallaSel.value, cupon: cuponGuardado, precio: PRECIO_FLOAT })); } catch (e) {}
+      try { navigator.sendBeacon(PEDIDOS_URL, new URLSearchParams({ pedido, esmeralda: gemElegida.nombre, talla: tallaSel.value, cupon: cuponVale() ? estado.cupon : '', precio: precioFinal(), modo: estado.modo })); } catch (e) {}
     }
     if (PASARELA_LINK) {
-      buyStatus.textContent = 'Te llevamos al pago seguro del apartado (' + formatoCOP(apartado) + ').';
+      buyStatus.textContent = 'Te llevamos al pago seguro del apartado (' + formatoCOP(apartadoDe()) + ').';
       setTimeout(() => { window.location.href = PASARELA_LINK; }, 1200);
       return;
     }
@@ -366,6 +436,17 @@ if (intro) {
   intro.addEventListener('click', () => { intro.style.display = 'none'; });
 }
 
+// Video del inicio: aparece con un fundido y se oculta un instante antes de repetirse (así no se nota el salto)
+if (heroVideo) {
+  const listoV = () => heroVideo.classList.add('is-playing');
+  if (prefersReducedMotion || (heroVideo.readyState >= 3 && !heroVideo.paused)) listoV();
+  else heroVideo.addEventListener('playing', listoV, { once: true });
+  heroVideo.addEventListener('timeupdate', () => {
+    const d = heroVideo.duration; if (!d) return;
+    heroVideo.classList.toggle('is-ending', d - heroVideo.currentTime < 0.7);
+  });
+}
+
 // Pixel de Meta (solo si hay ID). Eventos: ver contenido y empezar compra.
 function pixel(evento) { try { if (window.fbq) window.fbq('track', evento); } catch (e) {} }
 if (META_PIXEL_ID) {
@@ -373,23 +454,6 @@ if (META_PIXEL_ID) {
   window.fbq('init', META_PIXEL_ID); window.fbq('track', 'PageView'); pixel('ViewContent');
 }
 if (buyBtn) buyBtn.addEventListener('click', () => { if (tallaSel && tallaSel.value) pixel('InitiateCheckout'); });
-
-// El precio "sube" desde cero al llegar a la compra
-const accessSec = document.getElementById('access');
-if (accessSec && precioTexto && !prefersReducedMotion) {
-  const ioP = new IntersectionObserver((es) => {
-    if (!es[0].isIntersecting) return;
-    ioP.disconnect();
-    const t0 = performance.now();
-    const paso = (t) => {
-      const p = Math.min(1, (t - t0) / 1400);
-      precioTexto.textContent = formatoCOP(Math.round(PRECIO_FLOAT * (1 - Math.pow(1 - p, 3)) / 1000) * 1000);
-      if (p < 1) requestAnimationFrame(paso); else precioTexto.textContent = formatoCOP(PRECIO_FLOAT);
-    };
-    requestAnimationFrame(paso);
-  }, { threshold: 0.35 });
-  ioP.observe(accessSec);
-}
 
 // Polvo de luz: partículas verdes y doradas que suben despacio detrás del anillo (solo si está en pantalla)
 const dust = document.getElementById('dust');

@@ -229,41 +229,52 @@
     </section>
 
     <!-- 9. COMPRA
-Izquierda: foto grande con ZOOM + esmeraldas para elegir + ficha de la esmeralda elegida.
+Arriba: la foto de la esmeralda a pantalla casi completa, con ZOOM. Debajo: miniaturas, precio (igual que la pauta),
+la ficha de la esmeralda y, al lado, las opciones de compra.
 Las esmeraldas (nombre, foto, descripción, quilates, medidas) se editan en script.js → const GEMS.
-Derecha: precio, envío incluido, talla, cupón y botón de compra. -->
-<section class="access-section" id="access">
-<div class="access-visual">
+Los anillos YA HECHOS y el cupón se configuran en script.js → const LISTOS y const CUPON. -->
+<section class="buy-section" id="access">
+<header class="buy-head">
+<p class="eyebrow">PREVENTA FUNDADORA</p>
+<h2 class="buy-title">FLOAT 01</h2>
+</header>
+
+<div class="buy-stage">
 <div class="zoom-stage" id="zoomStage" tabindex="0" aria-label="Foto de la esmeralda. Pasa el cursor o toca para acercar">
 <img id="stageImg" src="assets/anillo-float-front.jpg" alt="Anillo FLOAT con la esmeralda elegida" />
 <span class="stage-mark" id="stageMark">FLOAT 01</span>
+<span class="stage-ready" id="stageReady" hidden>Listo para entrega</span>
 <span class="zoom-hint" id="zoomHint">Pasa el cursor para acercar</span>
 </div>
 <div class="gems" id="gems" role="group" aria-label="Elige tu esmeralda"></div>
+</div>
+
+<div class="buy-price">
+<small>Precio de preventa</small>
+<strong><span id="precioTexto">$1.240.000</span> <b class="cop">COP</b></strong>
+<del id="precioViejo" hidden></del>
+<span class="buy-price__sub">Envío asegurado incluido (<span id="envioValor">$35.000</span>, lo cubrimos nosotros) · Edición limitada y numerada</span>
+<em>Se aparta con <span id="apartadoTexto">$620.000</span> (50 %) y el saldo se paga al ver tu anillo terminado.</em>
+</div>
+
+<div class="buy-body">
 <div class="gem-info" id="gemInfo" aria-live="polite">
 <p class="gem-info__tag" id="gemTag">Esmeralda 01</p>
 <h3 class="gem-info__name" id="gemTitle">Selva</h3>
 <p class="gem-info__desc" id="gemDesc"></p>
 <dl class="gem-specs" id="gemSpecs"></dl>
 </div>
-</div>
-<div class="access-content">
-<p class="eyebrow">PREVENTA FUNDADORA</p>
-<h2 class="float-title">FLOAT 01</h2>
-<p class="buy-lead">Una esmeralda colombiana natural, con certificado de laboratorio, suspendida en un volumen transparente de polímero de calidad óptica con protección UV. Hecho por artesanos colombianos, pieza por pieza.</p>
 
-<div class="price-card price-card--buy">
-<p class="price-card__label">Precio de preventa</p>
-<p class="price-card__value"><span id="precioTexto">$1.240.000</span> <small>COP</small></p>
-<p class="price-card__meta">Esmeralda <strong id="gemName">Selva</strong> · cada piedra es única.</p>
-<p class="price-card__ship"><span aria-hidden="true">✦</span> Envío asegurado a toda Colombia <strong>incluido</strong>. <span class="ship-value">Valor del envío: <b id="envioValor">$35.000</b>, lo cubrimos nosotros.</span></p>
-<p class="price-card__note">Precio estimado hasta que abra la preventa. Se aparta con el 50 % (<span id="apartadoTexto">$620.000</span>) y el saldo se paga al ver tu anillo terminado.</p>
+<div class="buy-panel">
+<div class="mode" id="mode" role="group" aria-label="Cuándo lo quieres" hidden>
+<button type="button" class="mode__btn is-on" data-mode="pedido" aria-pressed="true"><b>Sobre pedido</b><span>~10 días hábiles</span></button>
+<button type="button" class="mode__btn" data-mode="listo" id="modeListo" aria-pressed="false"><b>Ya hecho</b><span>desde 5 días hábiles</span></button>
 </div>
 
 <aside class="delivery" aria-label="Tiempo de entrega">
-<p class="delivery__title">Hecho sobre pedido · llega en aprox. <strong>10 días hábiles</strong></p>
-<p class="delivery__text">Cada FLOAT se fabrica después de tu pedido. Es un proceso real y por eso toma tiempo; vale la pena saberlo antes de comprar, sobre todo si es un regalo para Navidad.</p>
-<ol class="delivery__steps">
+<p class="delivery__title" id="dlvTitle">Hecho sobre pedido · llega en aprox. <strong>10 días hábiles</strong></p>
+<p class="delivery__text" id="dlvText">Cada FLOAT se fabrica después de tu pedido. Es un proceso real y por eso toma tiempo; vale la pena saberlo antes de comprar, sobre todo si es un regalo para Navidad.</p>
+<ol class="delivery__steps" id="dlvSteps">
 <li><b>Laboratorio</b><span>Preparamos el volumen y suspendemos tu esmeralda.</span></li>
 <li><b>Curado</b><span>El polímero necesita días para endurecer del todo.</span></li>
 <li><b>Pulido artesanal</b><span>Artesanos colombianos lo lijan y pulen a mano.</span></li>
@@ -281,7 +292,7 @@ Derecha: precio, envío incluido, talla, cupón y botón de compra. -->
 <p class="size-help">¿No sabes tu talla? <a href="#talla-guia">Mírala en 3 minutos</a> o <a href="guia-de-talla.html" download="Guia-de-talla-FURAE.html">descarga la guía</a>.</p>
 
 <div class="coupon-box">
-<p class="coupon-title">Especial para ti</p>
+<p class="coupon-title">¿Tienes un cupón?</p>
 <div class="coupon-row">
 <input type="text" id="coupon" placeholder="Tu cupón" autocomplete="off" aria-label="Cupón" />
 <button type="button" id="couponBtn">Aplicar</button>
@@ -291,7 +302,6 @@ Derecha: precio, envío incluido, talla, cupón y botón de compra. -->
 
 <button type="button" class="buy-btn" id="buyBtn"><span id="buyBtnText">Comprar ahora</span> <span>↗</span></button>
 <p class="buy-status" id="buyStatus" aria-live="polite"></p>
-<a class="wa-link" id="waLink" href="https://ig.me/m/furae.co" target="_blank" rel="noopener">¿Dudas? Escríbenos <span id="waCanal">por Instagram</span></a>
 
 <ol class="buy-steps">
 <li>Elige tu esmeralda y tu talla.</li>
@@ -299,6 +309,7 @@ Derecha: precio, envío incluido, talla, cupón y botón de compra. -->
 <li>Hacemos tu anillo, pagas el saldo al verlo terminado y te lo enviamos asegurado.</li>
 </ol>
 <p class="buy-alt">¿Aún no estás lista o listo? <a href="https://furae.co/?o=web" target="_blank" rel="noopener">Responde la encuesta corta</a> y te avisamos primero.</p>
+</div>
 </div>
 </section>
 
@@ -355,6 +366,10 @@ Derecha: precio, envío incluido, talla, cupón y botón de compra. -->
     </div>
   </footer>
 
+  <a class="chat-fab" id="chatFab" href="https://ig.me/m/furae.co" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1 1 8.3 18.7L4 20z"/><path d="M9.3 9.2c.3 2.3 2 4.1 4.4 4.7l1.1-1.1-1.5-1-.8.6a3.2 3.2 0 0 1-1.5-1.5l.6-.8-1-1.5-1.3 1.6z" fill="currentColor" stroke="none"/></svg>
+    <span>Escríbenos</span>
+  </a>
   <noscript><p style="position:fixed;bottom:0;left:0;right:0;padding:12px;background:#f3ead9;color:#1b1712;text-align:center;font:13px Inter,sans-serif;z-index:200">Activa JavaScript para elegir tu esmeralda y comprar.</p></noscript>
   <script src="script.js"></script>
 </body>

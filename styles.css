@@ -465,3 +465,78 @@ html:not(.no-intro) .site-header{animation:heroIn 1s 3.6s both}
   .split .ch,.reveal{filter:none!important;opacity:1!important;transform:none!important}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+/* ===== COMPRA v3 · sección grande, precio como en la pauta, modo "ya hecho", botón de contacto ===== */
+.buy-section{background:var(--carbon-3);color:var(--cream);padding:clamp(76px,11vh,120px) 0 100px}
+.buy-head{text-align:center;padding:0 20px;margin-bottom:clamp(24px,4vh,42px)}
+.buy-head .eyebrow{font-size:10px;letter-spacing:.32em;color:var(--gold);margin:0 0 16px}
+.buy-title{font-family:"Cormorant Garamond",serif;font-weight:400;font-size:clamp(40px,6vw,78px);letter-spacing:.3em;padding-left:.3em;margin:0;line-height:1;color:var(--cream)}
+.buy-stage{position:relative}
+.buy-stage .zoom-stage{height:clamp(420px,84vh,880px);flex:none;aspect-ratio:auto;background:var(--black);position:relative;overflow:hidden}
+.buy-stage .zoom-stage img{width:100%;height:100%;object-fit:cover;filter:none;transition:opacity .3s ease,transform .45s cubic-bezier(.2,.7,.2,1);will-change:transform}
+.buy-stage .zoom-stage.is-zoomed img{transform:scale(2.6)}
+.buy-stage .zoom-stage img.is-swapping{opacity:0;transform:scale(1.03)}
+.stage-ready{position:absolute;top:22px;right:22px;padding:7px 14px;border:1px solid #6fe0ae;border-radius:99px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#6fe0ae;background:rgba(12,11,10,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.stage-ready[hidden]{display:none}
+.buy-stage .gems{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:980px;margin:14px auto 0;padding:0 20px;background:none}
+.buy-stage .gem{aspect-ratio:16/10;border:1px solid var(--line-dark)}
+.buy-stage .gem img{width:100%;height:100%;object-fit:cover;filter:none}
+.gem em{position:absolute;top:6px;right:6px;font-style:normal;font-size:8px;letter-spacing:.14em;text-transform:uppercase;padding:3px 7px;border-radius:99px;background:#6fe0ae;color:#0c0b0a}
+.buy-price{text-align:center;padding:clamp(36px,6vh,60px) 20px 0}
+.buy-price small{display:block;font:500 10.5px Inter,sans-serif;letter-spacing:.32em;text-transform:uppercase;color:var(--gold)}
+.buy-price strong{display:block;font-family:"Cormorant Garamond",serif;font-weight:400;font-size:clamp(44px,6vw,60px);letter-spacing:.01em;color:var(--cream);margin:10px 0 4px;line-height:1.1}
+.buy-price .cop{font-weight:400;font-size:19px;letter-spacing:.12em;color:var(--gold)}
+.buy-price del{display:block;font-family:"Cormorant Garamond",serif;font-size:22px;color:rgba(243,234,217,.5);margin:0 0 6px}
+.buy-price del[hidden]{display:none}
+.buy-price__sub{display:block;font-size:12.5px;color:#d6cbb8}
+.buy-price em{display:block;font-style:normal;font-size:11.5px;color:#968f84;margin-top:8px}
+.buy-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,6vw,90px);max-width:1180px;margin:clamp(38px,7vh,70px) auto 0;padding:0 clamp(20px,4vw,48px);align-items:start}
+.buy-body .gem-info{background:none;border:0;padding:0}
+.buy-body .gem-info__tag{font-size:10px;letter-spacing:.3em;color:var(--gold)}
+.buy-body .gem-info__name{font-family:"Cormorant Garamond",serif;font-weight:400;font-size:clamp(36px,4.4vw,56px);letter-spacing:.04em;margin:6px 0 16px}
+.buy-body .gem-info__desc{font-size:15px;line-height:1.8;color:rgba(243,234,217,.8);max-width:46ch;margin:0 0 26px}
+.buy-body .gem-specs{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 24px;padding-top:22px;border-top:1px solid var(--line-dark)}
+.buy-body .gem-specs dd{font-size:14px;margin-top:4px}
+.buy-panel{min-width:0}
+.buy-panel .delivery,.buy-panel .buy-field,.buy-panel .coupon-box,.buy-panel .buy-btn{max-width:none}
+.buy-panel .delivery{margin-top:0}
+.mode{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 16px}
+.mode[hidden]{display:none}
+.mode__btn{display:flex;flex-direction:column;gap:4px;text-align:left;padding:14px 16px;background:transparent;border:1px solid var(--line-dark);color:var(--cream);cursor:pointer;font-family:Inter,sans-serif;transition:border-color .25s,background .25s}
+.mode__btn b{font-weight:500;font-size:13px;letter-spacing:.06em}
+.mode__btn span{font-size:11px;line-height:1.4;color:rgba(243,234,217,.62)}
+.mode__btn.is-on{border-color:var(--gold);background:rgba(176,139,79,.12)}
+.mode__btn:disabled{opacity:.45;cursor:not-allowed}
+.chat-fab{position:fixed;right:18px;bottom:18px;z-index:120;display:flex;align-items:center;gap:10px;padding:12px 20px 12px 15px;border:1px solid rgba(176,139,79,.7);border-radius:99px;background:rgba(12,11,10,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:var(--cream);font:500 10.5px Inter,sans-serif;letter-spacing:.2em;text-transform:uppercase;box-shadow:0 8px 30px rgba(0,0,0,.45);transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease}
+.chat-fab svg{color:#6fe0ae;flex:none}
+.chat-fab:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:0 10px 36px rgba(31,138,99,.5)}
+html:not(.no-intro) .chat-fab{animation:heroFade .8s 3.2s both}
+@media (max-width:900px){
+.buy-body{grid-template-columns:minmax(0,1fr);gap:34px}
+.buy-stage .zoom-stage{height:min(118vw,78vh)}
+.buy-stage .gems{gap:6px;padding:0 12px}
+.buy-body .gem-specs{grid-template-columns:repeat(2,auto)}
+}
+@media (max-width:600px){
+.chat-fab span{display:none}
+.chat-fab{padding:14px;right:14px;bottom:14px}
+.mode{grid-template-columns:1fr}
+}
+
+/* ===== Inicio más limpio: sin desenfoque ni zoom; el video aparece con fundido y se oculta justo antes de repetirse ===== */
+@keyframes heroFade{from{opacity:0}to{opacity:1}}
+.hero{background:linear-gradient(rgba(12,11,10,.3),rgba(12,11,10,.3)),#0c0b0a url("assets/hero-furae-poster.jpg") center/cover no-repeat}
+.hero-video,html:not(.no-intro) .hero-video{animation:none;opacity:0;transition:opacity 1.2s ease}
+.hero-video.is-playing{opacity:1}
+.hero-video.is-playing.is-ending{opacity:0;transition-duration:.6s}
+.hero-logo,.hero-copy,.scroll-cue{animation-name:heroFade}
+html:not(.no-intro) .site-header{animation:heroFade 1s 2.7s both}
+.intro{animation:introOut .9s 2.2s ease forwards}
+@keyframes introOut{to{opacity:0;visibility:hidden}}
+.intro__logo{width:min(46vw,340px);animation-delay:.1s}
+.intro__line{animation-delay:.6s}
+.intro__float{animation-delay:1s;animation-duration:1.2s}
+html:not(.no-intro) .hero-logo{animation-delay:2.4s}
+html:not(.no-intro) .hero-copy{animation-delay:3s}
+html:not(.no-intro) .scroll-cue{animation-delay:3.6s}
+@media (max-width:900px){.intro__logo{width:70vw}}
