@@ -14,9 +14,13 @@
   <meta property="og:site_name" content="FURÁE" />
   <meta property="og:title" content="FLOAT — FURÁE" />
   <meta property="og:description" content="Una esmeralda colombiana suspendida en luz. Preventa fundadora." />
-  <meta property="og:image" content="assets/og-float.jpg" />
+  <meta property="og:url" content="https://furae.co/" />
+  <meta property="og:image" content="https://furae.co/assets/og-float.jpg" />
   <meta property="og:locale" content="es_CO" />
   <meta name="twitter:card" content="summary_large_image" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"FURÁE","url":"https://furae.co/","logo":"https://furae.co/assets/favicon.png","sameAs":["https://www.instagram.com/furae.co/"]}</script>
+  <!-- Si ya vio la intro en esta visita, se salta (evita parpadeo) -->
+  <script>try{if(sessionStorage.getItem('furae_intro'))document.documentElement.classList.add('no-intro')}catch(e){}</script>
 
   <link rel="icon" href="assets/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,6 +30,12 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- INTRO: logo + línea + FLOAT, igual que en la pauta. Se quita sola (CSS) y se salta con un toque. -->
+  <div class="intro" id="intro" aria-hidden="true">
+    <img class="intro__logo" src="assets/wordmark_on_dark.png" alt="" />
+    <span class="intro__line"></span>
+    <span class="intro__float">FLOAT</span>
+  </div>
   <header class="site-header" id="siteHeader">
     <a class="brand" href="#top" aria-label="Inicio FURÁE">
       <img src="assets/wordmark_on_dark.png" alt="FURÁE" />
@@ -35,6 +45,8 @@
       <a href="#object">OBJETO</a>
       <a href="#origin">ORIGEN</a>
       <a href="#access">COMPRAR</a>
+      <a href="#talla-guia">TALLA</a>
+      <a href="#faq">PREGUNTAS</a>
     </nav>
     <a class="header-cta" href="#access">Comprar</a>
     <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="mobileNav" aria-label="Abrir menú">
@@ -47,6 +59,8 @@
     <a href="#object">OBJETO</a>
     <a href="#origin">ORIGEN</a>
     <a href="#access">COMPRAR</a>
+    <a href="#talla-guia">TALLA</a>
+    <a href="#faq">PREGUNTAS</a>
   </nav>
 
   <main id="top">
@@ -73,6 +87,7 @@
 
     <!-- 2. REVEAL DE FLOAT: título arriba, foto nueva del anillo en haz de luz abajo -->
     <section class="reveal-section" id="float">
+      <canvas class="dust" id="dust" aria-hidden="true"></canvas>
       <div class="reveal-copy reveal">
         <p class="eyebrow">LA PRIMERA PIEZA DE FURÁE</p>
         <h1 class="float-title">FLOAT</h1>
@@ -213,20 +228,23 @@
       </div>
     </section>
 
-    <!-- 9. COMPRA (reemplaza la lista de acceso / estudio de precio)
-Izquierda: foto grande + 4 esmeraldas para elegir (los recortes son PROVISIONALES: cambiar data-img por las fotos reales).
-Derecha: precio, talla, cupón "Especial para ti" y botón de compra. Todo se maneja en script.js (sección 6). -->
+    <!-- 9. COMPRA
+Izquierda: foto grande con ZOOM + esmeraldas para elegir + ficha de la esmeralda elegida.
+Las esmeraldas (nombre, foto, descripción, quilates, medidas) se editan en script.js → const GEMS.
+Derecha: precio, envío incluido, talla, cupón y botón de compra. -->
 <section class="access-section" id="access">
 <div class="access-visual">
-<div class="zoom-stage">
+<div class="zoom-stage" id="zoomStage" tabindex="0" aria-label="Foto de la esmeralda. Pasa el cursor o toca para acercar">
 <img id="stageImg" src="assets/anillo-float-front.jpg" alt="Anillo FLOAT con la esmeralda elegida" />
-<span class="stage-mark">FLOAT 01</span>
+<span class="stage-mark" id="stageMark">FLOAT 01</span>
+<span class="zoom-hint" id="zoomHint">Pasa el cursor para acercar</span>
 </div>
-<div class="gems" role="group" aria-label="Elige tu esmeralda">
-<button type="button" class="gem is-on" data-gem="01" data-img="assets/anillo-float-front.jpg" aria-label="Esmeralda 01"><img src="assets/anillo-float-front.jpg" alt="" loading="lazy" /><span>01</span></button>
-<button type="button" class="gem" data-gem="02" data-img="assets/anillo-float-macro.jpg" aria-label="Esmeralda 02"><img src="assets/anillo-float-macro.jpg" alt="" loading="lazy" /><span>02</span></button>
-<button type="button" class="gem" data-gem="03" data-img="assets/anillo-float-34.jpg" aria-label="Esmeralda 03"><img src="assets/anillo-float-34.jpg" alt="" loading="lazy" /><span>03</span></button>
-<button type="button" class="gem" data-gem="04" data-img="assets/float-luz-1100.jpg" aria-label="Esmeralda 04"><img src="assets/float-luz-1100.jpg" alt="" loading="lazy" /><span>04</span></button>
+<div class="gems" id="gems" role="group" aria-label="Elige tu esmeralda"></div>
+<div class="gem-info" id="gemInfo" aria-live="polite">
+<p class="gem-info__tag" id="gemTag">Esmeralda 01</p>
+<h3 class="gem-info__name" id="gemTitle">Selva</h3>
+<p class="gem-info__desc" id="gemDesc"></p>
+<dl class="gem-specs" id="gemSpecs"></dl>
 </div>
 </div>
 <div class="access-content">
@@ -237,21 +255,30 @@ Derecha: precio, talla, cupón "Especial para ti" y botón de compra. Todo se ma
 <div class="price-card price-card--buy">
 <p class="price-card__label">Precio de preventa</p>
 <p class="price-card__value"><span id="precioTexto">$1.240.000</span> <small>COP</small></p>
-<p class="price-card__meta">Esmeralda <strong id="gemName">01</strong> · cada piedra es única.</p>
+<p class="price-card__meta">Esmeralda <strong id="gemName">Selva</strong> · cada piedra es única.</p>
+<p class="price-card__ship"><span aria-hidden="true">✦</span> Envío asegurado a toda Colombia <strong>incluido</strong>. <span class="ship-value">Valor del envío: <b id="envioValor">$35.000</b>, lo cubrimos nosotros.</span></p>
 <p class="price-card__note">Precio estimado hasta que abra la preventa. Se aparta con el 50 % (<span id="apartadoTexto">$620.000</span>) y el saldo se paga al ver tu anillo terminado.</p>
 </div>
 
+<aside class="delivery" aria-label="Tiempo de entrega">
+<p class="delivery__title">Hecho sobre pedido · llega en aprox. <strong>10 días hábiles</strong></p>
+<p class="delivery__text">Cada FLOAT se fabrica después de tu pedido. Es un proceso real y por eso toma tiempo; vale la pena saberlo antes de comprar, sobre todo si es un regalo para Navidad.</p>
+<ol class="delivery__steps">
+<li><b>Laboratorio</b><span>Preparamos el volumen y suspendemos tu esmeralda.</span></li>
+<li><b>Curado</b><span>El polímero necesita días para endurecer del todo.</span></li>
+<li><b>Pulido artesanal</b><span>Artesanos colombianos lo lijan y pulen a mano.</span></li>
+<li><b>Envío asegurado</b><span>Empaque y entrega a tu puerta.</span></li>
+</ol>
+<p class="delivery__xmas" id="xmasMsg"></p>
+</aside>
+
 <label class="buy-field">
-<span>Talla</span>
+<span>Talla (US)</span>
 <select id="talla" required>
 <option value="" disabled selected>Elige tu talla</option>
-<option>US 5</option>
-<option>US 6</option>
-<option>US 7</option>
-<option>US 8</option>
-<option>No sé mi talla</option>
 </select>
 </label>
+<p class="size-help">¿No sabes tu talla? <a href="#talla-guia">Mírala en 3 minutos</a> o <a href="guia-de-talla.html" download="Guia-de-talla-FURAE.html">descarga la guía</a>.</p>
 
 <div class="coupon-box">
 <p class="coupon-title">Especial para ti</p>
@@ -262,15 +289,58 @@ Derecha: precio, talla, cupón "Especial para ti" y botón de compra. Todo se ma
 <p class="coupon-msg" id="couponMsg" aria-live="polite"></p>
 </div>
 
-<button type="button" class="buy-btn" id="buyBtn">Comprar ahora <span>↗</span></button>
+<button type="button" class="buy-btn" id="buyBtn"><span id="buyBtnText">Comprar ahora</span> <span>↗</span></button>
 <p class="buy-status" id="buyStatus" aria-live="polite"></p>
+<a class="wa-link" id="waLink" href="https://ig.me/m/furae.co" target="_blank" rel="noopener">¿Dudas? Escríbenos <span id="waCanal">por Instagram</span></a>
 
 <ol class="buy-steps">
 <li>Elige tu esmeralda y tu talla.</li>
-<li>Te confirmamos por Instagram y apartas con el 50 %.</li>
-<li>Haremos tu anillo y pagas el saldo al verlo terminado.</li>
+<li>Confirmamos tu pedido y apartas con el 50 %.</li>
+<li>Hacemos tu anillo, pagas el saldo al verlo terminado y te lo enviamos asegurado.</li>
 </ol>
 <p class="buy-alt">¿Aún no estás lista o listo? <a href="https://furae.co/?o=web" target="_blank" rel="noopener">Responde la encuesta corta</a> y te avisamos primero.</p>
+</div>
+</section>
+
+<!-- 10. GUÍA DE TALLA: resumen + descarga del .html para usar en el celular -->
+<section class="size-section section-pad" id="talla-guia">
+<div class="size-grid">
+<div class="size-copy reveal">
+<p class="eyebrow">TU TALLA</p>
+<h2>Acierta tu talla<br>desde tu celular.</h2>
+<p class="size-lead">FLOAT es rígido y se hace a tu medida, así que la talla importa. Descarga la guía, ábrela en tu celular y sigue los pasos. Funciona aunque nunca hayas usado un anillo.</p>
+<div class="size-actions">
+<a class="size-btn" href="guia-de-talla.html" download="Guia-de-talla-FURAE.html">Descargar la guía <span>↓</span></a>
+<a class="size-link" href="guia-de-talla.html" target="_blank" rel="noopener">o ábrela aquí mismo</a>
+</div>
+</div>
+<div class="size-steps reveal delay1">
+<article><b>1</b><div><h3>Calibras tu pantalla</h3><p>Con una tarjeta bancaria, para que las medidas sean reales.</p></div></article>
+<article><b>2</b><div><h3>Si tienes un anillo</h3><p>Lo apoyas en la pantalla y ajustas un círculo al borde interno.</p></div></article>
+<article><b>3</b><div><h3>Si no tienes ninguno</h3><p>Rodeas tu dedo con una tira de papel o un hilo y la mides con la regla de la guía.</p></div></article>
+<article><b>4</b><div><h3>Te damos tu talla</h3><p>En escala US, con una tabla para comparar. Si dudas entre dos, elige la mayor.</p></div></article>
+</div>
+</div>
+</section>
+
+<!-- 11. PREGUNTAS FRECUENTES (al final). Cada pregunta es un <details>: se abre y cierra con animación -->
+<section class="faq-section section-pad" id="faq">
+<div class="faq-inner">
+<p class="eyebrow reveal">PREGUNTAS FRECUENTES</p>
+<h2 class="faq-title reveal">Lo que más nos preguntan.</h2>
+<div class="faq-list">
+<details class="faq"><summary>¿Cuánto demora en llegar?</summary><div class="faq-a"><div><p>Cada FLOAT se hace sobre pedido y llega en aproximadamente 10 días hábiles. Ese tiempo incluye laboratorio, curado del polímero, pulido a mano con artesanos colombianos, empaque y envío. Si es para Navidad, mira la fecha límite que aparece arriba, en la sección de compra.</p></div></div></details>
+<details class="faq"><summary>¿Cómo lo compro y cómo se paga?</summary><div class="faq-a"><div><p>Eliges tu esmeralda y tu talla, y confirmamos tu pedido. Se aparta con el 50 % y el saldo se paga al ver tu anillo terminado. Te enviamos un link de pago seguro para cada pago.</p></div></div></details>
+<details class="faq"><summary>¿La esmeralda es real?</summary><div class="faq-a"><div><p>Sí. Es una esmeralda colombiana natural, con certificado de laboratorio. Cada piedra es única: sus inclusiones (el «jardín») son la huella de cómo se formó.</p></div></div></details>
+<details class="faq"><summary>¿De qué está hecho el anillo? ¿Es vidrio?</summary><div class="faq-a"><div><p>No es vidrio. El volumen transparente es un polímero de calidad óptica con protección UV, diseñado para dejar pasar la luz y mostrar la piedra por todos sus lados. Lo trabajan artesanos colombianos pieza por pieza.</p></div></div></details>
+<details class="faq"><summary>¿Se rompe si se cae?</summary><div class="faq-a"><div><p>Es un material rígido y resistente, pero no indestructible: evita golpes fuertes contra superficies duras y guárdalo en un lugar seguro cuando no lo uses.</p></div></div></details>
+<details class="faq"><summary>¿Cómo lo cuido?</summary><div class="faq-a"><div><p>Evita el calor intenso (secadores, saunas, un carro al sol) y los químicos fuertes como cloro, alcohol o acetona. Límpialo con un paño suave y agua con jabón neutro.</p></div></div></details>
+<details class="faq"><summary>¿Cómo sé mi talla?</summary><div class="faq-a"><div><p>Descarga la <a href="guia-de-talla.html" download="Guia-de-talla-FURAE.html">guía de talla</a> y ábrela en tu celular. Tiene un paso a paso con y sin anillo. Como FLOAT es rígido, confirmamos tu talla contigo antes de fabricarlo.</p></div></div></details>
+<details class="faq"><summary>¿Hacen envíos? ¿Cuánto cuesta?</summary><div class="faq-a"><div><p>Enviamos a toda Colombia y el envío asegurado va incluido en el precio. No pagas nada adicional por el envío.</p></div></div></details>
+<details class="faq"><summary>¿Hay otros diseños?</summary><div class="faq-a"><div><p>FLOAT es la primera pieza de FURÁE. En el futuro tendremos otras piezas, también en oro. Si quieres enterarte primero, <a href="https://furae.co/?o=web" target="_blank" rel="noopener">responde la encuesta corta</a>.</p></div></div></details>
+<details class="faq"><summary>¿Por qué cada esmeralda tiene nombre?</summary><div class="faq-a"><div><p>Porque no hay dos iguales. Elegir tu esmeralda es elegir una piedra con su propio color, su propio jardín y su propia historia.</p></div></div></details>
+</div>
+<p class="faq-more">¿Otra duda? Escríbenos <a id="faqChat" href="https://ig.me/m/furae.co" target="_blank" rel="noopener">por Instagram</a>.</p>
 </div>
 </section>
 </main>
@@ -284,6 +354,7 @@ Derecha: precio, talla, cupón "Especial para ti" y botón de compra. Todo se ma
     </div>
   </footer>
 
+  <noscript><p style="position:fixed;bottom:0;left:0;right:0;padding:12px;background:#f3ead9;color:#1b1712;text-align:center;font:13px Inter,sans-serif;z-index:200">Activa JavaScript para elegir tu esmeralda y comprar.</p></noscript>
   <script src="script.js"></script>
 </body>
 </html>
