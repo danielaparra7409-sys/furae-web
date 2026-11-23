@@ -104,7 +104,8 @@ const PRECIO_FLOAT = 1240000;          // precio de preventa (pendiente de aprob
 const PORCENTAJE_APARTADO = 0.5;       // se aparta con el 50 %
 const INSTAGRAM_DM = 'https://ig.me/m/furae.co';
 const ENVIO_VALOR = 35000;             // valor REAL aproximado del envío asegurado (flete + seguro). Confirmar con la cotización de Coordinadora.
-const FECHA_LIMITE_NAVIDAD = '1 de diciembre'; // pedido confirmado hasta esa fecha = llega antes de Navidad (CONFIRMAR con el CEO). '' = no mostrar.
+const FECHA_LIMITE_NAVIDAD = '15 de diciembre'; // fecha límite de pedidos sobre medida para Navidad. '' = no mostrar el aviso.
+const FECHA_LIMITE_NAVIDAD_ISO = '2026-12-15';  // la misma fecha en formato año-mes-día (para saber si ya pasó)
 const META_PIXEL_ID = '';              // ID del Pixel de Meta (vacío = no se carga nada)
 const WHATSAPP_NUMERO = '573124539112';            // ej. '573001234567' (57 + celular, sin + ni espacios). Vacío = se usa Instagram.
 const PASARELA_LINK = '';              // link de pago del apartado (Wompi / Bold / Mercado Pago). Vacío = se confirma por chat.
@@ -114,16 +115,16 @@ const PEDIDOS_URL = '';                // (opcional) URL de Google Apps Script p
 const CUPON = { codigo: 'FURAVIDAD', precio: 1083000, hasta: '2026-12-01', hastaTexto: '1 de diciembre' };
 // ★ ANILLOS YA HECHOS ★ (entrega desde 5 días hábiles). Uno por esmeralda y talla fija, por ejemplo: [{ gem: '01', talla: '6' }].
 // Vacío = no se muestra la opción "Ya hecho".
-const LISTOS = [];
+const LISTOS = [{ gem: '01', talla: '7' }];
 
 // ★ ESMERALDAS ★ Para agregar una: copia un bloque, cambia foto y textos.
 // ct / alto / ancho / profundidad en null = se usan los datos base de abajo. OJO: los textos y nombres son un BORRADOR,
 // deben ajustarse a cada piedra real (color, inclusiones, quilates y medidas reales).
 const ESPECIFICACIONES_BASE = {
-  ct: '≈ 0,30 ct',
-  alto: '≈ 4 mm',
-  ancho: '≈ 4 mm',
-  profundidad: 'Por medir',
+  ct: '0,35 ct',
+  alto: '4 mm',
+  ancho: '4 mm',
+  profundidad: '4 mm',
   talla: 'Esmeralda',
   origen: 'Colombia',
   tipo: 'Natural · certificado de laboratorio'
@@ -166,6 +167,8 @@ function pintarPrecio() {
   if (precioTexto) precioTexto.textContent = formatoCOP(precioFinal());
   if (precioViejo) { precioViejo.hidden = !cuponVale(); precioViejo.textContent = formatoCOP(PRECIO_FLOAT); }
   if (apartadoTexto) apartadoTexto.textContent = formatoCOP(apartadoDe());
+  pintarResumen();
+  if (ultimoPrecio !== precioFinal()) { ultimoPrecio = precioFinal(); revelarPrecio(); }
   const bt = document.getElementById('buyBtnText');
   if (bt && PASARELA_LINK) bt.textContent = 'Apartar con ' + formatoCOP(apartadoDe());
 }
@@ -208,6 +211,68 @@ function refrescarModo() {
   if (!l || !LISTOS.length) estado.modo = 'pedido';
   modoPintar();
 }
+// ── v4: resumen, aviso de Navidad, desenfoque del precio y pago en línea ──
+let ultimoPrecio = PRECIO_FLOAT;
+const buyPrice = document.querySelector('.buy-price');
+// El precio aparece con un desenfoque que se aclara (igual que en la pauta)
+function revelarPrecio() {
+  if (!buyPrice || prefersReducedMotion) return;
+  buyPrice.classList.add('is-pending');
+  requestAnimationFrame(() => requestAnimationFrame(() => buyPrice.classList.remove('is-pending')));
+}
+if (buyPrice && !prefersReducedMotion && 'IntersectionObserver' in window) {
+  buyPrice.classList.add('is-pending');
+  new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { buyPrice.classList.remove('is-pending'); o.disconnect(); } }, { threshold: 0.45 }).observe(buyPrice);
+}
+// Resumen del pedido: aquí se muestra el envío ($35.000) como "Incluido"
+function pintarResumen() {
+  let g; try { g = gemElegida; } catch (e) { return; } // aún no se declara al cargar la página
+  const set = (id, t) => { const e = document.getElementById(id); if (e) e.textContent = t; };
+  const ts = document.getElementById('talla');
+  set('sumAnillo', g.nombre + ' · talla ' + (ts && ts.value && ts.value.indexOf('US') === 0 ? ts.value : '—'));
+  set('sumPrecio', formatoCOP(precioFinal()));
+  set('sumApartado', formatoCOP(apartadoDe()));
+  set('sumSaldo', formatoCOP(precioFinal() - apartadoDe()));
+}
+const tallaEl = document.getElementById('talla');
+if (tallaEl) tallaEl.addEventListener('change', pintarResumen);
+// Aviso de Navidad: fecha límite y atajo a los anillos ya hechos
+function pintarNavidad() {
+  const xm = document.getElementById('xmasMsg');
+  if (!xm || !FECHA_LIMITE_NAVIDAD) return;
+  const paso = new Date() > new Date(FECHA_LIMITE_NAVIDAD_ISO + 'T23:59:59-05:00');
+  xm.innerHTML = '✦ ' + (paso
+    ? 'El plazo para pedidos sobre medida antes de Navidad ya cerró. '
+    : 'Para recibirlo antes de Navidad, confirma tu pedido hasta el ' + FECHA_LIMITE_NAVIDAD + '. Después de esa fecha solo llega a tiempo un anillo ya hecho. ')
+    + (LISTOS.length
+      ? '<button type="button" class="linkbtn" id="xmasListos">Ver anillos ya hechos</button>'
+      : '<a class="linkbtn" target="_blank" rel="noopener" href="' + urlChat('Hola FURÁE, ¿tienen anillos FLOAT ya hechos para Navidad?') + '">Pregúntanos si hay modelos ya armados</a>');
+  const b = document.getElementById('xmasListos');
+  if (b) b.addEventListener('click', () => {
+    const g = GEMS.find((x) => x.id === LISTOS[0].gem);
+    if (g) { elegirGema(g); estado.modo = 'listo'; modoPintar(); }
+    modeBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+}
+// Pago en línea: pide a la función de Netlify el link de pago de Wompi (el precio y el cupón se validan allá).
+// Si no está configurada (o la talla requiere confirmación), devuelve null y se sigue por WhatsApp.
+async function pedirPago(pedido) {
+  const ts = document.getElementById('talla');
+  if (!ts || !/^US [5-8]$/.test(ts.value)) return null;
+  try {
+    const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 7000);
+    const r = await fetch('/.netlify/functions/crear-pago', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal,
+      body: JSON.stringify({ gem: gemElegida.id, talla: ts.value, modo: estado.modo, cupon: cuponVale() ? estado.cupon : '' })
+    });
+    clearTimeout(t);
+    if (!r.ok) return null;
+    const j = await r.json();
+    if (!j.url) return null;
+    try { sessionStorage.setItem('furae_pedido', JSON.stringify({ pedido, ref: j.referencia, env: j.env, apartado: j.apartado })); } catch (e) {}
+    return j.url;
+  } catch (e) { return null; }
+}
 modeBtns.forEach((b) => b.addEventListener('click', () => { if (b.disabled) return; estado.modo = b.dataset.mode; modoPintar(); }));
 pintarPrecio();
 
@@ -224,7 +289,7 @@ if (chatFab) chatFab.href = urlChat('Hola FURÁE, quiero más información sobre
 const envioValor = document.getElementById('envioValor');
 if (envioValor) envioValor.textContent = formatoCOP(ENVIO_VALOR);
 const xmasMsg = document.getElementById('xmasMsg');
-if (xmasMsg && FECHA_LIMITE_NAVIDAD) xmasMsg.textContent = '✦ Para recibirlo antes de Navidad, confirma tu pedido hasta el ' + FECHA_LIMITE_NAVIDAD + '.';
+pintarNavidad();
 // Tallas: las 4 que ya tienen molde (US 5, 6, 7 y 8, decisión del 20 nov) y, aparte, las demás bajo consulta.
 // Como el anillo es rígido, una talla "bajo consulta" se confirma con el CEO antes de fabricar (puede tardar más).
 const TALLAS_DISPONIBLES = ['5', '6', '7', '8'];
@@ -352,6 +417,12 @@ if (buyBtn && tallaSel) {
     if (PASARELA_LINK) {
       buyStatus.textContent = 'Te llevamos al pago seguro del apartado (' + formatoCOP(apartadoDe()) + ').';
       setTimeout(() => { window.location.href = PASARELA_LINK; }, 1200);
+      return;
+    }
+    const pago = await pedirPago(pedido);
+    if (pago) {
+      buyStatus.textContent = 'Te llevamos al pago seguro del apartado (' + formatoCOP(apartadoDe()) + ').';
+      setTimeout(() => { window.location.href = pago; }, 900);
       return;
     }
     try { await navigator.clipboard.writeText(pedido); } catch (e) { /* sin permiso: igual va en el link de WhatsApp */ }
