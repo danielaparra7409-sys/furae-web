@@ -540,3 +540,30 @@ html:not(.no-intro) .hero-logo{animation-delay:2.4s}
 html:not(.no-intro) .hero-copy{animation-delay:3s}
 html:not(.no-intro) .scroll-cue{animation-delay:3.6s}
 @media (max-width:900px){.intro__logo{width:70vw}}
+
+/* ===== COMPRA v4 · sin título, zoom suave, miniaturas pequeñas, precio con desenfoque y halo (como la pauta), resumen ===== */
+.buy-section{padding-top:clamp(70px,9vh,96px)}
+.buy-stage .zoom-stage{height:clamp(340px,68vh,700px)}
+.buy-stage .zoom-stage.is-zoomed img{transform:scale(1.7)}
+.buy-stage .gems{max-width:520px;gap:8px;margin:18px auto 0;padding:0 16px;grid-template-columns:repeat(4,1fr)}
+.buy-stage .gem{aspect-ratio:4/3;opacity:.6;transition:opacity .3s ease,transform .35s cubic-bezier(.2,.7,.2,1),border-color .3s ease}
+.buy-stage .gem:hover{opacity:1;transform:scale(1.08)}
+.buy-stage .gem.is-on{opacity:1;transform:scale(1.16);z-index:1}
+.buy-stage .gem span{font-size:8px;padding:10px 4px 4px}
+.buy-price{position:relative;isolation:isolate;padding:clamp(34px,5vh,52px) 20px 0}
+.buy-price::before{content:"";position:absolute;left:50%;top:58%;width:340px;height:200px;transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(31,154,110,.26),transparent);filter:blur(8px);z-index:-1;animation:buyHalo 5s ease-in-out infinite;pointer-events:none}
+@keyframes buyHalo{0%,100%{opacity:.65;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.14)}}
+.buy-price strong{transition:filter 1.4s cubic-bezier(.2,.7,.2,1) .25s,opacity 1.4s cubic-bezier(.2,.7,.2,1) .25s}
+.buy-price.is-pending strong{filter:blur(10px);opacity:0}
+.summary{margin:22px 0 0;padding:6px 0;border-top:1px solid var(--line-dark)}
+.summary div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:9px 0;border-bottom:1px solid var(--line-dark)}
+.summary dt{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(243,234,217,.6)}
+.summary dd{margin:0;font-size:14px;color:var(--cream);text-align:right}
+.summary s{color:rgba(243,234,217,.45);margin-right:6px}
+.summary b{font-weight:500;color:#6fe0ae}
+.summary__total dd{font-family:"Cormorant Garamond",serif;font-size:24px}
+.linkbtn{background:none;border:0;padding:0;margin:0;font:inherit;color:var(--cream);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+@media (max-width:900px){
+.buy-stage .zoom-stage{height:min(100vw,70vh)}
+.buy-stage .gems{max-width:none}
+}
