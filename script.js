@@ -106,7 +106,7 @@ const INSTAGRAM_DM = 'https://ig.me/m/furae.co';
 const ENVIO_VALOR = 35000;             // valor REAL aproximado del envío asegurado (flete + seguro). Confirmar con la cotización de Coordinadora.
 const FECHA_LIMITE_NAVIDAD = '1 de diciembre'; // pedido confirmado hasta esa fecha = llega antes de Navidad (CONFIRMAR con el CEO). '' = no mostrar.
 const META_PIXEL_ID = '';              // ID del Pixel de Meta (vacío = no se carga nada)
-const WHATSAPP_NUMERO = '';            // ej. '573001234567' (57 + celular, sin + ni espacios). Vacío = se usa Instagram.
+const WHATSAPP_NUMERO = '573124539112';            // ej. '573001234567' (57 + celular, sin + ni espacios). Vacío = se usa Instagram.
 const PASARELA_LINK = '';              // link de pago del apartado (Wompi / Bold / Mercado Pago). Vacío = se confirma por chat.
 const PEDIDOS_URL = '';                // (opcional) URL de Google Apps Script para guardar cada pedido en la hoja
 
