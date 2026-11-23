@@ -97,123 +97,76 @@ if (lazyVideos.length && !prefersReducedMotion) {
 }
 
 // ─────────────────────────────────────────────
-// 6. Experimento de precio de FLOAT
-// Cada visitante ve UNO de estos tres precios (COP, IVA y envío incluidos), elegido al azar.
-// Con las respuestas de los tres grupos se arma la curva: % que diría "sí" a cada precio.
-// Para cambiar los precios, se cambia SOLO esta lista (y se avisa en el análisis desde qué fecha).
+// 6. Sección de compra: precio, esmeralda, talla, cupón y botón de compra
 // ─────────────────────────────────────────────
-const PRECIOS_PRUEBA = [1360000, 1684000, 2040000];
-const CLAVE_PRECIO = 'floatPrecioPrueba'; // nombre con el que se guarda en el navegador
+// PRECIO: se cambia SOLO aquí. $1.240.000 es el precio propuesto de la preventa
+// (pendiente de aprobación del CEO). El apartado es el 50 %.
+const PRECIO_FLOAT = 1240000;
+const PORCENTAJE_APARTADO = 0.5;
+const INSTAGRAM_DM = 'https://ig.me/m/furae.co'; // abre el chat de Instagram de FURÁE
 
-// Si la persona recarga o vuelve otro día, ve el MISMO precio. Si le tocara otro,
-// podría comparar y la respuesta ya no sería solo sobre el precio que vio.
-let precioAsignado = null;
-try { precioAsignado = Number(localStorage.getItem(CLAVE_PRECIO)); } catch (e) { /* navegador sin almacenamiento: seguimos */ }
-
-// .includes() descarta valores viejos (p. ej. de la lista anterior de 4 precios) o vacíos:
-// en ese caso se sortea de nuevo entre los tres precios vigentes, con la misma probabilidad (1/3).
-if (!PRECIOS_PRUEBA.includes(precioAsignado)) {
-  precioAsignado = PRECIOS_PRUEBA[Math.floor(Math.random() * PRECIOS_PRUEBA.length)];
-  try { localStorage.setItem(CLAVE_PRECIO, String(precioAsignado)); } catch (e) {}
-}
-
-// Formato colombiano: 1684000 → "$1.684.000"
+// Formato colombiano: 1240000 → "$1.240.000"
 const formatoCOP = (n) => '$' + n.toLocaleString('es-CO');
 
-// Mostramos el precio en la tarjeta y en la pregunta, y lo guardamos en el campo oculto
-// (sin precio_mostrado, la respuesta no se puede analizar).
-const priceCard = document.getElementById('priceCard');
 const precioTexto = document.getElementById('precioTexto');
-const precioPregunta = document.getElementById('precioPregunta');
-const precioMostrado = document.getElementById('precioMostrado');
-if (precioTexto) precioTexto.textContent = formatoCOP(precioAsignado);
-if (precioPregunta) precioPregunta.textContent = '¿Comprarías FLOAT a ' + formatoCOP(precioAsignado) + ' en la preventa?';
-if (precioMostrado) precioMostrado.value = String(precioAsignado);
-if (priceCard) priceCard.hidden = false; // la tarjeta empieza oculta para que nadie vea un precio vacío
+const apartadoTexto = document.getElementById('apartadoTexto');
+if (precioTexto) precioTexto.textContent = formatoCOP(PRECIO_FLOAT);
+if (apartadoTexto) apartadoTexto.textContent = formatoCOP(Math.round(PRECIO_FLOAT * PORCENTAJE_APARTADO));
 
-// Origen de la visita: ?o=pauta, ?o=historia, ?utm_source=instagram... en el enlace.
-// Si no viene en el enlace, usamos el sitio desde el que llegó; si no hay nada, "directo".
-// Sirve para separar en el análisis a la gente de la pauta de los conocidos (que suelen decir más "sí").
-const origenEl = document.getElementById('origen');
-if (origenEl) {
-  const params = new URLSearchParams(window.location.search);
-  let origen = params.get('o') || params.get('utm_source') || '';
-  if (!origen && document.referrer) {
-    try {
-      const host = new URL(document.referrer).hostname;
-      if (host !== window.location.hostname) origen = host; // ignoramos clics dentro de la misma página
-    } catch (e) {}
-  }
-  origenEl.value = (origen || 'directo').toLowerCase().slice(0, 40);
-}
+// Elegir esmeralda: al tocar una miniatura, cambia la foto grande con un fundido suave
+const stageImg = document.getElementById('stageImg');
+const gemBtns = document.querySelectorAll('.gem');
+const gemName = document.getElementById('gemName');
+const stageMark = document.querySelector('.stage-mark');
+let gemElegida = '01';
+gemBtns.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    gemElegida = btn.dataset.gem;
+    gemBtns.forEach((b) => b.classList.toggle('is-on', b === btn)); // solo una queda marcada
+    if (gemName) gemName.textContent = gemElegida;
+    if (stageMark) stageMark.textContent = 'FLOAT 01 · Esmeralda ' + gemElegida;
+    if (stageImg) {
+      stageImg.classList.add('is-swapping'); // se desvanece...
+      setTimeout(() => {
+        stageImg.src = btn.dataset.img;       // ...cambia la foto...
+        stageImg.classList.remove('is-swapping'); // ...y vuelve a aparecer
+      }, 250);
+    }
+  });
+});
 
-// Precio "demasiado caro": mientras escriben, dejamos solo números y los mostramos con puntos de mil.
-// Al guardar, Apps Script recibe el texto "1.800.000"; en el análisis se le quitan los puntos.
-const precioCaro = document.getElementById('precioCaro');
-if (precioCaro) {
-  precioCaro.addEventListener('input', () => {
-    const digitos = precioCaro.value.replace(/\D/g, '').slice(0, 9); // \D = todo lo que no sea número
-    precioCaro.value = digitos ? formatoCOP(Number(digitos)) : '';
+// Cupón "Especial para ti": por ahora solo se guarda (en mayúsculas); todavía NO se valida.
+// Cuando haya validación real, se consultará aquí a un servidor (nunca se calcula el descuento en el navegador).
+const couponInput = document.getElementById('coupon');
+const couponBtn = document.getElementById('couponBtn');
+const couponMsg = document.getElementById('couponMsg');
+let cuponGuardado = '';
+if (couponBtn && couponInput) {
+  couponBtn.addEventListener('click', () => {
+    const codigo = couponInput.value.trim().toUpperCase();
+    couponInput.value = codigo;
+    if (!codigo) { cuponGuardado = ''; couponMsg.textContent = 'Escribe tu cupón.'; return; }
+    cuponGuardado = codigo;
+    couponMsg.textContent = 'Cupón ' + codigo + ' guardado. Lo aplicamos al confirmar tu compra.';
   });
 }
 
-// ─────────────────────────────────────────────
-// 7. Formulario de la lista de espera
-// Envía a Netlify Forms (respaldo nativo) y en paralelo a Google Sheets
-// vía Apps Script, para que ambos queden con el registro.
-// ─────────────────────────────────────────────
-const waitlistForm = document.getElementById('waitlistForm');
-const submitBtn = document.getElementById('waitlistSubmit');
-const formStatus = document.getElementById('formStatus');
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxhz74l9n1PCKNku_VWTPmDdMZbLjQUOPZoNnzFfbPkk7B27O4swPro7n8cPujAFI2J/exec';
-
-if (waitlistForm) {
-  waitlistForm.addEventListener('submit', async (e) => {
-    e.preventDefault(); // evitamos que la página se recargue
-
-    // Si el campo trampa viene lleno, es un bot: fingimos éxito y no guardamos nada
-    if (waitlistForm.querySelector('[name="bot-field"]').value) {
-      showThanks();
+// Botón "Comprar ahora": pide la talla, copia el pedido y abre el chat de Instagram.
+// (Todavía no cobra: el pago se conecta después con la pasarela.)
+const buyBtn = document.getElementById('buyBtn');
+const buyStatus = document.getElementById('buyStatus');
+const tallaSel = document.getElementById('talla');
+if (buyBtn && tallaSel) {
+  buyBtn.addEventListener('click', async () => {
+    if (!tallaSel.value) {
+      buyStatus.textContent = 'Elige tu talla para continuar.';
+      tallaSel.focus();
       return;
     }
-
-    // Bloqueamos el botón para que no se envíe dos veces con doble clic
-    submitBtn.disabled = true;
-    submitBtn.firstChild.textContent = 'Enviando… ';
-    formStatus.textContent = '';
-
-    const formData = new FormData(waitlistForm);
-
-    // Las dos peticiones salen al mismo tiempo. allSettled espera a que ambas
-    // terminen, aunque una falle, y nos dice cómo le fue a cada una.
-    const [netlifyResult, sheetsResult] = await Promise.allSettled([
-      // 1) Netlify Forms: aquí sí podemos leer la respuesta (res.ok)
-      fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(formData).toString()
-      }).then(res => { if (!res.ok) throw new Error('Netlify ' + res.status); }),
-
-      // 2) Google Sheets vía Apps Script. mode 'no-cors': Google no deja leer la
-      //    respuesta, así que solo sabemos si falló la conexión, no si guardó.
-      fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(formData) })
-      // URLSearchParams = formato "campo=valor&...", el formato más simple para que Apps Script
-      // reciba cada campo en e.parameter (es el que pide el doPost actualizado).
-    ]);
-
-    // Si al menos uno de los dos llegó bien, damos las gracias.
-    // Si los dos fallaron (p. ej. sin internet), mostramos un error y dejamos reintentar.
-    if (netlifyResult.status === 'fulfilled' || sheetsResult.status === 'fulfilled') {
-      showThanks();
-    } else {
-      submitBtn.disabled = false;
-      submitBtn.firstChild.textContent = 'Unirme a la lista ';
-      formStatus.textContent = 'No pudimos enviar tus datos. Revisa tu conexión e inténtalo de nuevo, o escríbenos a furae.co@gmail.com.';
-    }
+    let pedido = 'Hola FURÁE, quiero comprar FLOAT 01 · Esmeralda ' + gemElegida + ' · Talla ' + tallaSel.value;
+    if (cuponGuardado) pedido += ' · Cupón ' + cuponGuardado;
+    try { await navigator.clipboard.writeText(pedido); } catch (e) { /* sin permiso para copiar: el mensaje se muestra abajo */ }
+    buyStatus.textContent = 'Copiamos tu pedido: ' + pedido + '. Te llevamos a Instagram, pégalo y lo confirmamos.';
+    setTimeout(() => { window.location.href = INSTAGRAM_DM; }, 1400);
   });
-}
-
-// Reemplaza el formulario por el mensaje de gracias
-function showThanks(){
-  waitlistForm.innerHTML = '<p style="font-size:14px;line-height:1.8;color:var(--cream)">Gracias, quedaste en la lista de acceso prioritario de FLOAT. Te avisamos apenas haya novedades.</p>';
 }
