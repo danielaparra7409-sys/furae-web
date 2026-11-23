@@ -13,7 +13,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="FURÁE" />
   <meta property="og:title" content="FLOAT — FURÁE" />
-  <meta property="og:description" content="Una esmeralda colombiana suspendida en luz. Únete a la lista de acceso prioritario." />
+  <meta property="og:description" content="Una esmeralda colombiana suspendida en luz. Preventa fundadora." />
   <meta property="og:image" content="assets/og-float.jpg" />
   <meta property="og:locale" content="es_CO" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -34,9 +34,9 @@
       <a href="#float">FLOAT</a>
       <a href="#object">OBJETO</a>
       <a href="#origin">ORIGEN</a>
-      <a href="#access">ACCESO</a>
+      <a href="#access">COMPRAR</a>
     </nav>
-    <a class="header-cta" href="#access">Solicitar acceso</a>
+    <a class="header-cta" href="#access">Comprar</a>
     <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="mobileNav" aria-label="Abrir menú">
       <span></span><span></span>
     </button>
@@ -46,7 +46,7 @@
     <a href="#float">FLOAT</a>
     <a href="#object">OBJETO</a>
     <a href="#origin">ORIGEN</a>
-    <a href="#access">ACCESO</a>
+    <a href="#access">COMPRAR</a>
   </nav>
 
   <main id="top">
@@ -213,95 +213,67 @@
       </div>
     </section>
 
-    <!-- 9. WAITLIST / ACCESO -->
-    <section class="access-section" id="access">
-      <div class="access-visual">
-        <img src="assets/anillo-float-front.jpg" alt="Anillo FLOAT" loading="lazy" />
-      </div>
-      <div class="access-content">
-        <p class="eyebrow">ACCESO</p>
-        <h2 class="float-title">FLOAT 01</h2>
-        <p class="access-lead">Acceso prioritario</p>
-        <p>Cuéntanos si te interesa y te avisamos apenas FLOAT quede validado, con las condiciones finales. No prometemos fecha ni stock todavía, solo que serás de las primeras personas en saberlo.</p>
+    <!-- 9. COMPRA (reemplaza la lista de acceso / estudio de precio)
+Izquierda: foto grande + 4 esmeraldas para elegir (los recortes son PROVISIONALES: cambiar data-img por las fotos reales).
+Derecha: precio, talla, cupón "Especial para ti" y botón de compra. Todo se maneja en script.js (sección 6). -->
+<section class="access-section" id="access">
+<div class="access-visual">
+<div class="zoom-stage">
+<img id="stageImg" src="assets/anillo-float-front.jpg" alt="Anillo FLOAT con la esmeralda elegida" />
+<span class="stage-mark">FLOAT 01</span>
+</div>
+<div class="gems" role="group" aria-label="Elige tu esmeralda">
+<button type="button" class="gem is-on" data-gem="01" data-img="assets/anillo-float-front.jpg" aria-label="Esmeralda 01"><img src="assets/anillo-float-front.jpg" alt="" loading="lazy" /><span>01</span></button>
+<button type="button" class="gem" data-gem="02" data-img="assets/anillo-float-macro.jpg" aria-label="Esmeralda 02"><img src="assets/anillo-float-macro.jpg" alt="" loading="lazy" /><span>02</span></button>
+<button type="button" class="gem" data-gem="03" data-img="assets/anillo-float-34.jpg" aria-label="Esmeralda 03"><img src="assets/anillo-float-34.jpg" alt="" loading="lazy" /><span>03</span></button>
+<button type="button" class="gem" data-gem="04" data-img="assets/float-luz-1100.jpg" aria-label="Esmeralda 04"><img src="assets/float-luz-1100.jpg" alt="" loading="lazy" /><span>04</span></button>
+</div>
+</div>
+<div class="access-content">
+<p class="eyebrow">PREVENTA FUNDADORA</p>
+<h2 class="float-title">FLOAT 01</h2>
+<p class="buy-lead">Una esmeralda colombiana natural, con certificado de laboratorio, suspendida en un volumen transparente de polímero de calidad óptica con protección UV. Hecho por artesanos colombianos, pieza por pieza.</p>
 
-        <!-- EXPERIMENTO DE PRECIO
-             Cada visitante ve UNO de tres precios, elegido al azar por script.js (data-precio).
-             Así, si un grupo responde distinto, la diferencia se debe al precio y no a quién llegó.
-             Nadie ve dos precios a la vez (Ley 1480: si se anuncian dos precios, se paga el menor). -->
-        <div class="price-card" id="priceCard" hidden>
-          <p class="price-card__label">Precio estimado de FLOAT</p>
-          <p class="price-card__value"><span id="precioTexto"></span> <small>COP</small></p>
-          <p class="price-card__meta">IVA y envío incluidos · Esmeralda natural colombiana de ~0,3 ct, talla esmeralda, suspendida en un volumen transparente.</p>
-          <p class="price-card__note">Esto es un estudio de interés: no es una venta y no se cobra nada. Antes de la preventa te confirmamos precio y condiciones.</p>
-        </div>
+<div class="price-card price-card--buy">
+<p class="price-card__label">Precio de preventa</p>
+<p class="price-card__value"><span id="precioTexto">$1.240.000</span> <small>COP</small></p>
+<p class="price-card__meta">Esmeralda <strong id="gemName">01</strong> · cada piedra es única.</p>
+<p class="price-card__note">Precio estimado hasta que abra la preventa. Se aparta con el 50 % (<span id="apartadoTexto">$620.000</span>) y el saldo se paga al ver tu anillo terminado.</p>
+</div>
 
-        <form name="float-access" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="access-form" id="waitlistForm">
-          <input type="hidden" name="form-name" value="float-access" />
-          <!-- Honeypot anti-bots: invisible para personas; si llega lleno, es un bot -->
-          <p class="hidden-field"><label>No llenar: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
-          <!-- Campos ocultos que llena script.js. Tienen que estar en el HTML para que Netlify Forms los guarde.
-               producto: esta fase solo valida FLOAT · precio_mostrado: el precio que vio la persona
-               origen: de dónde llegó (?o=pauta, ?o=historia, ?utm_source=..., o el sitio que lo enlazó) -->
-          <input type="hidden" name="producto" value="Anillo FLOAT" />
-          <input type="hidden" name="precio_mostrado" id="precioMostrado" value="" />
-          <input type="hidden" name="origen" id="origen" value="" />
+<label class="buy-field">
+<span>Talla</span>
+<select id="talla" required>
+<option value="" disabled selected>Elige tu talla</option>
+<option>US 5</option>
+<option>US 6</option>
+<option>US 7</option>
+<option>US 8</option>
+<option>No sé mi talla</option>
+</select>
+</label>
 
-          <!-- La pregunta principal del experimento va primero: es la que no puede faltar -->
-          <div class="form-row form-row--single">
-            <label>
-              <span id="precioPregunta">¿Comprarías FLOAT a este precio en la preventa?</span>
-              <select name="compraria" id="compraria" required>
-                <option value="" disabled selected>Elige una opción</option>
-                <option>Sí, en la preventa</option>
-                <option>Tal vez</option>
-                <option>No</option>
-              </select>
-            </label>
-          </div>
-          <div class="form-row form-row--single">
-            <label>
-              <!-- Precio "demasiado caro": da una segunda señal de precio, independiente del precio asignado.
-                   Es opcional para no bajar las respuestas. inputmode="numeric" abre el teclado de números en el celular. -->
-              <span>¿Desde qué precio FLOAT te parecería demasiado caro? (opcional)</span>
-              <input type="text" name="precio_caro" id="precioCaro" inputmode="numeric" autocomplete="off" placeholder="$ 0" />
-            </label>
-          </div>
-          <div class="form-row">
-            <label>
-              <span>Nombre</span>
-              <input type="text" name="nombre" autocomplete="name" placeholder="Tu nombre" required />
-            </label>
-            <label>
-              <span>Ciudad / país</span>
-              <input type="text" name="ciudad" autocomplete="address-level2" placeholder="Bogotá, Colombia" required />
-            </label>
-          </div>
-          <div class="form-row">
-            <label>
-              <span>Correo</span>
-              <input type="email" name="correo" autocomplete="email" placeholder="tucorreo@ejemplo.com" required />
-            </label>
-            <label>
-              <span>¿Para quién sería?</span>
-              <select name="intencion" required>
-                <option value="" disabled selected>Elige una opción</option>
-                <option>Para mí</option>
-                <option>Para regalar</option>
-                <option>Solo tengo curiosidad</option>
-              </select>
-            </label>
-          </div>
-          <!-- Autorización de datos: sin marcar por defecto y obligatoria (Ley 1581 de 2012: consentimiento previo y expreso) -->
-          <label class="checkbox-label consent-label">
-            <span class="checkbox-row"><input type="checkbox" name="autoriza" value="Sí" required /> <span>Autorizo el tratamiento de mis datos según la <a href="privacidad.html" target="_blank" rel="noopener">política de tratamiento de datos</a>: FURÁE los usará para avisarme sobre FLOAT y, de forma agregada, para decisiones de producto y precio.</span></span>
-          </label>
-          <button type="submit" id="waitlistSubmit">Unirme a la lista <span>↗</span></button>
-          <!-- Aquí se muestran errores de envío; aria-live hace que los lectores de pantalla lo anuncien -->
-          <p class="form-status" id="formStatus" aria-live="polite"></p>
-        </form>
-      </div>
-    </section>
-  </main>
+<div class="coupon-box">
+<p class="coupon-title">Especial para ti</p>
+<div class="coupon-row">
+<input type="text" id="coupon" placeholder="Tu cupón" autocomplete="off" aria-label="Cupón" />
+<button type="button" id="couponBtn">Aplicar</button>
+</div>
+<p class="coupon-msg" id="couponMsg" aria-live="polite"></p>
+</div>
+
+<button type="button" class="buy-btn" id="buyBtn">Comprar ahora <span>↗</span></button>
+<p class="buy-status" id="buyStatus" aria-live="polite"></p>
+
+<ol class="buy-steps">
+<li>Elige tu esmeralda y tu talla.</li>
+<li>Te confirmamos por Instagram y apartas con el 50 %.</li>
+<li>Haremos tu anillo y pagas el saldo al verlo terminado.</li>
+</ol>
+<p class="buy-alt">¿Aún no estás lista o listo? <a href="https://furae.co/?o=web" target="_blank" rel="noopener">Responde la encuesta corta</a> y te avisamos primero.</p>
+</div>
+</section>
+</main>
 
   <footer class="footer">
     <span>© FURÁE 2026</span>
