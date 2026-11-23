@@ -131,7 +131,7 @@ const ESPECIFICACIONES_BASE = {
 };
 const GEMS = [
   { id: '01', nombre: 'Selva',  img: 'assets/anillo-float-front.jpg',
-    desc: 'Un verde profundo, como el interior de la montaña. Su jardín de inclusiones dibuja un paisaje propio que cambia con cada ángulo de luz.', ct: null, alto: null, ancho: null, profundidad: null },
+    desc: 'Un verde profundo, como el interior de la montaña. Su jardín de inclusiones dibuja un paisaje propio que cambia con cada ángulo de luz.', ct: '0,38 ct', alto: '3,88 mm', ancho: '5,07 mm', profundidad: '2,59 mm' },
   { id: '02', nombre: 'Rocío',  img: 'assets/anillo-float-macro.jpg',
     desc: 'Un verde fresco y luminoso, de mañana en los Andes. La luz entra al volumen y la piedra parece respirar.', ct: null, alto: null, ancho: null, profundidad: null },
   { id: '03', nombre: 'Bruma',  img: 'assets/anillo-float-34.jpg',
