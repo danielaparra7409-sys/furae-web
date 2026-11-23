@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0c0b0a">
+<title>Guía de talla · FURÁE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Guía de talla FURÁE: un solo archivo, sin internet obligatorio (las fuentes caen a serif/sans si no hay conexión) */
+:root{--bg:#0c0b0a;--fg:#f3ead9;--soft:rgba(243,234,217,.7);--line:rgba(243,234,217,.16);--gold:#b08b4f;--green:#6fe0ae;--card:rgba(243,234,217,.04)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,Arial,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:680px;margin:0 auto;padding:28px 18px 70px}
+.logo{font-family:"Cormorant Garamond",Georgia,serif;font-weight:300;letter-spacing:.32em;font-size:22px;text-align:center;margin:6px 0 30px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:300;font-size:clamp(34px,9vw,48px);line-height:1.05;margin:0 0 10px;text-align:center}
+.lead{color:var(--soft);text-align:center;margin:0 auto 26px;max-width:460px;font-size:14px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);margin-bottom:22px}
+.tabs button{background:none;border:0;color:var(--soft);padding:14px 8px;font:500 11px Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--fg);color:#1b1712}
+.panel[hidden]{display:none}
+.step{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:16px 0;border-bottom:1px solid var(--line)}
+.step b{font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;font-weight:300;color:var(--gold);line-height:1}
+.step h3{margin:0 0 4px;font-size:15px;font-weight:600}
+.step p{margin:0;color:var(--soft);font-size:13.5px}
+.tool{margin:14px 0 6px;padding:16px;border:1px solid var(--line);background:var(--card)}
+.tool h4{margin:0 0 10px;font:500 10px Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.stage{display:flex;justify-content:center;align-items:center;min-height:150px;overflow:hidden}
+.card{height:auto;border:2px solid var(--green);border-radius:10px;background:rgba(111,224,174,.08);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--green);letter-spacing:.1em;text-transform:uppercase;aspect-ratio:85.6/53.98;max-width:100%}
+.circle{border:2px solid var(--green);border-radius:50%;background:rgba(111,224,174,.06)}
+input[type=range]{width:100%;accent-color:var(--green);margin:12px 0 2px}
+.lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--soft)}
+.ruler{position:relative;height:56px;border:1px solid var(--line);margin-top:8px;overflow:hidden;background:var(--card)}
+.ruler i{position:absolute;bottom:0;width:1px;background:var(--fg)}
+.ruler em{position:absolute;top:4px;font:normal 10px Inter,sans-serif;color:var(--soft);transform:translateX(-50%)}
+label.num{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin:14px 0 6px}
+input[type=number]{width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--fg);font:400 22px Inter,sans-serif;padding:6px 0;outline:none}
+input[type=number]:focus{border-bottom-color:var(--gold)}
+.result{margin-top:22px;padding:22px;border:1px solid var(--gold);text-align:center;background:rgba(176,139,79,.07)}
+.result small{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.result strong{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-weight:400;font-size:54px;line-height:1;color:var(--green)}
+.result span{display:block;margin-top:8px;font-size:12.5px;color:var(--soft)}
+.tips{margin:26px 0 0;padding:0;list-style:none;display:grid;gap:10px}
+.tips li{padding-left:18px;position:relative;font-size:13px;color:var(--soft)}
+.tips li::before{content:"✦";position:absolute;left:0;color:var(--gold);font-size:10px;top:3px}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+th,td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:center}
+th{font:500 10px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+tr.on td{background:rgba(111,224,174,.12);color:var(--green)}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-weight:400;font-size:28px;margin:36px 0 4px}
+.note{font-size:12px;color:var(--soft);margin-top:8px}
+a{color:var(--fg)}
+.cta{display:block;margin-top:30px;padding:16px;background:var(--fg);color:#1b1712;text-align:center;text-decoration:none;font:600 11px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <p class="logo">FURÁE</p>
+  <h1>Encuentra tu talla</h1>
+  <p class="lead">FLOAT es un anillo rígido hecho a tu medida, así que acertar la talla es lo más importante. Toma 3 minutos y funciona desde tu celular.</p>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="t1" aria-selected="true" aria-controls="p1">Tengo un anillo</button>
+    <button role="tab" id="t2" aria-selected="false" aria-controls="p2">No tengo anillos</button>
+  </div>
+
+  <!-- CALIBRACIÓN: la pantalla de cada celular es distinta, por eso se calibra con una tarjeta real -->
+  <section class="tool" aria-label="Calibrar pantalla">
+    <h4>Paso 0 · Calibra tu pantalla</h4>
+    <p class="note" style="margin:0 0 10px">Pon una tarjeta bancaria (o cédula) sobre la pantalla y mueve el control hasta que el recuadro verde tenga el mismo ancho que la tarjeta (85,6 mm).</p>
+    <div class="stage"><div class="card" id="card">Tarjeta</div></div>
+    <input type="range" id="calib" min="150" max="420" value="300" aria-label="Ancho de la tarjeta en pantalla">
+  </section>
+
+  <section class="panel" id="p1" role="tabpanel" aria-labelledby="t1">
+    <div class="step"><b>1</b><div><h3>Elige un anillo que te quede cómodo</h3><p>Del mismo dedo donde usarás FLOAT. Que no te apriete ni se salga fácil. Sirve cualquier anillo liso o con la banda lisa por dentro.</p></div></div>
+    <div class="step"><b>2</b><div><h3>Ponlo plano sobre la pantalla</h3><p>Apoya el anillo acostado, sobre el círculo verde de abajo. Mira solo el <strong>borde interno</strong> (el hueco por donde pasa el dedo).</p></div></div>
+    <div class="step"><b>3</b><div><h3>Ajusta el círculo al hueco</h3><p>Mueve el control hasta que el círculo verde coincida con el borde interno del anillo.</p></div></div>
+    <div class="tool">
+      <h4>Medir el hueco del anillo</h4>
+      <div class="stage" style="min-height:230px"><div class="circle" id="circle"></div></div>
+      <input type="range" id="diam" min="140" max="230" value="180" step="1" aria-label="Diámetro interior del anillo">
+      <div class="lbl"><span>Diámetro interior</span><strong id="diamOut">—</strong></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p2" role="tabpanel" aria-labelledby="t2" hidden>
+    <div class="step"><b>1</b><div><h3>Corta una tira de papel o un hilo</h3><p>Una tira de papel de 1 cm de ancho y unos 15 cm de largo, o un hilo, o un cordón delgado. Nada elástico.</p></div></div>
+    <div class="step"><b>2</b><div><h3>Rodea la base del dedo</h3><p>Envuelve el dedo donde usarás FLOAT, justo en la base, y marca con un lápiz donde se cruzan los extremos. Debe quedar ajustada pero sin apretar: que pase por el nudillo con un poco de esfuerzo.</p></div></div>
+    <div class="step"><b>3</b><div><h3>Mide la tira en milímetros</h3><p>Estírala sobre la regla de abajo (ya calibrada con tu tarjeta) o sobre una regla real, y escribe el largo.</p></div></div>
+    <div class="tool">
+      <h4>Regla en pantalla (milímetros)</h4>
+      <div class="ruler" id="ruler" aria-hidden="true"></div>
+      <label class="num" for="circ">Largo de tu tira (mm)</label>
+      <input type="number" id="circ" inputmode="decimal" min="40" max="80" step="0.5" placeholder="Ej. 54">
+    </div>
+  </section>
+
+  <div class="result" id="result" aria-live="polite">
+    <small>Tu talla aproximada</small>
+    <strong id="size">—</strong>
+    <span id="sizeDetail">Completa los pasos de arriba para ver tu resultado.</span>
+  </div>
+
+  <ul class="tips">
+    <li>Mídete al final del día y con la mano tibia: por la mañana o con frío el dedo está más delgado.</li>
+    <li>Repite la medida 2 o 3 veces y quédate con el promedio.</li>
+    <li>FLOAT tiene una banda ancha: las bandas anchas se sienten más justas. Si estás entre dos tallas, elige la mayor.</li>
+    <li>El anillo es rígido y no se ajusta después, por eso confirmamos tu talla contigo antes de fabricarlo.</li>
+  </ul>
+
+  <h2>Tabla de tallas</h2>
+  <p class="note">Talla US, diámetro interior y contorno del dedo. Las tallas con ✦ son las disponibles de FLOAT (US 5, 6, 7 y 8); las demás las confirmamos contigo antes de fabricar.</p>
+  <table id="tabla"><thead><tr><th>Talla US</th><th>Diámetro</th><th>Contorno</th></tr></thead><tbody></tbody></table>
+
+  <a class="cta" id="cta" href="https://ig.me/m/furae.co" target="_blank" rel="noopener">Confirmar mi talla con FURÁE</a>
+</main>
+
+<script>
+// ─── Guía de talla FURÁE ───
+// Tabla de tallas US: diámetro interior en mm. US 5, 6, 7 y 8 son los diámetros reales de los moldes de FLOAT;
+// el resto sigue las tablas de tallas US de referencia. Contorno = π × diámetro.
+const TABLA = [[4,14.9],[4.5,15.3],[5,15.6],[5.5,16.1],[6,16.5],[6.5,16.9],[7,17.2],[7.5,17.8],[8,18.1],[8.5,18.5],[9,19.1],[9.5,19.5],[10,19.8],[10.5,20.2],[11,20.6]];
+const DISPONIBLES = [5, 6, 7, 8];                         // tallas con molde; las demás se confirman con FURÁE
+const mmDeTalla = (n) => (TABLA.find((t) => t[0] === n) || [n, 0])[1];
+// Talla más cercana a un diámetro medido (busca la fila de la tabla con menor diferencia)
+const tallaDeMm = (d) => TABLA.reduce((mejor, t) => Math.abs(t[1] - d) < Math.abs(mejor[1] - d) ? t : mejor)[0];
+const aMedia = (n) => n;
+const fmt = (n) => String(n).replace('.', ',').replace(',5', '½');
+
+let pxPorMm = 3.5;                                       // se recalcula al calibrar
+const $ = (id) => document.getElementById(id);
+
+// Pestañas
+['t1', 't2'].forEach((id, i) => $(id).addEventListener('click', () => {
+  ['t1', 't2'].forEach((x, j) => { $(x).setAttribute('aria-selected', String(i === j)); $('p' + (j + 1)).hidden = i !== j; });
+  resultado();
+}));
+
+// Calibración: el ancho real de una tarjeta es 85,6 mm
+function calibrar() {
+  const px = +$('calib').value;
+  $('card').style.width = px + 'px';
+  pxPorMm = px / 85.6;
+  try { localStorage.setItem('furae_pxmm', pxPorMm); } catch (e) {}
+  regla(); circulo(); resultado();
+}
+// Regla en pantalla con marcas cada milímetro (largas cada 5 y cada 10)
+function regla() {
+  const r = $('ruler'); r.innerHTML = '';
+  const mm = Math.floor(r.clientWidth / pxPorMm);
+  for (let i = 0; i <= mm; i++) {
+    const t = document.createElement('i');
+    t.style.left = (i * pxPorMm) + 'px';
+    t.style.height = i % 10 === 0 ? '30px' : i % 5 === 0 ? '20px' : '10px';
+    r.appendChild(t);
+    if (i % 10 === 0 && i > 0) { const e = document.createElement('em'); e.style.left = (i * pxPorMm) + 'px'; e.textContent = i / 10 + ' cm'; r.appendChild(e); }
+  }
+}
+// Círculo para el hueco del anillo: el control va en décimas de mm (140 = 14,0 mm … 230 = 23,0 mm)
+function circulo() {
+  const d = +$('diam').value / 10;
+  const px = d * pxPorMm;
+  const c = $('circle'); c.style.width = c.style.height = px + 'px';
+  $('diamOut').textContent = d.toFixed(1).replace('.', ',') + ' mm';
+}
+function mostrar(n, d) {
+  const t = aMedia(n);
+  $('size').textContent = 'US ' + fmt(t);
+  $('sizeDetail').textContent = 'Diámetro ≈ ' + mmDeTalla(t).toFixed(1).replace('.', ',') + ' mm · contorno ≈ ' + (Math.PI * mmDeTalla(t)).toFixed(0) + ' mm. ' + (DISPONIBLES.includes(t) ? 'Es una de las tallas disponibles de FLOAT.' : 'Esta talla la confirmamos contigo antes de fabricar.') + ' Si estás entre dos, elige la mayor.';
+  document.querySelectorAll('#tabla tr').forEach((tr) => tr.classList.toggle('on', tr.dataset.t === String(t)));
+  const msg = 'Hola FURÁE, mi talla aproximada es US ' + fmt(t) + '. ¿Me ayudan a confirmarla?';
+  $('cta').href = 'https://ig.me/m/furae.co'; // si hay WhatsApp, cambiar aquí por https://wa.me/57XXXXXXXXXX?text=
+  $('cta').dataset.msg = msg;
+}
+function resultado() {
+  const conAnillo = !$('p1').hidden;
+  if (conAnillo) { mostrar(tallaDeMm(+$('diam').value / 10)); return; }
+  const c = parseFloat($('circ').value);
+  if (c >= 40 && c <= 80) mostrar(tallaDeMm(c / Math.PI));
+  else { $('size').textContent = '—'; $('sizeDetail').textContent = 'Escribe el largo de tu tira (entre 40 y 80 mm).'; }
+}
+// Tabla
+const tb = document.querySelector('#tabla tbody');
+TABLA.forEach(([n, d]) => {
+  const tr = document.createElement('tr'); tr.dataset.t = String(n);
+  tr.innerHTML = '<td>' + fmt(n) + (DISPONIBLES.includes(n) ? ' ✦' : '') + '</td><td>' + d.toFixed(1).replace('.', ',') + ' mm</td><td>' + (Math.PI * d).toFixed(0) + ' mm</td>';
+  tb.appendChild(tr);
+});
+$('calib').addEventListener('input', calibrar);
+$('diam').addEventListener('input', () => { circulo(); resultado(); });
+$('circ').addEventListener('input', resultado);
+try { const g = parseFloat(localStorage.getItem('furae_pxmm')); if (g > 1.5 && g < 5) $('calib').value = Math.round(g * 85.6); } catch (e) {}
+calibrar();
+window.addEventListener('resize', regla);
+</script>
+</body>
+</html>

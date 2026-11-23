@@ -97,123 +97,336 @@ if (lazyVideos.length && !prefersReducedMotion) {
 }
 
 // ─────────────────────────────────────────────
-// 6. Experimento de precio de FLOAT
-// Cada visitante ve UNO de estos tres precios (COP, IVA y envío incluidos), elegido al azar.
-// Con las respuestas de los tres grupos se arma la curva: % que diría "sí" a cada precio.
-// Para cambiar los precios, se cambia SOLO esta lista (y se avisa en el análisis desde qué fecha).
+// 6. Sección de compra
 // ─────────────────────────────────────────────
-const PRECIOS_PRUEBA = [1360000, 1684000, 2040000];
-const CLAVE_PRECIO = 'floatPrecioPrueba'; // nombre con el que se guarda en el navegador
+// ★ CONFIGURACIÓN (lo único que se toca para ajustar la compra) ★
+const PRECIO_FLOAT = 1240000;          // precio de preventa (pendiente de aprobación del CEO)
+const PORCENTAJE_APARTADO = 0.5;       // se aparta con el 50 %
+const INSTAGRAM_DM = 'https://ig.me/m/furae.co';
+const ENVIO_VALOR = 35000;             // valor REAL aproximado del envío asegurado (flete + seguro). Confirmar con la cotización de Coordinadora.
+const FECHA_LIMITE_NAVIDAD = '1 de diciembre'; // pedido confirmado hasta esa fecha = llega antes de Navidad (CONFIRMAR con el CEO). '' = no mostrar.
+const META_PIXEL_ID = '';              // ID del Pixel de Meta (vacío = no se carga nada)
+const WHATSAPP_NUMERO = '573124539112';            // ej. '573001234567' (57 + celular, sin + ni espacios). Vacío = se usa Instagram.
+const PASARELA_LINK = '';              // link de pago del apartado (Wompi / Bold / Mercado Pago). Vacío = se confirma por chat.
+const PEDIDOS_URL = '';                // (opcional) URL de Google Apps Script para guardar cada pedido en la hoja
 
-// Si la persona recarga o vuelve otro día, ve el MISMO precio. Si le tocara otro,
-// podría comparar y la respuesta ya no sería solo sobre el precio que vio.
-let precioAsignado = null;
-try { precioAsignado = Number(localStorage.getItem(CLAVE_PRECIO)); } catch (e) { /* navegador sin almacenamiento: seguimos */ }
+// ★ ESMERALDAS ★ Para agregar una: copia un bloque, cambia foto y textos.
+// ct / alto / ancho / profundidad en null = se usan los datos base de abajo. OJO: los textos y nombres son un BORRADOR,
+// deben ajustarse a cada piedra real (color, inclusiones, quilates y medidas reales).
+const ESPECIFICACIONES_BASE = {
+  ct: '≈ 0,30 ct',
+  alto: '≈ 4 mm',
+  ancho: '≈ 4 mm',
+  profundidad: 'Por medir',
+  talla: 'Esmeralda',
+  origen: 'Colombia',
+  tipo: 'Natural · certificado de laboratorio'
+};
+const GEMS = [
+  { id: '01', nombre: 'Selva',  img: 'assets/anillo-float-front.jpg',
+    desc: 'Un verde profundo, como el interior de la montaña. Su jardín de inclusiones dibuja un paisaje propio que cambia con cada ángulo de luz.', ct: null, alto: null, ancho: null, profundidad: null },
+  { id: '02', nombre: 'Rocío',  img: 'assets/anillo-float-macro.jpg',
+    desc: 'Un verde fresco y luminoso, de mañana en los Andes. La luz entra al volumen y la piedra parece respirar.', ct: null, alto: null, ancho: null, profundidad: null },
+  { id: '03', nombre: 'Bruma',  img: 'assets/anillo-float-34.jpg',
+    desc: 'Un verde sereno con un velo suave en su interior: la huella intacta de cómo se formó hace millones de años.', ct: null, alto: null, ancho: null, profundidad: null },
+  { id: '04', nombre: 'Alba',   img: 'assets/float-luz-1100.jpg',
+    desc: 'Se enciende al contacto con la luz. Una piedra para quien quiere llevar la primera luz del día en la mano.', ct: null, alto: null, ancho: null, profundidad: null }
+];
 
-// .includes() descarta valores viejos (p. ej. de la lista anterior de 4 precios) o vacíos:
-// en ese caso se sortea de nuevo entre los tres precios vigentes, con la misma probabilidad (1/3).
-if (!PRECIOS_PRUEBA.includes(precioAsignado)) {
-  precioAsignado = PRECIOS_PRUEBA[Math.floor(Math.random() * PRECIOS_PRUEBA.length)];
-  try { localStorage.setItem(CLAVE_PRECIO, String(precioAsignado)); } catch (e) {}
-}
-
-// Formato colombiano: 1684000 → "$1.684.000"
+// Formato colombiano: 1240000 → "$1.240.000"
 const formatoCOP = (n) => '$' + n.toLocaleString('es-CO');
-
-// Mostramos el precio en la tarjeta y en la pregunta, y lo guardamos en el campo oculto
-// (sin precio_mostrado, la respuesta no se puede analizar).
-const priceCard = document.getElementById('priceCard');
+const apartado = Math.round(PRECIO_FLOAT * PORCENTAJE_APARTADO);
 const precioTexto = document.getElementById('precioTexto');
-const precioPregunta = document.getElementById('precioPregunta');
-const precioMostrado = document.getElementById('precioMostrado');
-if (precioTexto) precioTexto.textContent = formatoCOP(precioAsignado);
-if (precioPregunta) precioPregunta.textContent = '¿Comprarías FLOAT a ' + formatoCOP(precioAsignado) + ' en la preventa?';
-if (precioMostrado) precioMostrado.value = String(precioAsignado);
-if (priceCard) priceCard.hidden = false; // la tarjeta empieza oculta para que nadie vea un precio vacío
+const apartadoTexto = document.getElementById('apartadoTexto');
+if (precioTexto) precioTexto.textContent = formatoCOP(PRECIO_FLOAT);
+if (apartadoTexto) apartadoTexto.textContent = formatoCOP(apartado);
 
-// Origen de la visita: ?o=pauta, ?o=historia, ?utm_source=instagram... en el enlace.
-// Si no viene en el enlace, usamos el sitio desde el que llegó; si no hay nada, "directo".
-// Sirve para separar en el análisis a la gente de la pauta de los conocidos (que suelen decir más "sí").
-const origenEl = document.getElementById('origen');
-if (origenEl) {
-  const params = new URLSearchParams(window.location.search);
-  let origen = params.get('o') || params.get('utm_source') || '';
-  if (!origen && document.referrer) {
-    try {
-      const host = new URL(document.referrer).hostname;
-      if (host !== window.location.hostname) origen = host; // ignoramos clics dentro de la misma página
-    } catch (e) {}
-  }
-  origenEl.value = (origen || 'directo').toLowerCase().slice(0, 40);
+// Canal de chat: WhatsApp si hay número; si no, Instagram
+const urlChat = (texto) => WHATSAPP_NUMERO
+  ? 'https://wa.me/' + WHATSAPP_NUMERO + '?text=' + encodeURIComponent(texto)
+  : INSTAGRAM_DM;
+const waLink = document.getElementById('waLink');
+const waCanal = document.getElementById('waCanal');
+const faqChat = document.getElementById('faqChat');
+if (faqChat) { faqChat.href = urlChat('Hola FURÁE, tengo una pregunta sobre FLOAT.'); faqChat.textContent = WHATSAPP_NUMERO ? 'por WhatsApp' : 'por Instagram'; }
+const envioValor = document.getElementById('envioValor');
+if (envioValor) envioValor.textContent = formatoCOP(ENVIO_VALOR);
+const xmasMsg = document.getElementById('xmasMsg');
+if (xmasMsg && FECHA_LIMITE_NAVIDAD) xmasMsg.textContent = '✦ Para recibirlo antes de Navidad, confirma tu pedido hasta el ' + FECHA_LIMITE_NAVIDAD + '.';
+// Tallas: las 4 que ya tienen molde (US 5, 6, 7 y 8, decisión del 20 nov) y, aparte, las demás bajo consulta.
+// Como el anillo es rígido, una talla "bajo consulta" se confirma con el CEO antes de fabricar (puede tardar más).
+const TALLAS_DISPONIBLES = ['5', '6', '7', '8'];
+const TALLAS_CONSULTA = ['4', '4,5', '5,5', '6,5', '7,5', '8,5', '9', '9,5', '10', '10,5', '11'];
+const tallaSelect = document.getElementById('talla');
+if (tallaSelect) {
+  const grupo = (titulo, lista) => {
+    const g = document.createElement('optgroup'); g.label = titulo;
+    lista.forEach((n) => { const o = document.createElement('option'); o.value = 'US ' + n; o.textContent = 'US ' + n.replace(',5', '½'); g.appendChild(o); });
+    tallaSelect.appendChild(g);
+  };
+  grupo('Tallas disponibles', TALLAS_DISPONIBLES);
+  grupo('Otra talla (la confirmamos contigo antes de fabricar)', TALLAS_CONSULTA);
+  const g = document.createElement('optgroup'); g.label = '¿No la sabes?';
+  const o = document.createElement('option'); o.value = 'No sé mi talla'; o.textContent = 'No sé mi talla (ver la guía)'; g.appendChild(o);
+  tallaSelect.appendChild(g);
+}
+if (waLink) {
+  waLink.href = urlChat('Hola FURÁE, tengo una pregunta sobre FLOAT.');
+  if (waCanal) waCanal.textContent = WHATSAPP_NUMERO ? 'por WhatsApp' : 'por Instagram';
 }
 
-// Precio "demasiado caro": mientras escriben, dejamos solo números y los mostramos con puntos de mil.
-// Al guardar, Apps Script recibe el texto "1.800.000"; en el análisis se le quitan los puntos.
-const precioCaro = document.getElementById('precioCaro');
-if (precioCaro) {
-  precioCaro.addEventListener('input', () => {
-    const digitos = precioCaro.value.replace(/\D/g, '').slice(0, 9); // \D = todo lo que no sea número
-    precioCaro.value = digitos ? formatoCOP(Number(digitos)) : '';
+// ── Esmeraldas: miniaturas, ficha y foto grande ──
+const stage = document.getElementById('zoomStage');
+const stageImg = document.getElementById('stageImg');
+const stageMark = document.getElementById('stageMark');
+const gemsBox = document.getElementById('gems');
+const gemInfo = document.getElementById('gemInfo');
+const gemName = document.getElementById('gemName');
+let gemElegida = GEMS[0];
+
+function pintarFicha(g) {
+  const s = { ...ESPECIFICACIONES_BASE, ct: g.ct || ESPECIFICACIONES_BASE.ct, alto: g.alto || ESPECIFICACIONES_BASE.alto, ancho: g.ancho || ESPECIFICACIONES_BASE.ancho, profundidad: g.profundidad || ESPECIFICACIONES_BASE.profundidad };
+  document.getElementById('gemTag').textContent = 'Esmeralda ' + g.id;
+  document.getElementById('gemTitle').textContent = g.nombre;
+  document.getElementById('gemDesc').textContent = g.desc;
+  document.getElementById('gemSpecs').innerHTML =
+    [['Quilates', s.ct], ['Alto', s.alto], ['Ancho', s.ancho], ['Profundidad', s.profundidad], ['Corte', s.talla], ['Origen', s.origen], ['Piedra', s.tipo]]
+      .map(([k, v]) => '<div><dt>' + k + '</dt><dd>' + v + '</dd></div>').join('');
+  gemInfo.classList.remove('is-in'); void gemInfo.offsetWidth; gemInfo.classList.add('is-in'); // reinicia la animación
+}
+
+function elegirGema(g, primera) {
+  gemElegida = g;
+  gemsBox.querySelectorAll('.gem').forEach((b) => {
+    const on = b.dataset.gem === g.id;
+    b.classList.toggle('is-on', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
+  if (gemName) gemName.textContent = g.nombre;
+  if (stageMark) stageMark.textContent = 'FLOAT 01 · ' + g.nombre;
+  stage.classList.remove('is-zoomed');
+  pintarFicha(g);
+  if (primera) { stageImg.src = g.img; return; }
+  stageImg.classList.add('is-swapping');               // se desvanece...
+  setTimeout(() => { stageImg.src = g.img; stageImg.classList.remove('is-swapping'); }, 250); // ...cambia y vuelve
+}
+
+if (gemsBox && stage && stageImg) {
+  GEMS.forEach((g) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'gem'; b.dataset.gem = g.id;
+    b.setAttribute('aria-label', 'Esmeralda ' + g.id + ' ' + g.nombre);
+    b.innerHTML = '<img src="' + g.img + '" alt="" loading="lazy" /><span>' + g.nombre + '</span>';
+    b.addEventListener('click', () => elegirGema(g));
+    gemsBox.appendChild(b);
+  });
+  elegirGema(GEMS[0], true);
+
+  // ── Zoom: con mouse, al pasar el cursor; en celular, al tocar (y arrastrar para mover) ──
+  const hint = document.getElementById('zoomHint');
+  const tactil = window.matchMedia('(hover: none)').matches;
+  if (hint) hint.textContent = tactil ? 'Toca para acercar' : 'Pasa el cursor para acercar';
+  const origen = (e) => {
+    const r = stage.getBoundingClientRect();
+    const x = Math.max(0, Math.min(100, (e.clientX - r.left) / r.width * 100));
+    const y = Math.max(0, Math.min(100, (e.clientY - r.top) / r.height * 100));
+    stageImg.style.transformOrigin = x + '% ' + y + '%';
+  };
+  stage.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { origen(e); stage.classList.add('is-zoomed'); } });
+  stage.addEventListener('pointermove', (e) => { if (stage.classList.contains('is-zoomed')) origen(e); });
+  stage.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') stage.classList.remove('is-zoomed'); });
+  stage.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse') return;
+    origen(e); stage.classList.toggle('is-zoomed');
+  });
+  stage.addEventListener('keydown', (e) => { // teclado: Enter o espacio
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stageImg.style.transformOrigin = '50% 50%'; stage.classList.toggle('is-zoomed'); }
   });
 }
 
-// ─────────────────────────────────────────────
-// 7. Formulario de la lista de espera
-// Envía a Netlify Forms (respaldo nativo) y en paralelo a Google Sheets
-// vía Apps Script, para que ambos queden con el registro.
-// ─────────────────────────────────────────────
-const waitlistForm = document.getElementById('waitlistForm');
-const submitBtn = document.getElementById('waitlistSubmit');
-const formStatus = document.getElementById('formStatus');
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxhz74l9n1PCKNku_VWTPmDdMZbLjQUOPZoNnzFfbPkk7B27O4swPro7n8cPujAFI2J/exec';
+// ── Cupón "Especial para ti": por ahora solo se guarda; NO se valida (la validación real va en un servidor) ──
+const couponInput = document.getElementById('coupon');
+const couponBtn = document.getElementById('couponBtn');
+const couponMsg = document.getElementById('couponMsg');
+let cuponGuardado = '';
+if (couponBtn && couponInput) {
+  couponBtn.addEventListener('click', () => {
+    const codigo = couponInput.value.trim().toUpperCase();
+    couponInput.value = codigo;
+    if (!codigo) { cuponGuardado = ''; couponMsg.textContent = 'Escribe tu cupón.'; return; }
+    cuponGuardado = codigo;
+    couponMsg.textContent = 'Cupón ' + codigo + ' guardado. Lo aplicamos al confirmar tu compra.';
+  });
+}
 
-if (waitlistForm) {
-  waitlistForm.addEventListener('submit', async (e) => {
-    e.preventDefault(); // evitamos que la página se recargue
-
-    // Si el campo trampa viene lleno, es un bot: fingimos éxito y no guardamos nada
-    if (waitlistForm.querySelector('[name="bot-field"]').value) {
-      showThanks();
+// ── Botón "Comprar ahora" ──
+// 1) exige talla  2) arma el pedido  3) lo guarda (si hay PEDIDOS_URL)
+// 4) con PASARELA_LINK lleva al pago del apartado; si no, abre el chat (WhatsApp/Instagram) con el pedido escrito.
+const buyBtn = document.getElementById('buyBtn');
+const buyStatus = document.getElementById('buyStatus');
+const tallaSel = document.getElementById('talla');
+const buyBtnText = document.getElementById('buyBtnText');
+if (buyBtnText && PASARELA_LINK) buyBtnText.textContent = 'Apartar con ' + formatoCOP(apartado);
+if (buyBtn && tallaSel) {
+  buyBtn.addEventListener('click', async () => {
+    if (!tallaSel.value) {
+      buyStatus.textContent = 'Elige tu talla para continuar.';
+      tallaSel.focus();
       return;
     }
-
-    // Bloqueamos el botón para que no se envíe dos veces con doble clic
-    submitBtn.disabled = true;
-    submitBtn.firstChild.textContent = 'Enviando… ';
-    formStatus.textContent = '';
-
-    const formData = new FormData(waitlistForm);
-
-    // Las dos peticiones salen al mismo tiempo. allSettled espera a que ambas
-    // terminen, aunque una falle, y nos dice cómo le fue a cada una.
-    const [netlifyResult, sheetsResult] = await Promise.allSettled([
-      // 1) Netlify Forms: aquí sí podemos leer la respuesta (res.ok)
-      fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(formData).toString()
-      }).then(res => { if (!res.ok) throw new Error('Netlify ' + res.status); }),
-
-      // 2) Google Sheets vía Apps Script. mode 'no-cors': Google no deja leer la
-      //    respuesta, así que solo sabemos si falló la conexión, no si guardó.
-      fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(formData) })
-      // URLSearchParams = formato "campo=valor&...", el formato más simple para que Apps Script
-      // reciba cada campo en e.parameter (es el que pide el doPost actualizado).
-    ]);
-
-    // Si al menos uno de los dos llegó bien, damos las gracias.
-    // Si los dos fallaron (p. ej. sin internet), mostramos un error y dejamos reintentar.
-    if (netlifyResult.status === 'fulfilled' || sheetsResult.status === 'fulfilled') {
-      showThanks();
-    } else {
-      submitBtn.disabled = false;
-      submitBtn.firstChild.textContent = 'Unirme a la lista ';
-      formStatus.textContent = 'No pudimos enviar tus datos. Revisa tu conexión e inténtalo de nuevo, o escríbenos a furae.co@gmail.com.';
+    let pedido = 'Hola FURÁE, quiero comprar FLOAT 01 · Esmeralda ' + gemElegida.id + ' ' + gemElegida.nombre + ' · Talla ' + tallaSel.value + ' · Envío incluido';
+    if (cuponGuardado) pedido += ' · Cupón ' + cuponGuardado;
+    if (PEDIDOS_URL) { // guarda el pedido sin bloquear al usuario
+      try { navigator.sendBeacon(PEDIDOS_URL, new URLSearchParams({ pedido, esmeralda: gemElegida.nombre, talla: tallaSel.value, cupon: cuponGuardado, precio: PRECIO_FLOAT })); } catch (e) {}
     }
+    if (PASARELA_LINK) {
+      buyStatus.textContent = 'Te llevamos al pago seguro del apartado (' + formatoCOP(apartado) + ').';
+      setTimeout(() => { window.location.href = PASARELA_LINK; }, 1200);
+      return;
+    }
+    try { await navigator.clipboard.writeText(pedido); } catch (e) { /* sin permiso: igual va en el link de WhatsApp */ }
+    buyStatus.textContent = WHATSAPP_NUMERO
+      ? 'Te llevamos a WhatsApp con tu pedido ya escrito. Solo envíalo.'
+      : 'Copiamos tu pedido: ' + pedido + '. Te llevamos a Instagram, pégalo y lo confirmamos.';
+    setTimeout(() => { window.location.href = urlChat(pedido); }, 1400);
   });
 }
 
-// Reemplaza el formulario por el mensaje de gracias
-function showThanks(){
-  waitlistForm.innerHTML = '<p style="font-size:14px;line-height:1.8;color:var(--cream)">Gracias, quedaste en la lista de acceso prioritario de FLOAT. Te avisamos apenas haya novedades.</p>';
+// ─────────────────────────────────────────────
+// 7. Animaciones: barra de progreso, letras, contadores, parallax y línea de ORIGEN
+// ─────────────────────────────────────────────
+// Barra de progreso de lectura (arriba)
+const barra = document.createElement('div');
+barra.className = 'scroll-progress';
+document.body.appendChild(barra);
+
+// Título FLOAT: cada letra entra escalonada (el texto original queda en aria-label para lectores de pantalla)
+document.querySelectorAll('#float .float-title').forEach((t) => {
+  const txt = t.textContent.trim();
+  t.setAttribute('aria-label', txt);
+  t.innerHTML = [...txt].map((ch, i) => '<span class="ch" aria-hidden="true" style="--i:' + i + '">' + ch + '</span>').join('');
+  t.classList.add('split');
+});
+
+// Contadores de ORIGEN: 65M y ~55 % suben desde cero al aparecer
+document.querySelectorAll('.fact-number').forEach((el) => {
+  const m = el.textContent.match(/^(~?)(\d+)(.*)$/);
+  if (!m || prefersReducedMotion) return;
+  const [, pre, num, suf] = m;
+  const meta = parseInt(num, 10);
+  const io = new IntersectionObserver((es) => {
+    if (!es[0].isIntersecting) return;
+    io.disconnect();
+    const t0 = performance.now();
+    const paso = (t) => {
+      const p = Math.min(1, (t - t0) / 1600);
+      el.textContent = pre + Math.round(meta * (1 - Math.pow(1 - p, 3))) + suf; // frena al final (ease-out)
+      if (p < 1) requestAnimationFrame(paso);
+    };
+    requestAnimationFrame(paso);
+  }, { threshold: 0.6 });
+  io.observe(el);
+});
+
+// Línea dorada de ORIGEN que se dibuja
+const factGrid = document.querySelector('.fact-grid');
+if (factGrid) {
+  const io2 = new IntersectionObserver((es) => { if (es[0].isIntersecting) { factGrid.classList.add('is-drawn'); io2.disconnect(); } }, { threshold: 0.3 });
+  io2.observe(factGrid);
+}
+
+// Parallax: las fotos grandes se mueven más lento que el scroll
+const parallaxEls = [...document.querySelectorAll('.stone-image, .body-image, .origin-video')];
+parallaxEls.forEach((el) => el.setAttribute('data-parallax', ''));
+let ticking = false;
+function alScroll() {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  barra.style.transform = 'scaleX(' + (max > 0 ? scrollY / max : 0) + ')';
+  if (!prefersReducedMotion) {
+    parallaxEls.forEach((el) => {
+      const r = el.parentElement.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > innerHeight) return; // fuera de pantalla: no calcular
+      const y = (r.top + r.height / 2 - innerHeight / 2) * -0.1;
+      el.style.transform = 'translate3d(0,' + y.toFixed(1) + 'px,0) scale(1.14)';
+    });
+  }
+  ticking = false;
+}
+window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(alScroll); } }, { passive: true });
+window.addEventListener('resize', alScroll);
+alScroll();
+
+// ─────────────────────────────────────────────
+// 8. Intro, polvo de luz, precio animado, Pixel y efecto del inicio
+// ─────────────────────────────────────────────
+// Intro: se marca como vista para no repetirla en la misma visita; un toque la salta
+const intro = document.getElementById('intro');
+if (intro) {
+  try { sessionStorage.setItem('furae_intro', '1'); } catch (e) {}
+  intro.addEventListener('click', () => { intro.style.display = 'none'; });
+}
+
+// Pixel de Meta (solo si hay ID). Eventos: ver contenido y empezar compra.
+function pixel(evento) { try { if (window.fbq) window.fbq('track', evento); } catch (e) {} }
+if (META_PIXEL_ID) {
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  window.fbq('init', META_PIXEL_ID); window.fbq('track', 'PageView'); pixel('ViewContent');
+}
+if (buyBtn) buyBtn.addEventListener('click', () => { if (tallaSel && tallaSel.value) pixel('InitiateCheckout'); });
+
+// El precio "sube" desde cero al llegar a la compra
+const accessSec = document.getElementById('access');
+if (accessSec && precioTexto && !prefersReducedMotion) {
+  const ioP = new IntersectionObserver((es) => {
+    if (!es[0].isIntersecting) return;
+    ioP.disconnect();
+    const t0 = performance.now();
+    const paso = (t) => {
+      const p = Math.min(1, (t - t0) / 1400);
+      precioTexto.textContent = formatoCOP(Math.round(PRECIO_FLOAT * (1 - Math.pow(1 - p, 3)) / 1000) * 1000);
+      if (p < 1) requestAnimationFrame(paso); else precioTexto.textContent = formatoCOP(PRECIO_FLOAT);
+    };
+    requestAnimationFrame(paso);
+  }, { threshold: 0.35 });
+  ioP.observe(accessSec);
+}
+
+// Polvo de luz: partículas verdes y doradas que suben despacio detrás del anillo (solo si está en pantalla)
+const dust = document.getElementById('dust');
+if (dust && !prefersReducedMotion) {
+  const ctx = dust.getContext('2d');
+  let W = 0, H = 0, visible = false, partes = [];
+  const medir = () => {
+    const r = dust.getBoundingClientRect(); const dpr = Math.min(2, devicePixelRatio || 1);
+    W = dust.width = r.width * dpr; H = dust.height = r.height * dpr;
+    partes = Array.from({ length: innerWidth < 900 ? 28 : 55 }, () => ({
+      x: Math.random() * W, y: Math.random() * H, r: (0.6 + Math.random() * 1.8) * dpr,
+      v: (0.12 + Math.random() * 0.35) * dpr, d: Math.random() * 6.28,
+      c: Math.random() < 0.6 ? '111,224,174' : '200,169,122'
+    }));
+  };
+  const dibujar = () => {
+    if (!visible) return;
+    ctx.clearRect(0, 0, W, H);
+    partes.forEach((p) => {
+      p.y -= p.v; p.d += 0.01; p.x += Math.sin(p.d) * 0.3;
+      if (p.y < -10) { p.y = H + 10; p.x = Math.random() * W; }
+      const a = 0.25 + 0.35 * Math.sin(p.d * 2);
+      ctx.beginPath(); ctx.fillStyle = 'rgba(' + p.c + ',' + Math.max(0.05, a) + ')';
+      ctx.shadowColor = 'rgba(' + p.c + ',.8)'; ctx.shadowBlur = 8; ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill();
+    });
+    requestAnimationFrame(dibujar);
+  };
+  medir(); window.addEventListener('resize', medir);
+  new IntersectionObserver((es) => { const v = es[0].isIntersecting; if (v && !visible) { visible = true; dibujar(); } visible = v; }).observe(dust);
+}
+
+// El texto del inicio se aleja y se desvanece al hacer scroll
+const heroInner = document.querySelector('.hero-inner');
+if (heroInner && !prefersReducedMotion) {
+  window.addEventListener('scroll', () => {
+    const y = Math.min(scrollY, innerHeight);
+    heroInner.style.transform = 'translateY(' + (y * 0.3).toFixed(1) + 'px)';
+    heroInner.style.opacity = String(Math.max(0, 1 - y / (innerHeight * 0.7)));
+  }, { passive: true });
 }
