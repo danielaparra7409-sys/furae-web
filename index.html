@@ -234,11 +234,6 @@ la ficha de la esmeralda y, al lado, las opciones de compra.
 Las esmeraldas (nombre, foto, descripción, quilates, medidas) se editan en script.js → const GEMS.
 Los anillos YA HECHOS y el cupón se configuran en script.js → const LISTOS y const CUPON. -->
 <section class="buy-section" id="access">
-<header class="buy-head">
-<p class="eyebrow">PREVENTA FUNDADORA</p>
-<h2 class="buy-title">FLOAT 01</h2>
-</header>
-
 <div class="buy-stage">
 <div class="zoom-stage" id="zoomStage" tabindex="0" aria-label="Foto de la esmeralda. Pasa el cursor o toca para acercar">
 <img id="stageImg" src="assets/anillo-float-front.jpg" alt="Anillo FLOAT con la esmeralda elegida" />
@@ -253,7 +248,7 @@ Los anillos YA HECHOS y el cupón se configuran en script.js → const LISTOS y 
 <small>Precio de preventa</small>
 <strong><span id="precioTexto">$1.240.000</span> <b class="cop">COP</b></strong>
 <del id="precioViejo" hidden></del>
-<span class="buy-price__sub">Envío asegurado incluido (<span id="envioValor">$35.000</span>, lo cubrimos nosotros) · Edición limitada y numerada</span>
+<span class="buy-price__sub">Edición limitada y numerada</span>
 <em>Se aparta con <span id="apartadoTexto">$620.000</span> (50 %) y el saldo se paga al ver tu anillo terminado.</em>
 </div>
 
@@ -300,6 +295,13 @@ Los anillos YA HECHOS y el cupón se configuran en script.js → const LISTOS y 
 <p class="coupon-msg" id="couponMsg" aria-live="polite"></p>
 </div>
 
+<dl class="summary" id="summary" aria-live="polite">
+<div><dt>Tu anillo</dt><dd id="sumAnillo">Selva · talla —</dd></div>
+<div><dt>Precio</dt><dd id="sumPrecio">$1.240.000</dd></div>
+<div><dt>Envío asegurado</dt><dd><s id="envioValor">$35.000</s> <b>Incluido</b></dd></div>
+<div class="summary__total"><dt>Apartas hoy</dt><dd id="sumApartado">$620.000</dd></div>
+<div><dt>Saldo al terminar</dt><dd id="sumSaldo">$620.000</dd></div>
+</dl>
 <button type="button" class="buy-btn" id="buyBtn"><span id="buyBtnText">Comprar ahora</span> <span>↗</span></button>
 <p class="buy-status" id="buyStatus" aria-live="polite"></p>
 
