@@ -38,6 +38,18 @@
       var texto = 'Hola FURÁE, ya pagué el apartado de mi FLOAT.' + (pedido.pedido ? ' Mi pedido: ' + pedido.pedido.replace('Hola FURÁE, quiero comprar ', '') + '.' : '') + (id ? ' ID de pago: ' + id + '.' : '') + (pedido.ref ? ' Referencia: ' + pedido.ref + '.' : '');
       document.getElementById('wa').href = 'https://wa.me/' + NUMERO + '?text=' + encodeURIComponent(texto);
       var estado = document.getElementById('estado');
+      // Regreso desde Mercado Pago: trae ?status= y ?payment_id= (solo informativo; el pago se confirma en el panel)
+      var q = new URLSearchParams(location.search);
+      var mpStatus = q.get('status') || q.get('collection_status') || '';
+      var mpId = q.get('payment_id') || q.get('collection_id') || '';
+      if (pedido.env === 'mp' || mpStatus) {
+        var textoMp = 'Hola FURÁE, ya pagué el apartado de mi FLOAT con Mercado Pago.' + (pedido.pedido ? ' Mi pedido: ' + pedido.pedido.replace('Hola FURÁE, quiero comprar ', '') + '.' : '') + (mpId && mpId !== 'null' ? ' Número de pago: ' + mpId + '.' : '');
+        document.getElementById('wa').href = 'https://wa.me/' + NUMERO + '?text=' + encodeURIComponent(textoMp);
+        if (mpStatus === 'approved') estado.textContent = 'Pago aprobado. Envíanos el comprobante por WhatsApp y empezamos tu anillo.';
+        else if (mpStatus === 'rejected' || mpStatus === 'null') estado.textContent = 'El pago no se completó. No te cobramos nada; puedes intentarlo de nuevo o escribirnos.';
+        else estado.textContent = 'Tu pago está en proceso. Envíanos el comprobante por WhatsApp y lo confirmamos.';
+        return;
+      }
       if (!id) { estado.textContent = 'Si acabas de pagar, escríbenos con tu comprobante y confirmamos tu apartado.'; return; }
       var base = pedido.env === 'test' ? 'https://sandbox.wompi.co/v1' : 'https://production.wompi.co/v1';
       fetch(base + '/transactions/' + encodeURIComponent(id)).then(function (r) { return r.json(); }).then(function (j) {

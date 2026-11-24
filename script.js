@@ -109,6 +109,12 @@ const FECHA_LIMITE_NAVIDAD_ISO = '2026-12-15';  // la misma fecha en formato añ
 const META_PIXEL_ID = '';              // ID del Pixel de Meta (vacío = no se carga nada)
 const WHATSAPP_NUMERO = '573124539112';            // ej. '573001234567' (57 + celular, sin + ni espacios). Vacío = se usa Instagram.
 const PASARELA_LINK = '';              // link de pago del apartado (Wompi / Bold / Mercado Pago). Vacío = se confirma por chat.
+// Links de pago de Mercado Pago. Cada uno cobra un monto FIJO: si cambias el precio o el cupón,
+// crea links nuevos en Mercado Pago y pégalos aquí. Vacío = el botón de tarjeta/PSE se oculta.
+const MP_LINKS = {
+  620000: 'https://mpago.li/1NEHZUB', // apartado normal (50 % de $1.240.000)
+  541500: 'https://mpago.li/1CrR8yy'  // apartado con cupón FURAVIDAD (50 % de $1.083.000)
+};
 const PEDIDOS_URL = '';                // (opcional) URL de Google Apps Script para guardar cada pedido en la hoja
 
 // ★ CUPÓN ★ precio fijo con el cupón. Vale para anillos YA HECHOS siempre y para pedidos sobre medida confirmados hasta "hasta".
@@ -401,7 +407,12 @@ const buyBtn = document.getElementById('buyBtn');
 const buyStatus = document.getElementById('buyStatus');
 const tallaSel = document.getElementById('talla');
 const buyBtnText = document.getElementById('buyBtnText');
-if (buyBtnText && PASARELA_LINK) buyBtnText.textContent = 'Apartar con ' + formatoCOP(apartadoDe());
+// Arma el texto del pedido (esmeralda, talla, modo, precio y cupón) para WhatsApp y para la página de gracias
+function armarPedido() {
+  let p = 'Hola FURÁE, quiero comprar FLOAT 01 · Esmeralda ' + gemElegida.id + ' ' + gemElegida.nombre + ' · Talla ' + tallaSel.value + ' · ' + (estado.modo === 'listo' ? 'Anillo ya hecho (entrega desde 5 días hábiles)' : 'Sobre pedido (~10 días hábiles)') + ' · Envío incluido · ' + formatoCOP(precioFinal());
+  if (cuponVale()) p += ' · Cupón ' + estado.cupon;
+  return p;
+}
 if (buyBtn && tallaSel) {
   buyBtn.addEventListener('click', async () => {
     if (!tallaSel.value) {
@@ -409,8 +420,7 @@ if (buyBtn && tallaSel) {
       tallaSel.focus();
       return;
     }
-    let pedido = 'Hola FURÁE, quiero comprar FLOAT 01 · Esmeralda ' + gemElegida.id + ' ' + gemElegida.nombre + ' · Talla ' + tallaSel.value + ' · ' + (estado.modo === 'listo' ? 'Anillo ya hecho (entrega desde 5 días hábiles)' : 'Sobre pedido (~10 días hábiles)') + ' · Envío incluido · ' + formatoCOP(precioFinal());
-    if (cuponVale()) pedido += ' · Cupón ' + estado.cupon;
+    const pedido = armarPedido();
     if (PEDIDOS_URL) { // guarda el pedido sin bloquear al usuario
       try { navigator.sendBeacon(PEDIDOS_URL, new URLSearchParams({ pedido, esmeralda: gemElegida.nombre, talla: tallaSel.value, cupon: cuponVale() ? estado.cupon : '', precio: precioFinal(), modo: estado.modo })); } catch (e) {}
     }
@@ -518,6 +528,39 @@ if (heroVideo) {
   });
 }
 
+
+// ── Botón "Pagar el apartado con tarjeta o PSE" (Mercado Pago) ──
+// 1) exige talla de las que se fabrican sin confirmar (US 5 a 8)
+// 2) busca el link cuyo monto coincide con el apartado (normal o con cupón)
+// 3) guarda el pedido en esta pestaña para que la página de gracias lo mande por WhatsApp
+// 4) lleva al pago. Si algo no cuadra, manda a WhatsApp para no cobrar un monto equivocado.
+const payCardBtn = document.getElementById('payCardBtn');
+if (payCardBtn) {
+  const linkMp = () => MP_LINKS[apartadoDe()] || '';
+  if (!Object.keys(MP_LINKS).length) payCardBtn.hidden = true;
+  payCardBtn.addEventListener('click', () => {
+    if (!tallaSel || !tallaSel.value) {
+      buyStatus.textContent = 'Elige tu talla para continuar.';
+      if (tallaSel) tallaSel.focus();
+      return;
+    }
+    const pedido = armarPedido();
+    const link = linkMp();
+    if (!/^US [5-8]$/.test(tallaSel.value) || !link) {
+      // talla especial o monto sin link: lo confirmamos por chat antes de cobrar
+      buyStatus.textContent = 'Esta opción la confirmamos por WhatsApp antes de cobrar. Te llevamos al chat.';
+      setTimeout(() => { window.location.href = urlChat(pedido); }, 1400);
+      return;
+    }
+    try { sessionStorage.setItem('furae_pedido', JSON.stringify({ pedido, ref: 'Mercado Pago', env: 'mp', apartado: apartadoDe() })); } catch (e) {}
+    if (PEDIDOS_URL) {
+      try { navigator.sendBeacon(PEDIDOS_URL, new URLSearchParams({ pedido, esmeralda: gemElegida.nombre, talla: tallaSel.value, cupon: cuponVale() ? estado.cupon : '', precio: precioFinal(), modo: estado.modo, pago: 'mercadopago' })); } catch (e) {}
+    }
+    pixel('InitiateCheckout');
+    buyStatus.textContent = 'Te llevamos al pago seguro del apartado (' + formatoCOP(apartadoDe()) + '). Al terminar, envíanos el comprobante por WhatsApp.';
+    setTimeout(() => { window.location.href = link; }, 1200);
+  });
+}
 // Pixel de Meta (solo si hay ID). Eventos: ver contenido y empezar compra.
 function pixel(evento) { try { if (window.fbq) window.fbq('track', evento); } catch (e) {} }
 if (META_PIXEL_ID) {
