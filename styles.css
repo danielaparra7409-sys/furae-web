@@ -572,3 +572,8 @@ html:not(.no-intro) .scroll-cue{animation-delay:3.6s}
 .buy-btn--alt{background:transparent;color:var(--cream);border:1px solid rgba(243,234,217,.45);margin-top:14px}
 .buy-btn--alt:hover{border-color:var(--cream);background:rgba(243,234,217,.06)}
 .buy-note{margin:8px 0 0;font-size:12px;line-height:1.5;color:rgba(243,234,217,.6)}
+
+/* ===== COMPRA v7 · la foto se ve completa (sin recorte) y hay 3 miniaturas ===== */
+/* contain = muestra la foto entera dentro del recuadro; antes "cover" la recortaba y la agrandaba demasiado */
+.buy-stage .zoom-stage img{object-fit:contain}
+.buy-stage .gems{grid-template-columns:repeat(3,1fr);max-width:420px}
