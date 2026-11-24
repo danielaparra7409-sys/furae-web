@@ -242,8 +242,6 @@ Los anillos YA HECHOS y el cupón se configuran en script.js → const LISTOS y 
 <span class="zoom-hint" id="zoomHint">Pasa el cursor para acercar</span>
 </div>
 <div class="gems" id="gems" role="group" aria-label="Elige tu esmeralda"></div>
-<p class="views-title">Más vistas</p>
-<div class="views" id="views" role="group" aria-label="Más vistas del anillo"></div>
 </div>
 
 <div class="buy-price">
@@ -255,6 +253,7 @@ Los anillos YA HECHOS y el cupón se configuran en script.js → const LISTOS y 
 </div>
 
 <div class="buy-body">
+<div class="buy-info">
 <div class="gem-info" id="gemInfo" aria-live="polite">
 <p class="gem-info__tag" id="gemTag">Esmeralda 01</p>
 <h3 class="gem-info__name" id="gemTitle">Selva</h3>
@@ -262,7 +261,6 @@ Los anillos YA HECHOS y el cupón se configuran en script.js → const LISTOS y 
 <dl class="gem-specs" id="gemSpecs"></dl>
 </div>
 
-<div class="buy-panel">
 <div class="mode" id="mode" role="group" aria-label="Cuándo lo quieres" hidden>
 <button type="button" class="mode__btn is-on" data-mode="pedido" aria-pressed="true"><b>Sobre pedido</b><span>~10 días hábiles</span></button>
 <button type="button" class="mode__btn" data-mode="listo" id="modeListo" aria-pressed="false"><b>Ya hecho</b><span>desde 5 días hábiles</span></button>
@@ -279,7 +277,9 @@ Los anillos YA HECHOS y el cupón se configuran en script.js → const LISTOS y 
 </ol>
 <p class="delivery__xmas" id="xmasMsg"></p>
 </aside>
+</div>
 
+<div class="buy-panel">
 <label class="buy-field">
 <span>Talla (US)</span>
 <select id="talla" required>
