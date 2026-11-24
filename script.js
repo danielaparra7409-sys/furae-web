@@ -386,6 +386,62 @@ if (gemsBox && stage && stageImg) {
   });
 }
 
+
+// ── Más vistas (galería mixta): fotos de uso y un video real del anillo ──
+// No cambian la esmeralda elegida; solo lo que se ve en el recuadro grande.
+const VISTAS = [
+  { id: 'mano',  nombre: 'En la mano', img: 'assets/fotos/vista-mano.jpg' },
+  { id: 'estuche', nombre: 'En su estuche', img: 'assets/fotos/vista-estuche.jpg' },
+  { id: 'copa',  nombre: 'Con la copa', img: 'assets/fotos/vista-copa.jpg' }
+];
+const viewsBox = document.getElementById('views');
+const stageVideo = document.getElementById('stageVideo');
+
+// Quita la vista activa: para el video y vuelve a mostrar la foto
+function limpiarVista() {
+  if (viewsBox) viewsBox.querySelectorAll('.view').forEach((b) => { b.classList.remove('is-on'); b.setAttribute('aria-pressed', 'false'); });
+  if (stageVideo) { stageVideo.pause(); stageVideo.hidden = true; }
+  stage.classList.remove('is-video', 'is-vista');
+  stageImg.hidden = false;
+}
+
+function mostrarVista(v) {
+  viewsBox.querySelectorAll('.view').forEach((b) => {
+    const on = b.dataset.view === v.id;
+    b.classList.toggle('is-on', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
+  gemsBox.querySelectorAll('.gem').forEach((b) => b.classList.remove('is-on')); // la esmeralda sigue elegida (gemElegida), solo se apaga el resaltado
+  stage.classList.remove('is-zoomed');
+  stage.classList.add('is-vista');                     // foto vertical: se muestra completa
+  if (stageMark) stageMark.textContent = 'FLOAT 01 · ' + v.nombre;
+  if (v.video && stageVideo) {
+    if (!stageVideo.src) stageVideo.src = v.video;   // el video se descarga solo la primera vez que se pide
+    stageImg.hidden = true; stageVideo.hidden = false;
+    stage.classList.add('is-video');
+    stageVideo.play().catch(() => {});
+    return;
+  }
+  if (stageVideo) { stageVideo.pause(); stageVideo.hidden = true; }
+  stage.classList.remove('is-video');
+  stageImg.hidden = false;
+  stageImg.classList.add('is-swapping');
+  setTimeout(() => { stageImg.src = v.img; stageImg.classList.remove('is-swapping'); }, 250);
+}
+
+if (viewsBox && stage && stageImg) {
+  VISTAS.forEach((v) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'view' + (v.video ? ' view--video' : ''); b.dataset.view = v.id;
+    b.setAttribute('aria-label', v.nombre); b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = '<img src="' + v.img + '" alt="" loading="lazy" /><span>' + v.nombre + '</span>';
+    b.addEventListener('click', () => mostrarVista(v));
+    viewsBox.appendChild(b);
+  });
+  // al tocar una esmeralda, se sale de la vista (vuelve la foto de esa esmeralda)
+  gemsBox.addEventListener('click', limpiarVista, true);
+}
+
 // ── Cupón: se valida aquí mismo (el código y el precio están en CUPON, arriba) ──
 function aplicarCupon() {
   estado.cupon = couponInput.value.trim().toUpperCase();
@@ -559,6 +615,51 @@ if (payCardBtn) {
     setTimeout(() => { window.location.href = link; }, 1200);
   });
 }
+
+// ── Resumen del pedido ("carrito") ──
+// Se abre con "Comprar". Muestra todo lo que se va a pagar, con el envío ($35.000) incluido.
+const checkout = document.getElementById('checkout');
+const checkoutBtn = document.getElementById('checkoutBtn');
+const ckStatus = document.getElementById('ckStatus');
+function abrirResumen() {
+  if (!tallaSel || !tallaSel.value) {          // sin talla no se puede armar el pedido
+    if (ckStatus) ckStatus.textContent = 'Elige tu talla para continuar.';
+    if (tallaSel) tallaSel.focus();
+    return;
+  }
+  if (ckStatus) ckStatus.textContent = '';
+  const set = (id, t) => { const e = document.getElementById(id); if (e) e.textContent = t; };
+  const cupon = cuponVale();
+  document.getElementById('ckImg').src = gemElegida.img;
+  set('ckNombre', 'FLOAT 01 · Esmeralda ' + gemElegida.nombre);
+  set('ckDetalle', 'Talla ' + tallaSel.value + ' · ' + (estado.modo === 'listo' ? 'Ya hecho, entrega desde 5 días hábiles' : 'Sobre pedido, ~10 días hábiles'));
+  // precio: si hay cupón, se ve el precio normal tachado y el nuevo al lado
+  document.getElementById('ckPrecio').innerHTML = cupon ? '<s>' + formatoCOP(PRECIO_FLOAT) + '</s> ' + formatoCOP(precioFinal()) : formatoCOP(precioFinal());
+  document.getElementById('ckCuponFila').hidden = !cupon;
+  if (cupon) set('ckCupon', estado.cupon + ' · −' + formatoCOP(PRECIO_FLOAT - precioFinal()));
+  set('ckEnvio', formatoCOP(ENVIO_VALOR));
+  set('ckTotal', formatoCOP(precioFinal()));
+  set('ckApartado', formatoCOP(apartadoDe()));
+  set('ckSaldo', formatoCOP(precioFinal() - apartadoDe()));
+  if (buyStatus) buyStatus.textContent = '';
+  checkout.hidden = false;
+  document.documentElement.classList.add('has-modal');   // evita que la página de atrás se mueva
+  requestAnimationFrame(() => checkout.classList.add('is-open'));
+  document.getElementById('ckClose').focus();
+}
+function cerrarResumen() {
+  checkout.classList.remove('is-open');
+  document.documentElement.classList.remove('has-modal');
+  setTimeout(() => { checkout.hidden = true; }, 250);
+  if (checkoutBtn) checkoutBtn.focus();
+}
+if (checkout && checkoutBtn) {
+  checkoutBtn.addEventListener('click', abrirResumen);
+  document.getElementById('ckClose').addEventListener('click', cerrarResumen);
+  checkout.addEventListener('click', (e) => { if (e.target === checkout) cerrarResumen(); }); // clic fuera del cuadro
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !checkout.hidden) cerrarResumen(); });
+}
+
 // Pixel de Meta (solo si hay ID). Eventos: ver contenido y empezar compra.
 function pixel(evento) { try { if (window.fbq) window.fbq('track', evento); } catch (e) {} }
 if (META_PIXEL_ID) {
