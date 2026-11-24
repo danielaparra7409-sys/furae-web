@@ -136,14 +136,12 @@ const ESPECIFICACIONES_BASE = {
   tipo: 'Natural · certificado de laboratorio'
 };
 const GEMS = [
-  { id: '01', nombre: 'Selva',  img: 'assets/fotos/float-selva.jpg',
+  { id: '01', nombre: 'Selva',  img: 'assets/fotos/gema-claro.jpg',
     desc: 'Un verde profundo, como el interior de la montaña. Su jardín de inclusiones dibuja un paisaje propio que cambia con cada ángulo de luz.', ct: '0,38 ct', alto: '3,88 mm', ancho: '5,07 mm', profundidad: '2,59 mm' },
-  { id: '02', nombre: 'Rocío',  img: 'assets/fotos/float-claro.jpg',
+  { id: '02', nombre: 'Rocío',  img: 'assets/fotos/gema-blanco.jpg',
     desc: 'Un verde fresco y luminoso, de mañana en los Andes. La luz entra al volumen y la piedra parece respirar.', ct: null, alto: null, ancho: null, profundidad: null },
-  { id: '03', nombre: 'Bruma',  img: 'assets/fotos/float-blanco.jpg',
-    desc: 'Un verde sereno con un velo suave en su interior: la huella intacta de cómo se formó hace millones de años.', ct: null, alto: null, ancho: null, profundidad: null },
-  { id: '04', nombre: 'Alba',   img: 'assets/fotos/float-perfil.jpg',
-    desc: 'Se enciende al contacto con la luz. Una piedra para quien quiere llevar la primera luz del día en la mano.', ct: null, alto: null, ancho: null, profundidad: null }
+  { id: '03', nombre: 'Bruma',  img: 'assets/fotos/gema-perfil.jpg',
+    desc: 'Un verde sereno con un velo suave en su interior: la huella intacta de cómo se formó hace millones de años.', ct: null, alto: null, ancho: null, profundidad: null }
 ];
 
 // Formato colombiano: 1240000 → "$1.240.000"
