@@ -295,7 +295,7 @@ function pintarResumen() {
   let g; try { g = gemElegida; } catch (e) { return; } // aún no se declara al cargar la página
   const set = (id, t) => { const e = document.getElementById(id); if (e) e.textContent = t; };
   const ts = document.getElementById('talla');
-  set('sumAnillo', g.nombre + ' · talla ' + (ts && ts.value && ts.value.indexOf('US') === 0 ? ts.value : '—'));
+  set('sumAnillo', g.nombre + ' · talla ' + (ts && ts.value && ts.value.indexOf('US') === 0 ? ts.value : 'por elegir'));
   set('sumPrecio', formatoCOP(precioFinal()));
   set('sumApartado', formatoCOP(apartadoDe()));
   set('sumSaldo', formatoCOP(precioFinal() - apartadoDe()));
@@ -652,9 +652,11 @@ if (intro) {
 
 // Video del inicio: aparece con un fundido y se oculta un instante antes de repetirse (así no se nota el salto)
 if (heroVideo) {
-  const listoV = () => heroVideo.classList.add('is-playing');
-  if (heroVideo.readyState >= 3 && !heroVideo.paused) listoV();
-  else heroVideo.addEventListener('playing', listoV, { once: true });
+  // Se marca "is-playing" en cuanto el video realmente avanza. Se escuchan varios eventos (no uno solo) porque en conexiones
+  // lentas el evento 'playing' podía llegar antes o repetirse, y el video se quedaba invisible mostrando solo la foto.
+  const listoV = () => { if (!heroVideo.paused && heroVideo.currentTime > 0) heroVideo.classList.add('is-playing'); };
+  ['playing', 'timeupdate', 'canplay', 'loadeddata'].forEach((ev) => heroVideo.addEventListener(ev, listoV));
+  listoV();
   heroVideo.addEventListener('timeupdate', () => {
     const d = heroVideo.duration; if (!d) return;
     heroVideo.classList.toggle('is-ending', d - heroVideo.currentTime < 0.7);
