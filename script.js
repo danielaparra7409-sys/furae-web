@@ -655,7 +655,22 @@ if (payCardBtn) {
     }
     pixel('InitiateCheckout');
     buyStatus.textContent = 'Te llevamos al pago seguro ' + (estado.pagoTotal ? 'de tu FLOAT' : 'del apartado') + ' (' + formatoCOP(montoHoy()) + '). Al terminar, envíanos el comprobante por WhatsApp.';
-    setTimeout(() => { window.location.href = link; }, 1200);
+    // Se le pide al servidor un pago NUEVO con número de pedido propio (así el webhook sabe qué pedido se pagó).
+    // Si el servidor no responde, se usa el link fijo de siempre: nunca se pierde una venta.
+    const irAPagar = async () => {
+      let destino = link;
+      try {
+        const r = await fetch('/.netlify/functions/crear-pedido', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ esmeralda: gemElegida.nombre, talla: tallaSel.value, cupon: cuponVale() ? estado.cupon : '', pagoTotal: estado.pagoTotal, modo: estado.modo }),
+        });
+        const j = await r.json();
+        if (r.ok && j.url && Number(j.monto) === montoHoy()) destino = j.url; // solo si el monto coincide con lo que se mostró
+      } catch (e) {}
+      window.location.href = destino;
+    };
+    setTimeout(irAPagar, 800);
   });
 }
 
