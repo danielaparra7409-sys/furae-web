@@ -88,18 +88,18 @@
     <!-- 2. REVEAL DE FLOAT: título arriba, foto nueva del anillo en haz de luz abajo -->
     <section class="reveal-section" id="float">
       <canvas class="dust" id="dust" aria-hidden="true"></canvas>
-      <div class="reveal-copy reveal">
-        <p class="eyebrow">LA PRIMERA PIEZA DE FURÁE</p>
-        <h1 class="float-title">FLOAT</h1>
-        <p class="hero-line">Una esmeralda colombiana suspendida en luz.</p>
-      </div>
-      <!-- srcset: el navegador elige la versión liviana (1100px) en celular y la grande (2000px) en escritorio -->
-      <img class="reveal-ring reveal delay1"
+      <!-- Primero la hoja: aparece con un fundido de opacidad a medida que se baja desde el video (script.js) -->
+      <img class="reveal-ring"
            src="assets/fotos/float-hoja-2000.jpg"
            srcset="assets/fotos/float-hoja-1100.jpg 1100w, assets/fotos/float-hoja-2000.jpg 2000w"
            sizes="(max-width: 900px) 100vw, 80vw"
            width="2000" height="1117"
            alt="Anillo FLOAT sobre una hoja seca: una esmeralda colombiana dentro de un volumen transparente" />
+      <div class="reveal-copy reveal">
+        <p class="eyebrow">LA PRIMERA PIEZA DE FURÁE</p>
+        <h1 class="float-title">FLOAT</h1>
+        <p class="hero-line">Una esmeralda colombiana suspendida en luz.</p>
+      </div>
     </section>
 
     <!-- 3. OBJETO: "La piedra no se posa..." + los 3 pasos, en una sola sección con la foto fija (sticky).
@@ -114,14 +114,11 @@
           <img src="assets/fotos/float-perfil.jpg" alt="FLOAT de perfil: el volumen transparente" loading="lazy" />
         </div>
         <div class="visual-frame visual-frame--two">
-          <img src="assets/fotos/float-mano-cerca.jpg" alt="FLOAT puesto, con la esmeralda a la vista" loading="lazy" />
-        </div>
-        <div class="visual-frame visual-frame--three">
           <img src="assets/fotos/float-frente-cerca.jpg" alt="FLOAT de frente: la esmeralda dentro del volumen transparente" loading="lazy" />
         </div>
       </div>
       <div class="story-steps">
-        <!-- Numeración continua en los 4 pasos: 01 / OBJETO, 02 / CLARIDAD ÓPTICA, 03..., 04... -->
+        <!-- 3 pasos: 01 / OBJETO, 02 / ESMERALDA COLOMBIANA, 03 / PRECISIÓN. Cada uno con una perspectiva del anillo -->
         <article class="story-step story-step--intro is-active" data-visual="zero">
           <p class="eyebrow">01 / OBJETO</p>
           <h2>La piedra no se posa<br>sobre el anillo.<br><em>Existe dentro de él.</em></h2>
@@ -129,17 +126,12 @@
           <p class="statement-key">El diseño existe para revelar, no para ocultar.</p>
         </article>
         <article class="story-step" data-visual="one">
-          <p class="eyebrow">02 / CLARIDAD ÓPTICA</p>
-          <h3>Un volumen transparente de alta claridad visual.</h3>
+          <p class="eyebrow">02 / ESMERALDA COLOMBIANA</p>
+          <h3>Una esmeralda natural, seleccionada una a una, en un volumen de alta claridad.</h3>
           <p>Suspendida. Transparente. Revelada.</p>
         </article>
         <article class="story-step" data-visual="two">
-          <p class="eyebrow">03 / ESMERALDA COLOMBIANA</p>
-          <h3>Una esmeralda colombiana natural, seleccionada una a una.</h3>
-          <p>Luz. Suspensión. Revelación.</p>
-        </article>
-        <article class="story-step" data-visual="three">
-          <p class="eyebrow">04 / PRECISIÓN</p>
+          <p class="eyebrow">03 / PRECISIÓN</p>
           <h3>Control del material, la posición, la transparencia y el acabado.</h3>
           <p>Esto exige desarrollo, precisión y control.</p>
         </article>
@@ -161,13 +153,8 @@
       </div>
     </section>
 
-    <!-- 5. COLOMBIA / GEOLOGÍA / TIEMPO
-         preload="none": este video no se descarga hasta que el usuario llega a la sección (ver script.js) -->
-    <section class="origin-section section-pad" id="origin">
-      <video class="origin-video lazy-video" muted loop playsinline preload="none" poster="assets/jungle_poster.jpg">
-        <source src="assets/jungle.mp4" type="video/mp4" />
-      </video>
-      <div class="origin-scrim" aria-hidden="true"></div>
+    <!-- 5. COLOMBIA / GEOLOGÍA / TIEMPO: fondo negro (se quitó el video de la selva; el archivo sigue en assets/jungle.mp4) -->
+    <section class="origin-section origin-section--negro section-pad" id="origin">
       <div class="origin-inner">
         <div class="section-index section-index--light">ORIGEN</div>
         <div class="fact-grid">
@@ -192,7 +179,7 @@
     <section class="light-section section-pad">
       <div class="light-grid">
         <div class="light-visual reveal">
-          <img src="assets/fotos/float-copa.jpg" alt="Mano con FLOAT sosteniendo una copa a contraluz" loading="lazy" />
+          <img src="assets/fotos/float-luz-persona.jpg" width="1400" height="2100" alt="FLOAT puesto, con la mano bajo el mentón y la esmeralda a la luz" loading="lazy" />
         </div>
         <div class="light-copy reveal delay1">
           <p class="light-kicker">La luz es parte del objeto.</p>
@@ -286,7 +273,7 @@ Los anillos YA HECHOS y el cupón se configuran en script.js → const LISTOS y 
 <option value="" disabled selected>Elige tu talla</option>
 </select>
 </label>
-<p class="size-help">¿No sabes tu talla? <a href="#talla-guia">Mírala en 3 minutos</a> o <a href="guia-de-talla.html" download="Guia-de-talla-FURAE.html">descarga la guía</a>.</p>
+<p class="size-help">¿No sabes tu talla? <a href="#talla-guia">Mírala en 3 minutos</a> o <a href="guia-de-talla.html">abre la guía</a>.</p>
 
 <div class="coupon-box">
 <p class="coupon-title">¿Tienes un cupón?</p>
@@ -324,10 +311,10 @@ Los anillos YA HECHOS y el cupón se configuran en script.js → const LISTOS y 
 <div class="size-copy reveal">
 <p class="eyebrow">TU TALLA</p>
 <h2>Acierta tu talla<br>desde tu celular.</h2>
-<p class="size-lead">FLOAT es rígido y se hace a tu medida, así que la talla importa. Descarga la guía, ábrela en tu celular y sigue los pasos. Funciona aunque nunca hayas usado un anillo.</p>
+<p class="size-lead">FLOAT es rígido y se hace a tu medida, así que la talla importa. Abre la guía en tu celular y sigue los pasos. Funciona aunque nunca hayas usado un anillo.</p>
 <div class="size-actions">
-<a class="size-btn" href="guia-de-talla.html" download="Guia-de-talla-FURAE.html">Descargar la guía <span>↓</span></a>
-<a class="size-link" href="guia-de-talla.html" target="_blank" rel="noopener">o ábrela aquí mismo</a>
+<a class="size-btn" href="guia-de-talla.html">Abrir la guía <span>→</span></a>
+<a class="size-link" href="guia-de-talla.html" download="Guia-de-talla-FURAE.html">o descárgala</a>
 </div>
 </div>
 <div class="size-steps reveal delay1">
@@ -345,18 +332,19 @@ Los anillos YA HECHOS y el cupón se configuran en script.js → const LISTOS y 
 <p class="eyebrow reveal">PREGUNTAS FRECUENTES</p>
 <h2 class="faq-title reveal">Lo que más nos preguntan.</h2>
 <div class="faq-list">
-<details class="faq"><summary>¿Cuánto demora en llegar?</summary><div class="faq-a"><div><p>Cada FLOAT se hace sobre pedido y llega en aproximadamente 10 días hábiles. Ese tiempo incluye laboratorio, curado del polímero, pulido a mano con artesanos colombianos, empaque y envío. Si es para Navidad, mira la fecha límite que aparece arriba, en la sección de compra.</p></div></div></details>
-<details class="faq"><summary>¿Cómo lo compro y cómo se paga?</summary><div class="faq-a"><div><p>Eliges tu esmeralda y tu talla, y confirmamos tu pedido. Se aparta con el 50 % y el saldo se paga al ver tu anillo terminado. Puedes apartar por transferencia, Nequi o Bre-B confirmando por WhatsApp, o pagar el apartado en línea con tarjeta o PSE (Mercado Pago, hasta 12 cuotas). El saldo se paga igual, por el medio que prefieras.</p></div></div></details>
-<details class="faq"><summary>¿La esmeralda es real?</summary><div class="faq-a"><div><p>Sí. Es una esmeralda colombiana natural, con certificado de laboratorio. Cada piedra es única: sus inclusiones (el «jardín») son la huella de cómo se formó.</p></div></div></details>
-<details class="faq"><summary>¿De qué está hecho el anillo? ¿Es vidrio?</summary><div class="faq-a"><div><p>No es vidrio. El volumen transparente es un polímero de calidad óptica con protección UV, diseñado para dejar pasar la luz y mostrar la piedra por todos sus lados. Lo trabajan artesanos colombianos pieza por pieza.</p></div></div></details>
-<details class="faq"><summary>¿Se rompe si se cae?</summary><div class="faq-a"><div><p>Es un material rígido y resistente, pero no indestructible: evita golpes fuertes contra superficies duras y guárdalo en un lugar seguro cuando no lo uses.</p></div></div></details>
-<details class="faq"><summary>¿Cómo lo cuido?</summary><div class="faq-a"><div><p>Evita el calor intenso (secadores, saunas, un carro al sol) y los químicos fuertes como cloro, alcohol o acetona. Límpialo con un paño suave y agua con jabón neutro.</p></div></div></details>
-<details class="faq"><summary>¿Cómo sé mi talla?</summary><div class="faq-a"><div><p>Descarga la <a href="guia-de-talla.html" download="Guia-de-talla-FURAE.html">guía de talla</a> y ábrela en tu celular. Tiene un paso a paso con y sin anillo. Como FLOAT es rígido, confirmamos tu talla contigo antes de fabricarlo.</p></div></div></details>
-<details class="faq"><summary>¿Hacen envíos? ¿Cuánto cuesta?</summary><div class="faq-a"><div><p>Enviamos a toda Colombia y el envío asegurado va incluido en el precio. No pagas nada adicional por el envío.</p></div></div></details>
-<details class="faq"><summary>¿Hay otros diseños?</summary><div class="faq-a"><div><p>FLOAT es la primera pieza de FURÁE. En el futuro tendremos otras piezas, también en oro. Si quieres enterarte primero, <a href="https://furae.co/?o=web" target="_blank" rel="noopener">responde la encuesta corta</a>.</p></div></div></details>
-<details class="faq"><summary>¿Por qué cada esmeralda tiene nombre?</summary><div class="faq-a"><div><p>Porque no hay dos iguales. Elegir tu esmeralda es elegir una piedra con su propio color, su propio jardín y su propia historia.</p></div></div></details>
+<details class="faq"><summary>¿Cómo lo compro y cómo se paga?</summary><div class="faq-a"><div><p>Eliges tu esmeralda y tu talla, y antes de pagar ves el resumen de tu pedido. Puedes apartar con el 50 % y pagar el saldo al ver tu anillo terminado, o pagar todo de una vez. Se paga por transferencia, Nequi o Bre-B confirmando por WhatsApp, o en línea con tarjeta o PSE (Mercado Pago, hasta 12 cuotas).</p></div></div></details>
+<details class="faq"><summary>¿Cuánto demora en llegar?</summary><div class="faq-a"><div><p>Cada FLOAT se hace sobre pedido y llega en aproximadamente 10 días hábiles. Ese tiempo incluye laboratorio, curado del polímero, pulido a mano con artesanos colombianos, empaque y envío. Si eliges un anillo ya hecho, sale desde 5 días hábiles. Si es para Navidad, mira la fecha límite que aparece arriba, en la sección de compra.</p></div></div></details>
+<details class="faq"><summary>¿Las fotos son reales?</summary><div class="faq-a"><div><p>Sí. Son fotos de piezas reales de FLOAT, tomadas por nosotros. Al comienzo del proyecto usamos imágenes de referencia hechas en computador para explicar la idea; hoy ya existen las piezas, y estas fotos son de ellas.</p></div></div></details>
+<details class="faq"><summary>¿La esmeralda es real? ¿Cómo sé que es natural?</summary><div class="faq-a"><div><p>Sí. Es una esmeralda colombiana natural, elegida a mano, una por una, por su color. Cada pieza va con el certificado gemológico de su piedra, donde un laboratorio confirma que es natural. Como casi toda esmeralda natural, tiene pequeñas inclusiones en su interior (el «jardín»): son la huella de cómo se formó.</p></div></div></details>
+<details class="faq"><summary>¿Mi esmeralda será igual a la de la foto?</summary><div class="faq-a"><div><p>No hay dos esmeraldas iguales: el tono de verde y lo que se ve por dentro cambian de una piedra a otra. Por eso cada una tiene nombre. Si eliges un anillo ya hecho, recibes la pieza de la foto. Si es sobre pedido, la tuya será única, y eso es parte de su valor.</p></div></div></details>
+<details class="faq"><summary>¿De qué está hecho el anillo? ¿Es vidrio o plástico?</summary><div class="faq-a"><div><p>No es vidrio ni cristal. El volumen transparente es un polímero de calidad óptica con protección UV, diseñado para dejar pasar la luz y mostrar la piedra por todos sus lados. Es liviano, no lleva metales y lo trabajan artesanos colombianos pieza por pieza.</p></div></div></details>
+<details class="faq"><summary>¿Se rompe si se cae?</summary><div class="faq-a"><div><p>No se quiebra como el vidrio: es un material rígido y resistente, pero no indestructible. Evita golpes fuertes contra superficies duras y quítatelo para hacer ejercicio o lavar.</p></div></div></details>
+<details class="faq"><summary>¿Cómo lo cuido?</summary><div class="faq-a"><div><p>Evita el calor intenso (secadores, saunas, un carro al sol) y los químicos fuertes como cloro, alcohol o acetona. Límpialo con un paño suave y agua con jabón neutro, y guárdalo solo para que no se raye. Con tu pieza te damos una guía de cuidado.</p></div></div></details>
+<details class="faq"><summary>¿Cómo sé mi talla?</summary><div class="faq-a"><div><p>Abre la <a href="guia-de-talla.html">guía de talla</a> en tu celular. Tiene un paso a paso con y sin anillo. Como FLOAT es rígido, confirmamos tu talla contigo antes de fabricarlo.</p></div></div></details>
+<details class="faq"><summary>¿Tienen tienda? ¿Hacen envíos?</summary><div class="faq-a"><div><p>Por ahora vendemos en línea. Enviamos a toda Colombia y el envío asegurado va incluido en el precio. En Bogotá también podemos entregarlo en mano. Si estás fuera del país, escríbenos y miramos tu caso.</p></div></div></details>
+<details class="faq"><summary>¿Hay otros diseños?</summary><div class="faq-a"><div><p>FLOAT es la primera pieza de FURÁE. Estamos trabajando en más diseños con la misma idea: dejar la piedra a la vista, en luz. Si quieres enterarte primero, <a href="https://furae.co/?o=web" target="_blank" rel="noopener">responde la encuesta corta</a>.</p></div></div></details>
 </div>
-<p class="faq-more">¿Otra duda? Escríbenos <a id="faqChat" href="https://ig.me/m/furae.co" target="_blank" rel="noopener">por Instagram</a>.</p>
+<p class="faq-more">¿Otra pregunta? Escríbenos <a id="faqChat" href="https://ig.me/m/furae.co" target="_blank" rel="noopener">por Instagram</a> o a <a href="mailto:furae.co@gmail.com">furae.co@gmail.com</a>. Te responde una persona del equipo.</p>
 </div>
 </section>
 </main>
@@ -381,13 +369,17 @@ Los anillos YA HECHOS y el cupón se configuran en script.js → const LISTOS y 
 <img id="ckImg" src="assets/fotos/gema-claro.jpg" alt="" />
 <div><b id="ckNombre">FLOAT 01 · Selva</b><span id="ckDetalle">Talla US 7 · Sobre pedido</span></div>
 </div>
+<div class="ck-plan" role="radiogroup" aria-label="Cómo quieres pagar">
+<label class="ck-plan__opt"><input type="radio" name="ckPlan" value="apartado" checked /><span><b>Apartar con el 50 %</b><small id="ckPlanA">$620.000 hoy, el saldo al ver tu anillo terminado</small></span></label>
+<label class="ck-plan__opt"><input type="radio" name="ckPlan" value="total" /><span><b>Pagar todo de una vez</b><small id="ckPlanT">$1.240.000 hoy, sin saldo pendiente</small></span></label>
+</div>
 <dl class="checkout__rows">
 <div><dt>Precio</dt><dd id="ckPrecio">$1.240.000</dd></div>
 <div id="ckCuponFila" hidden><dt>Cupón</dt><dd id="ckCupon">FURAVIDAD</dd></div>
 <div><dt>Envío asegurado</dt><dd><s id="ckEnvio">$35.000</s> <b>Incluido</b></dd></div>
 <div class="checkout__total"><dt>Total</dt><dd id="ckTotal">$1.240.000</dd></div>
-<div class="checkout__hoy"><dt>Pagas hoy (apartado 50 %)</dt><dd id="ckApartado">$620.000</dd></div>
-<div><dt>Saldo, al terminar tu anillo</dt><dd id="ckSaldo">$620.000</dd></div>
+<div class="checkout__hoy"><dt id="ckHoyLabel">Pagas hoy (apartado 50 %)</dt><dd id="ckApartado">$620.000</dd></div>
+<div id="ckSaldoFila"><dt>Saldo, al terminar tu anillo</dt><dd id="ckSaldo">$620.000</dd></div>
 </dl>
 <button type="button" class="buy-btn" id="payCardBtn">Pagar con tarjeta o PSE <span>↗</span></button>
 <p class="buy-note">Pago seguro con Mercado Pago, hasta 12 cuotas. Al terminar, envíanos el comprobante por WhatsApp.</p>

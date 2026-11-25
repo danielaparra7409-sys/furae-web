@@ -78,8 +78,27 @@ if (prefersReducedMotion) {
 const heroVideo = document.querySelector('.hero-video');
 if (heroVideo && window.matchMedia('(max-width: 900px)').matches && !heroVideo.currentSrc.includes('720')) {
   heroVideo.src = 'assets/hero-furae-720.mp4';
-  if (!prefersReducedMotion) heroVideo.play().catch(() => {});
 }
+// Para que el video arranque solo en TODOS los celulares (iPhone y Android piden que esté silenciado y "en línea"):
+// se marca por código además del HTML, porque algunos navegadores solo leen la propiedad.
+const reproducir = (v) => { if (prefersReducedMotion || !v) return; const p = v.play(); if (p && p.catch) p.catch(() => {}); };
+document.querySelectorAll('video').forEach((v) => {
+  v.muted = true; v.defaultMuted = true; v.playsInline = true;
+  v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
+});
+reproducir(heroVideo);
+// Si el celular bloquea la reproducción automática (modo de ahorro de batería en iPhone, ahorro de datos en Android),
+// se ve la foto fija y el video arranca con el primer toque en la pantalla.
+const enPantalla = new Set();
+if ('IntersectionObserver' in window) {
+  const ioVid = new IntersectionObserver((es) => es.forEach((e) => {
+    if (e.isIntersecting) { enPantalla.add(e.target); reproducir(e.target); } else { enPantalla.delete(e.target); e.target.pause(); }
+  }), { threshold: 0.05 });
+  document.querySelectorAll('.hero-video, .lazy-video').forEach((v) => ioVid.observe(v));
+}
+const desbloquearVideos = () => enPantalla.forEach((v) => { if (v.paused) reproducir(v); });
+['touchend', 'click', 'keydown'].forEach((ev) => document.addEventListener(ev, desbloquearVideos, { passive: true }));
+document.addEventListener('visibilitychange', () => { if (!document.hidden) desbloquearVideos(); });
 
 // Los videos con .lazy-video (ORIGEN) solo se descargan y reproducen cuando
 // están en pantalla, y se pausan al salir. Así el celular no baja el video
@@ -89,7 +108,7 @@ if (lazyVideos.length && !prefersReducedMotion) {
   const videoObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       const video = entry.target;
-      if (entry.isIntersecting) video.play().catch(() => {}); // .catch: algunos navegadores bloquean autoplay; no pasa nada
+      if (entry.isIntersecting) reproducir(video); // si el navegador lo bloquea, arranca con el primer toque
       else video.pause();
     });
   }, { threshold: 0.1 });
@@ -112,8 +131,10 @@ const PASARELA_LINK = '';              // link de pago del apartado (Wompi / Bol
 // Links de pago de Mercado Pago. Cada uno cobra un monto FIJO: si cambias el precio o el cupón,
 // crea links nuevos en Mercado Pago y pégalos aquí. Vacío = el botón de tarjeta/PSE se oculta.
 const MP_LINKS = {
-  620000: 'https://mpago.li/1NEHZUB', // apartado normal (50 % de $1.240.000)
-  541500: 'https://mpago.li/1CrR8yy'  // apartado con cupón FURAVIDAD (50 % de $1.083.000)
+  620000: 'https://mpago.li/1NEHZUB',  // apartado normal (50 % de $1.240.000)
+  541500: 'https://mpago.li/1CrR8yy',  // apartado con cupón FURAVIDAD (50 % de $1.083.000)
+  1240000: 'https://mpago.li/11VeJtZ', // pago completo, precio normal
+  1083000: 'https://mpago.li/2FJnSwd'  // pago completo con cupón FURAVIDAD (también anillos ya hechos)
 };
 const PEDIDOS_URL = '';                // (opcional) URL de Google Apps Script para guardar cada pedido en la hoja
 
@@ -147,11 +168,12 @@ const GEMS = [
 // Formato colombiano: 1240000 → "$1.240.000"
 const formatoCOP = (n) => '$' + n.toLocaleString('es-CO');
 // ── Estado de la compra: modo (sobre pedido / ya hecho) y cupón ──
-const estado = { modo: 'pedido', cupon: '' };
+const estado = { modo: 'pedido', cupon: '', pagoTotal: false }; // pagoTotal: true = paga todo de una vez
 const listoDe = (id) => LISTOS.find((l) => l.gem === id);
 const cuponVale = () => estado.cupon === CUPON.codigo && (estado.modo === 'listo' || new Date() <= new Date(CUPON.hasta + 'T23:59:59'));
 const precioFinal = () => (cuponVale() ? CUPON.precio : PRECIO_FLOAT);
 const apartadoDe = () => Math.round(precioFinal() * PORCENTAJE_APARTADO);
+const montoHoy = () => (estado.pagoTotal ? precioFinal() : apartadoDe()); // lo que se cobra hoy
 const precioTexto = document.getElementById('precioTexto');
 const precioViejo = document.getElementById('precioViejo');
 const apartadoTexto = document.getElementById('apartadoTexto');
@@ -465,6 +487,7 @@ const buyBtnText = document.getElementById('buyBtnText');
 function armarPedido() {
   let p = 'Hola FURÁE, quiero comprar FLOAT 01 · Esmeralda ' + gemElegida.id + ' ' + gemElegida.nombre + ' · Talla ' + tallaSel.value + ' · ' + (estado.modo === 'listo' ? 'Anillo ya hecho (entrega desde 5 días hábiles)' : 'Sobre pedido (~10 días hábiles)') + ' · Envío incluido · ' + formatoCOP(precioFinal());
   if (cuponVale()) p += ' · Cupón ' + estado.cupon;
+  p += estado.pagoTotal ? ' · Pago total' : ' · Apartado 50 % (' + formatoCOP(apartadoDe()) + ')';
   return p;
 }
 if (buyBtn && tallaSel) {
@@ -540,6 +563,22 @@ if (factGrid) {
   io2.observe(factGrid);
 }
 
+// Reveal: la foto de la hoja aparece con un fundido de opacidad al bajar desde el video del inicio
+const revealRing = document.querySelector('.reveal-ring');
+if (revealRing) {
+  const fundirHoja = () => {
+    if (prefersReducedMotion) { revealRing.style.opacity = 1; return; }
+    const r = revealRing.getBoundingClientRect();
+    const p = Math.max(0, Math.min(1, (innerHeight - r.top) / (innerHeight * 0.7)));
+    revealRing.style.opacity = p.toFixed(3);
+    revealRing.style.transform = 'scale(' + (0.95 + 0.05 * p).toFixed(4) + ')';
+  };
+  let fh = false;
+  window.addEventListener('scroll', () => { if (!fh) { fh = true; requestAnimationFrame(() => { fundirHoja(); fh = false; }); } }, { passive: true });
+  window.addEventListener('resize', fundirHoja);
+  fundirHoja();
+}
+
 // Parallax: las fotos grandes se mueven más lento que el scroll
 const parallaxEls = [...document.querySelectorAll('.stone-image, .body-image, .origin-video')];
 parallaxEls.forEach((el) => el.setAttribute('data-parallax', ''));
@@ -590,7 +629,7 @@ if (heroVideo) {
 // 4) lleva al pago. Si algo no cuadra, manda a WhatsApp para no cobrar un monto equivocado.
 const payCardBtn = document.getElementById('payCardBtn');
 if (payCardBtn) {
-  const linkMp = () => MP_LINKS[apartadoDe()] || '';
+  const linkMp = () => MP_LINKS[montoHoy()] || '';
   if (!Object.keys(MP_LINKS).length) payCardBtn.hidden = true;
   payCardBtn.addEventListener('click', () => {
     if (!tallaSel || !tallaSel.value) {
@@ -606,12 +645,12 @@ if (payCardBtn) {
       setTimeout(() => { window.location.href = urlChat(pedido); }, 1400);
       return;
     }
-    try { sessionStorage.setItem('furae_pedido', JSON.stringify({ pedido, ref: 'Mercado Pago', env: 'mp', apartado: apartadoDe() })); } catch (e) {}
+    try { sessionStorage.setItem('furae_pedido', JSON.stringify({ pedido, ref: 'Mercado Pago', env: 'mp', apartado: apartadoDe(), total: estado.pagoTotal, monto: montoHoy() })); } catch (e) {}
     if (PEDIDOS_URL) {
       try { navigator.sendBeacon(PEDIDOS_URL, new URLSearchParams({ pedido, esmeralda: gemElegida.nombre, talla: tallaSel.value, cupon: cuponVale() ? estado.cupon : '', precio: precioFinal(), modo: estado.modo, pago: 'mercadopago' })); } catch (e) {}
     }
     pixel('InitiateCheckout');
-    buyStatus.textContent = 'Te llevamos al pago seguro del apartado (' + formatoCOP(apartadoDe()) + '). Al terminar, envíanos el comprobante por WhatsApp.';
+    buyStatus.textContent = 'Te llevamos al pago seguro ' + (estado.pagoTotal ? 'de tu FLOAT' : 'del apartado') + ' (' + formatoCOP(montoHoy()) + '). Al terminar, envíanos el comprobante por WhatsApp.';
     setTimeout(() => { window.location.href = link; }, 1200);
   });
 }
@@ -639,14 +678,28 @@ function abrirResumen() {
   if (cupon) set('ckCupon', estado.cupon + ' · −' + formatoCOP(PRECIO_FLOAT - precioFinal()));
   set('ckEnvio', formatoCOP(ENVIO_VALOR));
   set('ckTotal', formatoCOP(precioFinal()));
-  set('ckApartado', formatoCOP(apartadoDe()));
-  set('ckSaldo', formatoCOP(precioFinal() - apartadoDe()));
+  set('ckPlanA', formatoCOP(apartadoDe()) + ' hoy, el saldo al ver tu anillo terminado');
+  set('ckPlanT', formatoCOP(precioFinal()) + ' hoy, sin saldo pendiente');
+  pintarPlan();
   if (buyStatus) buyStatus.textContent = '';
   checkout.hidden = false;
   document.documentElement.classList.add('has-modal');   // evita que la página de atrás se mueva
   requestAnimationFrame(() => checkout.classList.add('is-open'));
   document.getElementById('ckClose').focus();
 }
+// Apartar 50 % o pagar todo: cambia "Pagas hoy", el saldo y el texto de los botones
+function pintarPlan() {
+  const set = (id, t) => { const e = document.getElementById(id); if (e) e.textContent = t; };
+  document.querySelectorAll('input[name="ckPlan"]').forEach((r) => { r.checked = (r.value === 'total') === estado.pagoTotal; });
+  set('ckHoyLabel', estado.pagoTotal ? 'Pagas hoy (todo)' : 'Pagas hoy (apartado 50 %)');
+  set('ckApartado', formatoCOP(montoHoy()));
+  set('ckSaldo', formatoCOP(precioFinal() - montoHoy()));
+  const fila = document.getElementById('ckSaldoFila'); if (fila) fila.hidden = estado.pagoTotal;
+  set('buyBtnText', estado.pagoTotal ? 'Pagar por WhatsApp' : 'Apartar por WhatsApp');
+}
+document.querySelectorAll('input[name="ckPlan"]').forEach((r) => r.addEventListener('change', () => {
+  estado.pagoTotal = r.value === 'total' && r.checked; pintarPlan();
+}));
 function cerrarResumen() {
   checkout.classList.remove('is-open');
   document.documentElement.classList.remove('has-modal');
