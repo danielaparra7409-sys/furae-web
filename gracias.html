@@ -20,7 +20,7 @@
   </header>
 
   <main class="legal-page">
-    <p class="legal-meta">Tu apartado de FLOAT</p>
+    <p class="legal-meta">Tu pedido de FLOAT</p>
     <h1>Gracias.</h1>
     <p id="estado">Estamos confirmando tu pago. Esto puede tardar unos segundos.</p>
     <p>El siguiente paso es confirmar tu talla y tu dirección de entrega contigo. Escríbenos por WhatsApp con tu pedido ya listo; así empezamos a preparar tu anillo.</p>
@@ -43,7 +43,7 @@
       var mpStatus = q.get('status') || q.get('collection_status') || '';
       var mpId = q.get('payment_id') || q.get('collection_id') || '';
       if (pedido.env === 'mp' || mpStatus) {
-        var textoMp = 'Hola FURÁE, ya pagué el apartado de mi FLOAT con Mercado Pago.' + (pedido.pedido ? ' Mi pedido: ' + pedido.pedido.replace('Hola FURÁE, quiero comprar ', '') + '.' : '') + (mpId && mpId !== 'null' ? ' Número de pago: ' + mpId + '.' : '');
+        var textoMp = 'Hola FURÁE, ya pagué ' + (pedido.total ? 'mi FLOAT completo' : 'el apartado de mi FLOAT') + ' con Mercado Pago.' + (pedido.pedido ? ' Mi pedido: ' + pedido.pedido.replace('Hola FURÁE, quiero comprar ', '') + '.' : '') + (mpId && mpId !== 'null' ? ' Número de pago: ' + mpId + '.' : '');
         document.getElementById('wa').href = 'https://wa.me/' + NUMERO + '?text=' + encodeURIComponent(textoMp);
         if (mpStatus === 'approved') estado.textContent = 'Pago aprobado. Envíanos el comprobante por WhatsApp y empezamos tu anillo.';
         else if (mpStatus === 'rejected' || mpStatus === 'null') estado.textContent = 'El pago no se completó. No te cobramos nada; puedes intentarlo de nuevo o escribirnos.';
