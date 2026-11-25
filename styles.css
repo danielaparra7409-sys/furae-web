@@ -672,3 +672,23 @@ html.has-modal{overflow:hidden}
 .hero-play{position:absolute;z-index:3;left:50%;bottom:120px;transform:translateX(-50%);width:58px;height:58px;border-radius:50%;border:1px solid rgba(240,230,210,.65);background:rgba(12,11,10,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);cursor:pointer;display:grid;place-items:center;padding:0}
 .hero-play[hidden]{display:none}
 .hero-play svg{width:22px;height:22px;fill:#efe6d6;margin-left:3px}
+
+/* ===== COMPRA v10 · miniatura "El anillo" + galería con flechas, 4 esmeraldas ===== */
+/* 5 miniaturas: El anillo + 4 esmeraldas */
+.buy-stage .gems{grid-template-columns:repeat(5,1fr);max-width:1000px;gap:10px}
+@media (max-width:900px){.buy-stage .gems{grid-template-columns:repeat(5,1fr);max-width:none;gap:6px;padding:0 12px}.buy-stage .gem{aspect-ratio:1/1}.buy-stage .gem span{font-size:7.5px;letter-spacing:.08em}}
+/* la miniatura del anillo se distingue con una línea dorada abajo cuando está activa */
+.gem--anillo.is-on{border-color:var(--gold)}
+/* flechas y puntos: solo cuando la foto grande muestra el anillo */
+.zoom-stage:not(.is-gallery) .stage-nav{display:none}
+.zoom-stage.is-gallery:not(.is-zoomed){touch-action:pan-y}
+.stage-nav__btn{position:absolute;top:50%;z-index:4;width:46px;height:46px;margin-top:-23px;border-radius:50%;border:1px solid rgba(243,234,217,.45);background:rgba(12,11,10,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);cursor:pointer;display:grid;place-items:center;padding:0;transition:background .25s ease,border-color .25s ease}
+.stage-nav__btn:hover{background:rgba(12,11,10,.78);border-color:var(--gold)}
+.stage-nav__btn--prev{left:14px}
+.stage-nav__btn--next{right:14px}
+.stage-nav__btn svg{width:20px;height:20px;fill:none;stroke:#efe6d6;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.stage-dots{position:absolute;z-index:4;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:10px;padding:8px 12px;border-radius:99px;background:rgba(12,11,10,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.stage-dots button{width:9px;height:9px;padding:0;border-radius:50%;border:1px solid rgba(243,234,217,.8);background:transparent;cursor:pointer}
+.stage-dots button.is-on{background:var(--gold);border-color:var(--gold)}
+@media (max-width:900px){.stage-nav__btn{width:40px;height:40px;margin-top:-20px}.stage-nav__btn--prev{left:8px}.stage-nav__btn--next{right:8px}}
+

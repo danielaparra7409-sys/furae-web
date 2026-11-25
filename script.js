@@ -178,13 +178,23 @@ const ESPECIFICACIONES_BASE = {
   origen: 'Colombia',
   tipo: 'Natural · certificado de laboratorio'
 };
+// Las 4 esmeraldas reales (datos del certificado del Instituto Colombiano de Gemología, ICG).
+// En el certificado las medidas vienen como "largo x ancho x profundidad": aquí largo = "ancho" y ancho = "alto"
+// (así se mostraba en la ficha desde antes). corte = forma de la piedra. reporte = número del certificado.
+// Los textos (desc) son descripciones de la forma y el color que se ven en la foto: ajústalos si quieres.
 const GEMS = [
-  { id: '01', nombre: 'Selva',  img: 'assets/fotos/gema-claro.jpg',
-    desc: 'Un verde profundo, como el interior de la montaña. Su jardín de inclusiones dibuja un paisaje propio que cambia con cada ángulo de luz.', ct: '0,38 ct', alto: '3,88 mm', ancho: '5,07 mm', profundidad: '2,59 mm' },
-  { id: '02', nombre: 'Rocío',  img: 'assets/fotos/gema-blanco.jpg',
-    desc: 'Un verde fresco y luminoso, de mañana en los Andes. La luz entra al volumen y la piedra parece respirar.', ct: null, alto: null, ancho: null, profundidad: null },
-  { id: '03', nombre: 'Bruma',  img: 'assets/fotos/gema-perfil.jpg',
-    desc: 'Un verde sereno con un velo suave en su interior: la huella intacta de cómo se formó hace millones de años.', ct: null, alto: null, ancho: null, profundidad: null }
+  { id: '01', nombre: 'Selva', img: 'assets/fotos/piedra-1.jpg', corte: 'Rectangular escalonado', reporte: '0167011',
+    desc: 'Un verde intenso en talla rectangular escalonada, la talla clásica de la esmeralda. Sus facetas largas dejan correr la luz como un espejo.',
+    ct: '0,29 ct', ancho: '4,77 mm', alto: '3,60 mm', profundidad: '2,32 mm' },
+  { id: '02', nombre: 'Rocío', img: 'assets/fotos/piedra-2.jpg', corte: 'Cuadrada', reporte: '0167012',
+    desc: 'Un verde luminoso y fresco en talla cuadrada, de líneas limpias. Deja ver su color sin adornos, como una gota de la mañana.',
+    ct: '0,32 ct', ancho: '4,14 mm', alto: '4,14 mm', profundidad: '2,63 mm' },
+  { id: '03', nombre: 'Bruma', img: 'assets/fotos/piedra-3.jpg', corte: 'Octagonal', reporte: '0167013',
+    desc: 'Un verde sereno con reflejos azulados, de esquinas cortadas. Cambia de matiz según cómo le llegue la luz.',
+    ct: '0,39 ct', ancho: '4,47 mm', alto: '4,14 mm', profundidad: '2,91 mm' },
+  { id: '04', nombre: 'Alba', img: 'assets/fotos/piedra-4.jpg', corte: 'Cojín', reporte: '0167014',
+    desc: 'Un verde vivo en talla cojín, de contornos suaves. La luz entra por sus facetas y la hace brillar desde adentro.',
+    ct: '0,40 ct', ancho: '4,81 mm', alto: '4,36 mm', profundidad: '3,02 mm' }
 ];
 
 // Formato colombiano: 1240000 → "$1.240.000"
@@ -369,19 +379,40 @@ const gemInfo = document.getElementById('gemInfo');
 const gemName = document.getElementById('gemName');
 let gemElegida = GEMS[0];
 
+// ★ FOTOS DEL ANILLO ★ Todas van en UNA sola miniatura ("El anillo"). En la foto grande se cambian con las flechas,
+// los puntos, deslizando el dedo (celular) o con las flechas del teclado. Para agregar otra foto, suma una línea aquí.
+const FOTOS_ANILLO = [
+  { img: 'assets/fotos/gema-claro.jpg',  alt: 'Anillo FLOAT de frente, con la esmeralda dentro del volumen transparente' },
+  { img: 'assets/fotos/gema-blanco.jpg', alt: 'Anillo FLOAT sobre fondo claro' },
+  { img: 'assets/fotos/gema-perfil.jpg', alt: 'Anillo FLOAT de perfil' }
+];
+let verAnillo = false;   // true = la foto grande muestra el anillo (galería); false = muestra la esmeralda elegida
+let fotoAnillo = 0;      // cuál foto del anillo se ve
+
 function pintarFicha(g) {
-  const s = { ...ESPECIFICACIONES_BASE, ct: g.ct || ESPECIFICACIONES_BASE.ct, alto: g.alto || ESPECIFICACIONES_BASE.alto, ancho: g.ancho || ESPECIFICACIONES_BASE.ancho, profundidad: g.profundidad || ESPECIFICACIONES_BASE.profundidad };
+  const s = { ...ESPECIFICACIONES_BASE, ct: g.ct || ESPECIFICACIONES_BASE.ct, alto: g.alto || ESPECIFICACIONES_BASE.alto, ancho: g.ancho || ESPECIFICACIONES_BASE.ancho, profundidad: g.profundidad || ESPECIFICACIONES_BASE.profundidad, talla: g.corte || ESPECIFICACIONES_BASE.talla };
   document.getElementById('gemTag').textContent = 'Esmeralda ' + g.id;
   document.getElementById('gemTitle').textContent = g.nombre;
   document.getElementById('gemDesc').textContent = g.desc;
-  document.getElementById('gemSpecs').innerHTML =
-    [['Quilates', s.ct], ['Alto', s.alto], ['Ancho', s.ancho], ['Profundidad', s.profundidad], ['Corte', s.talla], ['Origen', s.origen], ['Piedra', s.tipo]]
-      .map(([k, v]) => '<div><dt>' + k + '</dt><dd>' + v + '</dd></div>').join('');
+  const filas = [['Quilates', s.ct], ['Alto', s.alto], ['Ancho', s.ancho], ['Profundidad', s.profundidad], ['Corte', s.talla], ['Origen', s.origen], ['Piedra', s.tipo]];
+  if (g.reporte) filas.push(['Certificado', 'ICG N.º ' + g.reporte]);
+  document.getElementById('gemSpecs').innerHTML = filas.map(([k, v]) => '<div><dt>' + k + '</dt><dd>' + v + '</dd></div>').join('');
   gemInfo.classList.remove('is-in'); void gemInfo.offsetWidth; gemInfo.classList.add('is-in'); // reinicia la animación
 }
 
+// Cambia la foto grande con un breve desvanecido (o directo si "directo" es true)
+function ponerFoto(src, alt, directo) {
+  stageImg.alt = alt || '';
+  if (directo) { stageImg.src = src; return; }
+  stageImg.classList.add('is-swapping');               // se desvanece...
+  setTimeout(() => { stageImg.src = src; stageImg.classList.remove('is-swapping'); }, 250); // ...cambia y vuelve
+}
+
+// Muestra la esmeralda elegida (foto de la piedra + ficha). Es la que se compra.
 function elegirGema(g, primera) {
   gemElegida = g;
+  verAnillo = false;
+  stage.classList.remove('is-gallery', 'is-zoomed');
   gemsBox.querySelectorAll('.gem').forEach((b) => {
     const on = b.dataset.gem === g.id;
     b.classList.toggle('is-on', on);
@@ -389,24 +420,75 @@ function elegirGema(g, primera) {
   });
   if (gemName) gemName.textContent = g.nombre;
   if (stageMark) stageMark.textContent = 'FLOAT 01 · ' + g.nombre;
-  stage.classList.remove('is-zoomed');
   pintarFicha(g);
   refrescarModo();
-  if (primera) { stageImg.src = g.img; return; }
-  stageImg.classList.add('is-swapping');               // se desvanece...
-  setTimeout(() => { stageImg.src = g.img; stageImg.classList.remove('is-swapping'); }, 250); // ...cambia y vuelve
+  if (!primera) ponerFoto(g.img, 'Esmeralda ' + g.nombre + ', ' + g.ct + ', con su certificado ICG');
+}
+
+// Muestra el anillo (galería). NO cambia la esmeralda elegida: solo lo que se ve en la foto grande.
+function mostrarAnillo(i, directo) {
+  const n = FOTOS_ANILLO.length;
+  fotoAnillo = ((i % n) + n) % n;
+  verAnillo = true;
+  stage.classList.add('is-gallery');
+  stage.classList.remove('is-zoomed');
+  const ringBtn = gemsBox.querySelector('.gem--anillo');
+  if (ringBtn) { ringBtn.classList.add('is-on'); ringBtn.setAttribute('aria-pressed', 'true'); }
+  if (stageMark) stageMark.textContent = 'FLOAT 01 · El anillo';
+  stage.querySelectorAll('.stage-dots button').forEach((d, k) => d.classList.toggle('is-on', k === fotoAnillo));
+  ponerFoto(FOTOS_ANILLO[fotoAnillo].img, FOTOS_ANILLO[fotoAnillo].alt, directo);
 }
 
 if (gemsBox && stage && stageImg) {
+  // Primera miniatura: "El anillo" (reúne todas sus fotos)
+  const ringBtn = document.createElement('button');
+  ringBtn.type = 'button'; ringBtn.className = 'gem gem--anillo'; ringBtn.dataset.gem = 'anillo';
+  ringBtn.setAttribute('aria-label', 'Ver las fotos del anillo'); ringBtn.setAttribute('aria-pressed', 'false');
+  ringBtn.innerHTML = '<img src="' + FOTOS_ANILLO[0].img + '" alt="" loading="lazy" /><span>El anillo</span>';
+  ringBtn.addEventListener('click', () => {
+    gemsBox.querySelectorAll('.gem').forEach((b) => { if (b !== ringBtn) b.classList.remove('is-on'); });
+    // la esmeralda elegida se mantiene resaltada (es la que se compra)
+    const sel = gemsBox.querySelector('.gem[data-gem="' + gemElegida.id + '"]'); if (sel) sel.classList.add('is-on');
+    mostrarAnillo(verAnillo ? fotoAnillo : 0);
+  });
+  gemsBox.appendChild(ringBtn);
+  // Una miniatura por esmeralda
   GEMS.forEach((g) => {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'gem'; b.dataset.gem = g.id;
     b.setAttribute('aria-label', 'Esmeralda ' + g.id + ' ' + g.nombre);
     b.innerHTML = '<img src="' + g.img + '" alt="" loading="lazy" /><span>' + g.nombre + '</span>' + (listoDe(g.id) ? '<em>Listo</em>' : '');
-    b.addEventListener('click', () => elegirGema(g));
+    b.addEventListener('click', () => { ringBtn.classList.remove('is-on'); ringBtn.setAttribute('aria-pressed', 'false'); elegirGema(g); });
     gemsBox.appendChild(b);
   });
+
+  // Flechas y puntos de la galería (solo se ven cuando la foto grande muestra el anillo)
+  const nav = document.createElement('div');
+  nav.className = 'stage-nav';
+  nav.innerHTML = '<button type="button" class="stage-nav__btn stage-nav__btn--prev" aria-label="Foto anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>' +
+    '<button type="button" class="stage-nav__btn stage-nav__btn--next" aria-label="Foto siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>' +
+    '<div class="stage-dots" role="group" aria-label="Fotos del anillo">' + FOTOS_ANILLO.map((_, k) => '<button type="button" aria-label="Foto ' + (k + 1) + '"></button>').join('') + '</div>';
+  stage.appendChild(nav);
+  // pointerdown se detiene aquí para que tocar una flecha no active el zoom de la foto
+  nav.addEventListener('pointerdown', (e) => e.stopPropagation());
+  nav.querySelector('.stage-nav__btn--prev').addEventListener('click', () => mostrarAnillo(fotoAnillo - 1));
+  nav.querySelector('.stage-nav__btn--next').addEventListener('click', () => mostrarAnillo(fotoAnillo + 1));
+  nav.querySelectorAll('.stage-dots button').forEach((d, k) => d.addEventListener('click', () => mostrarAnillo(k)));
+
+  // Al cargar: se ve la primera foto del anillo y la esmeralda 01 queda elegida (con su ficha)
   elegirGema(GEMS[0], true);
+  mostrarAnillo(0, true);
+  gemsBox.querySelector('.gem[data-gem="' + GEMS[0].id + '"]').classList.add('is-on'); // mostrarAnillo no la apaga, pero se asegura
+
+  // ── Deslizar con el dedo (celular) para pasar de foto del anillo ──
+  let toque = null;
+  stage.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') toque = { x: e.clientX, y: e.clientY }; });
+  stage.addEventListener('pointerup', (e) => {
+    if (!toque || !verAnillo) { toque = null; return; }
+    const dx = e.clientX - toque.x, dy = e.clientY - toque.y; toque = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) { stage.classList.remove('is-zoomed'); mostrarAnillo(fotoAnillo + (dx < 0 ? 1 : -1)); }
+  });
+  stage.addEventListener('pointercancel', () => { toque = null; });
 
   // ── Zoom: con mouse, al pasar el cursor; en celular, al tocar (y arrastrar para mover) ──
   const hint = document.getElementById('zoomHint');
@@ -425,65 +507,11 @@ if (gemsBox && stage && stageImg) {
     if (e.pointerType === 'mouse') return;
     origen(e); stage.classList.toggle('is-zoomed');
   });
-  stage.addEventListener('keydown', (e) => { // teclado: Enter o espacio
+  stage.addEventListener('keydown', (e) => { // teclado: Enter o espacio acerca; flechas cambian la foto del anillo
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stageImg.style.transformOrigin = '50% 50%'; stage.classList.toggle('is-zoomed'); }
+    else if (verAnillo && e.key === 'ArrowRight') { e.preventDefault(); mostrarAnillo(fotoAnillo + 1); }
+    else if (verAnillo && e.key === 'ArrowLeft') { e.preventDefault(); mostrarAnillo(fotoAnillo - 1); }
   });
-}
-
-
-// ── Más vistas (galería mixta): fotos de uso y un video real del anillo ──
-// No cambian la esmeralda elegida; solo lo que se ve en el recuadro grande.
-const VISTAS = [
-  { id: 'mano',  nombre: 'En la mano', img: 'assets/fotos/vista-mano.jpg' },
-  { id: 'estuche', nombre: 'En su estuche', img: 'assets/fotos/vista-estuche.jpg' },
-  { id: 'copa',  nombre: 'Con la copa', img: 'assets/fotos/vista-copa.jpg' }
-];
-const viewsBox = document.getElementById('views');
-const stageVideo = document.getElementById('stageVideo');
-
-// Quita la vista activa: para el video y vuelve a mostrar la foto
-function limpiarVista() {
-  if (viewsBox) viewsBox.querySelectorAll('.view').forEach((b) => { b.classList.remove('is-on'); b.setAttribute('aria-pressed', 'false'); });
-  if (stageVideo) { stageVideo.pause(); stageVideo.hidden = true; }
-  stage.classList.remove('is-video', 'is-vista');
-  stageImg.hidden = false;
-}
-
-function mostrarVista(v) {
-  viewsBox.querySelectorAll('.view').forEach((b) => {
-    const on = b.dataset.view === v.id;
-    b.classList.toggle('is-on', on);
-    b.setAttribute('aria-pressed', String(on));
-  });
-  gemsBox.querySelectorAll('.gem').forEach((b) => b.classList.remove('is-on')); // la esmeralda sigue elegida (gemElegida), solo se apaga el resaltado
-  stage.classList.remove('is-zoomed');
-  stage.classList.add('is-vista');                     // foto vertical: se muestra completa
-  if (stageMark) stageMark.textContent = 'FLOAT 01 · ' + v.nombre;
-  if (v.video && stageVideo) {
-    if (!stageVideo.src) stageVideo.src = v.video;   // el video se descarga solo la primera vez que se pide
-    stageImg.hidden = true; stageVideo.hidden = false;
-    stage.classList.add('is-video');
-    stageVideo.play().catch(() => {});
-    return;
-  }
-  if (stageVideo) { stageVideo.pause(); stageVideo.hidden = true; }
-  stage.classList.remove('is-video');
-  stageImg.hidden = false;
-  stageImg.classList.add('is-swapping');
-  setTimeout(() => { stageImg.src = v.img; stageImg.classList.remove('is-swapping'); }, 250);
-}
-
-if (viewsBox && stage && stageImg) {
-  VISTAS.forEach((v) => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'view' + (v.video ? ' view--video' : ''); b.dataset.view = v.id;
-    b.setAttribute('aria-label', v.nombre); b.setAttribute('aria-pressed', 'false');
-    b.innerHTML = '<img src="' + v.img + '" alt="" loading="lazy" /><span>' + v.nombre + '</span>';
-    b.addEventListener('click', () => mostrarVista(v));
-    viewsBox.appendChild(b);
-  });
-  // al tocar una esmeralda, se sale de la vista (vuelve la foto de esa esmeralda)
-  gemsBox.addEventListener('click', limpiarVista, true);
 }
 
 // ── Cupón: se valida aquí mismo (el código y el precio están en CUPON, arriba) ──
