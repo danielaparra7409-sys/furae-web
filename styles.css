@@ -527,8 +527,8 @@ html:not(.no-intro) .chat-fab{animation:heroFade .8s 3.2s both}
 @keyframes heroFade{from{opacity:0}to{opacity:1}}
 .hero{background:linear-gradient(rgba(12,11,10,.3),rgba(12,11,10,.3)),#0c0b0a url("assets/hero-furae-poster.jpg") center/cover no-repeat}
 .hero-video,html:not(.no-intro) .hero-video{animation:none;opacity:0;transition:opacity 1.2s ease}
-.hero-video.is-playing{opacity:1}
-.hero-video.is-playing.is-ending{opacity:0;transition-duration:.6s}
+.hero-video.is-playing,html:not(.no-intro) .hero-video.is-playing{opacity:1} /* la 2.ª parte iguala la especificidad de la regla de arriba: sin ella, en la primera visita el video quedaba invisible */
+.hero-video.is-playing.is-ending,html:not(.no-intro) .hero-video.is-playing.is-ending{opacity:0;transition-duration:.6s}
 .hero-logo,.hero-copy,.scroll-cue{animation-name:heroFade}
 html:not(.no-intro) .site-header{animation:heroFade 1s 2.7s both}
 .intro{animation:introOut .9s 2.2s ease forwards}
