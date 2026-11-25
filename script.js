@@ -81,12 +81,16 @@ if (heroVideo && window.matchMedia('(max-width: 900px)').matches && !heroVideo.c
 }
 // Para que el video arranque solo en TODOS los celulares (iPhone y Android piden que esté silenciado y "en línea"):
 // se marca por código además del HTML, porque algunos navegadores solo leen la propiedad.
-const reproducir = (v) => { if (prefersReducedMotion || !v) return; const p = v.play(); if (p && p.catch) p.catch(() => {}); };
+// Los videos de la web son decorativos, sin sonido ni destellos: se reproducen aunque el equipo tenga "reducir movimiento" activado
+// (antes, con esa opción, el video se quedaba en pausa en el primer cuadro).
+const reproducir = (v) => { if (!v) return; const p = v.play(); if (p && p.catch) p.catch(() => {}); };
 document.querySelectorAll('video').forEach((v) => {
   v.muted = true; v.defaultMuted = true; v.playsInline = true;
   v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
 });
 reproducir(heroVideo);
+// Reintentos: si el video aún no estaba listo cuando se pidió reproducir, se vuelve a pedir al cargar.
+if (heroVideo) ['loadeddata', 'canplay'].forEach((ev) => heroVideo.addEventListener(ev, () => { if (heroVideo.paused && !document.hidden) reproducir(heroVideo); }));
 // Si el celular bloquea la reproducción automática (modo de ahorro de batería en iPhone, ahorro de datos en Android),
 // se ve la foto fija y el video arranca con el primer toque en la pantalla.
 const enPantalla = new Set();
@@ -104,7 +108,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) desb
 // están en pantalla, y se pausan al salir. Así el celular no baja el video
 // dos veces al abrir la página.
 const lazyVideos = document.querySelectorAll('.lazy-video');
-if (lazyVideos.length && !prefersReducedMotion) {
+if (lazyVideos.length) {
   const videoObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       const video = entry.target;
@@ -613,7 +617,7 @@ if (intro) {
 // Video del inicio: aparece con un fundido y se oculta un instante antes de repetirse (así no se nota el salto)
 if (heroVideo) {
   const listoV = () => heroVideo.classList.add('is-playing');
-  if (prefersReducedMotion || (heroVideo.readyState >= 3 && !heroVideo.paused)) listoV();
+  if (heroVideo.readyState >= 3 && !heroVideo.paused) listoV();
   else heroVideo.addEventListener('playing', listoV, { once: true });
   heroVideo.addEventListener('timeupdate', () => {
     const d = heroVideo.duration; if (!d) return;
