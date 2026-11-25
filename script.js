@@ -72,13 +72,11 @@ if (prefersReducedMotion) {
   document.querySelectorAll('video').forEach(v => { v.removeAttribute('autoplay'); v.pause(); });
 }
 
-// Video del inicio: en celular usamos la versión de 720p (~3 MB) en vez de la de 1080p (~6,5 MB).
-// El HTML ya lo pide con <source media>, pero algunos navegadores ignoran ese atributo;
-// esto lo asegura: si estamos en pantalla pequeña y cargó la de 1080p, la cambiamos.
+// Video del inicio: en celular el HTML ya pide la versión de 720p con <source media>.
+// (Antes se forzaba el cambio de archivo por código, pero eso reiniciaba la descarga en algunos celulares
+// y podía dejar el video congelado, por eso se quitó.)
 const heroVideo = document.querySelector('.hero-video');
-if (heroVideo && window.matchMedia('(max-width: 900px)').matches && !heroVideo.currentSrc.includes('720')) {
-  heroVideo.src = 'assets/hero-furae-720.mp4';
-}
+if (heroVideo) heroVideo.preload = 'auto'; // que baje el video completo de una vez; con 'metadata' algunos Android se quedan en la foto
 // Para que el video arranque solo en TODOS los celulares (iPhone y Android piden que esté silenciado y "en línea"):
 // se marca por código además del HTML, porque algunos navegadores solo leen la propiedad.
 // Los videos de la web son decorativos, sin sonido ni destellos: se reproducen aunque el equipo tenga "reducir movimiento" activado
@@ -101,8 +99,28 @@ if ('IntersectionObserver' in window) {
   document.querySelectorAll('.hero-video, .lazy-video').forEach((v) => ioVid.observe(v));
 }
 const desbloquearVideos = () => enPantalla.forEach((v) => { if (v.paused) reproducir(v); });
-['touchend', 'click', 'keydown'].forEach((ev) => document.addEventListener(ev, desbloquearVideos, { passive: true }));
+['touchend', 'pointerup', 'click', 'keydown'].forEach((ev) => document.addEventListener(ev, desbloquearVideos, { passive: true }));
 document.addEventListener('visibilitychange', () => { if (!document.hidden) desbloquearVideos(); });
+
+// Plan B del video del inicio: si el celular bloquea el autoplay (ahorro de batería/datos, navegador interno de Instagram o WhatsApp),
+// pasados 2,5 s la foto se mueve despacio (efecto de zoom, para que no se vea congelada) y aparece un botón de play.
+// En cuanto el video arranca, todo vuelve a la normalidad.
+const heroSec = document.getElementById('hero');
+if (heroVideo && heroSec) {
+  const botonPlay = document.createElement('button');
+  botonPlay.type = 'button'; botonPlay.className = 'hero-play'; botonPlay.hidden = true;
+  botonPlay.setAttribute('aria-label', 'Reproducir video');
+  botonPlay.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+  heroSec.appendChild(botonPlay);
+  botonPlay.addEventListener('click', (e) => { e.stopPropagation(); reproducir(heroVideo); });
+  const revisarHero = () => {
+    const parado = heroVideo.paused && !document.hidden;
+    heroSec.classList.toggle('hero-sin-video', parado);
+    botonPlay.hidden = !parado;
+  };
+  heroVideo.addEventListener('playing', () => { heroSec.classList.remove('hero-sin-video'); botonPlay.hidden = true; });
+  setTimeout(revisarHero, 2500); setTimeout(revisarHero, 6000);
+}
 
 // Los videos con .lazy-video (ORIGEN) solo se descargan y reproducen cuando
 // están en pantalla, y se pausan al salir. Así el celular no baja el video
