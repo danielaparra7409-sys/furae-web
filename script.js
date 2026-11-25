@@ -164,7 +164,7 @@ const PEDIDOS_URL = '';                // (opcional) URL de Google Apps Script p
 const CUPON = { codigo: 'FURAVIDAD', precio: 1083000, hasta: '2026-12-01', hastaTexto: '1 de diciembre' };
 // ★ ANILLOS YA HECHOS ★ (entrega desde 5 días hábiles). Uno por esmeralda y talla fija, por ejemplo: [{ gem: '01', talla: '6' }].
 // Vacío = no se muestra la opción "Ya hecho".
-const LISTOS = [{ gem: '01', talla: '7' }];
+const LISTOS = [{ gem: 'anillo', talla: '7' }]; // 'anillo' = el anillo ya hecho (ítem aparte de las esmeraldas, ver GEMS)
 
 // ★ ESMERALDAS ★ Para agregar una: copia un bloque, cambia foto y textos.
 // ct / alto / ancho / profundidad en null = se usan los datos base de abajo. OJO: los textos y nombres son un BORRADOR,
@@ -183,6 +183,11 @@ const ESPECIFICACIONES_BASE = {
 // (así se mostraba en la ficha desde antes). corte = forma de la piedra. reporte = número del certificado.
 // Los textos (desc) son descripciones de la forma y el color que se ven en la foto: ajústalos si quieres.
 const GEMS = [
+  // El ANILLO YA HECHO (talla US 7): es un producto aparte de las esmeraldas. Conserva las especificaciones que tenía antes.
+  // Sus fotos están en FOTOS_ANILLO (más abajo); img es la que se usa de miniatura y en el resumen de compra.
+  { id: 'anillo', tipo: 'anillo', nombre: 'Veta', img: 'assets/fotos/gema-claro.jpg',
+    desc: 'Un verde profundo, como el interior de la montaña. Su jardín de inclusiones dibuja un paisaje propio que cambia con cada ángulo de luz.', ct: '0,38 ct', alto: '3,88 mm', ancho: '5,07 mm', profundidad: '2,59 mm' },
+  // Las 4 ESMERALDAS (sobre pedido), cada una con los datos de su certificado
   { id: '01', nombre: 'Selva', img: 'assets/fotos/piedra-1.jpg', corte: 'Rectangular escalonado', reporte: '0167011',
     desc: 'Un verde intenso en talla rectangular escalonada, la talla clásica de la esmeralda. Sus facetas largas dejan correr la luz como un espejo.',
     ct: '0,29 ct', ancho: '4,77 mm', alto: '3,60 mm', profundidad: '2,32 mm' },
@@ -253,7 +258,7 @@ function modoPintar() {
   const xm = document.getElementById('xmasMsg'); if (xm) xm.style.display = listo ? 'none' : '';
   if (stageReady) stageReady.hidden = !(listo && l);
   const ts = document.getElementById('talla');
-  if (ts) { if (listo && l) { ts.value = 'US ' + l.talla; ts.disabled = true; } else ts.disabled = false; }
+  if (ts) { if (listo && l) { ts.value = 'US ' + l.talla; ts.disabled = true; } else { if (ts.disabled) ts.value = ''; ts.disabled = false; } } // al salir del anillo ya hecho se libera la talla
   pintarPrecio(); mensajeCupon();
 }
 // Se llama cada vez que cambia la esmeralda
@@ -263,10 +268,13 @@ function refrescarModo() {
     modeBox.hidden = !LISTOS.length;
     if (modeListoBtn) {
       modeListoBtn.disabled = !l;
-      modeListoBtn.querySelector('span').textContent = l ? 'desde 5 días hábiles · talla US ' + l.talla : 'no hay anillo listo de esta esmeralda';
+      modeListoBtn.querySelector('span').textContent = l ? 'desde 5 días hábiles · talla US ' + l.talla : 'solo el anillo Veta está ya hecho';
     }
+    // el anillo ya hecho no se fabrica sobre pedido
+    const pedidoBtn = modeBox.querySelector('.mode__btn[data-mode="pedido"]');
+    if (pedidoBtn) pedidoBtn.disabled = !!l;
   }
-  if (!l || !LISTOS.length) estado.modo = 'pedido';
+  estado.modo = l && LISTOS.length ? 'listo' : 'pedido'; // el anillo = ya hecho; las esmeraldas = sobre pedido
   modoPintar();
 }
 // ── v4: resumen, aviso de Navidad, desenfoque del precio y pago en línea ──
@@ -379,19 +387,19 @@ const gemInfo = document.getElementById('gemInfo');
 const gemName = document.getElementById('gemName');
 let gemElegida = GEMS[0];
 
-// ★ FOTOS DEL ANILLO ★ Todas van en UNA sola miniatura ("El anillo"). En la foto grande se cambian con las flechas,
+// ★ FOTOS DEL ANILLO ★ Todas van en UNA sola miniatura (la del anillo ya hecho). En la foto grande se cambian con las flechas,
 // los puntos, deslizando el dedo (celular) o con las flechas del teclado. Para agregar otra foto, suma una línea aquí.
 const FOTOS_ANILLO = [
   { img: 'assets/fotos/gema-claro.jpg',  alt: 'Anillo FLOAT de frente, con la esmeralda dentro del volumen transparente' },
   { img: 'assets/fotos/gema-blanco.jpg', alt: 'Anillo FLOAT sobre fondo claro' },
   { img: 'assets/fotos/gema-perfil.jpg', alt: 'Anillo FLOAT de perfil' }
 ];
-let verAnillo = false;   // true = la foto grande muestra el anillo (galería); false = muestra la esmeralda elegida
+let verAnillo = false;   // true = lo elegido es el anillo y la foto grande es una galería; false = es una esmeralda
 let fotoAnillo = 0;      // cuál foto del anillo se ve
 
 function pintarFicha(g) {
   const s = { ...ESPECIFICACIONES_BASE, ct: g.ct || ESPECIFICACIONES_BASE.ct, alto: g.alto || ESPECIFICACIONES_BASE.alto, ancho: g.ancho || ESPECIFICACIONES_BASE.ancho, profundidad: g.profundidad || ESPECIFICACIONES_BASE.profundidad, talla: g.corte || ESPECIFICACIONES_BASE.talla };
-  document.getElementById('gemTag').textContent = 'Esmeralda ' + g.id;
+  document.getElementById('gemTag').textContent = g.tipo === 'anillo' ? 'Anillo ya hecho · talla US ' + (listoDe(g.id) || {}).talla : 'Esmeralda ' + g.id;
   document.getElementById('gemTitle').textContent = g.nombre;
   document.getElementById('gemDesc').textContent = g.desc;
   const filas = [['Quilates', s.ct], ['Alto', s.alto], ['Ancho', s.ancho], ['Profundidad', s.profundidad], ['Corte', s.talla], ['Origen', s.origen], ['Piedra', s.tipo]];
@@ -408,57 +416,41 @@ function ponerFoto(src, alt, directo) {
   setTimeout(() => { stageImg.src = src; stageImg.classList.remove('is-swapping'); }, 250); // ...cambia y vuelve
 }
 
-// Muestra la esmeralda elegida (foto de la piedra + ficha). Es la que se compra.
+// Elige lo que se compra: el anillo ya hecho (con su galería de fotos) o una esmeralda (foto de la piedra + ficha).
 function elegirGema(g, primera) {
   gemElegida = g;
-  verAnillo = false;
-  stage.classList.remove('is-gallery', 'is-zoomed');
+  verAnillo = g.tipo === 'anillo';
+  stage.classList.toggle('is-gallery', verAnillo);
+  stage.classList.remove('is-zoomed');
   gemsBox.querySelectorAll('.gem').forEach((b) => {
     const on = b.dataset.gem === g.id;
     b.classList.toggle('is-on', on);
     b.setAttribute('aria-pressed', String(on));
   });
   if (gemName) gemName.textContent = g.nombre;
-  if (stageMark) stageMark.textContent = 'FLOAT 01 · ' + g.nombre;
+  if (stageMark) stageMark.textContent = 'FLOAT 01 · ' + (verAnillo ? 'Anillo ' : '') + g.nombre;
   pintarFicha(g);
   refrescarModo();
-  if (!primera) ponerFoto(g.img, 'Esmeralda ' + g.nombre + ', ' + g.ct + ', con su certificado ICG');
+  if (verAnillo) mostrarFotoAnillo(fotoAnillo, primera);
+  else if (!primera) ponerFoto(g.img, 'Esmeralda ' + g.nombre + ', ' + g.ct + ', con su certificado ICG');
 }
 
-// Muestra el anillo (galería). NO cambia la esmeralda elegida: solo lo que se ve en la foto grande.
-function mostrarAnillo(i, directo) {
+// Cambia la foto del anillo en la galería (solo cuando el anillo está elegido)
+function mostrarFotoAnillo(i, directo) {
   const n = FOTOS_ANILLO.length;
   fotoAnillo = ((i % n) + n) % n;
-  verAnillo = true;
-  stage.classList.add('is-gallery');
-  stage.classList.remove('is-zoomed');
-  const ringBtn = gemsBox.querySelector('.gem--anillo');
-  if (ringBtn) { ringBtn.classList.add('is-on'); ringBtn.setAttribute('aria-pressed', 'true'); }
-  if (stageMark) stageMark.textContent = 'FLOAT 01 · El anillo';
   stage.querySelectorAll('.stage-dots button').forEach((d, k) => d.classList.toggle('is-on', k === fotoAnillo));
   ponerFoto(FOTOS_ANILLO[fotoAnillo].img, FOTOS_ANILLO[fotoAnillo].alt, directo);
 }
 
 if (gemsBox && stage && stageImg) {
-  // Primera miniatura: "El anillo" (reúne todas sus fotos)
-  const ringBtn = document.createElement('button');
-  ringBtn.type = 'button'; ringBtn.className = 'gem gem--anillo'; ringBtn.dataset.gem = 'anillo';
-  ringBtn.setAttribute('aria-label', 'Ver las fotos del anillo'); ringBtn.setAttribute('aria-pressed', 'false');
-  ringBtn.innerHTML = '<img src="' + FOTOS_ANILLO[0].img + '" alt="" loading="lazy" /><span>El anillo</span>';
-  ringBtn.addEventListener('click', () => {
-    gemsBox.querySelectorAll('.gem').forEach((b) => { if (b !== ringBtn) b.classList.remove('is-on'); });
-    // la esmeralda elegida se mantiene resaltada (es la que se compra)
-    const sel = gemsBox.querySelector('.gem[data-gem="' + gemElegida.id + '"]'); if (sel) sel.classList.add('is-on');
-    mostrarAnillo(verAnillo ? fotoAnillo : 0);
-  });
-  gemsBox.appendChild(ringBtn);
-  // Una miniatura por esmeralda
+  // Una miniatura por cada ítem: primero el anillo ya hecho, luego las 4 esmeraldas
   GEMS.forEach((g) => {
     const b = document.createElement('button');
-    b.type = 'button'; b.className = 'gem'; b.dataset.gem = g.id;
-    b.setAttribute('aria-label', 'Esmeralda ' + g.id + ' ' + g.nombre);
+    b.type = 'button'; b.className = 'gem' + (g.tipo === 'anillo' ? ' gem--anillo' : ''); b.dataset.gem = g.id;
+    b.setAttribute('aria-label', (g.tipo === 'anillo' ? 'Anillo ya hecho ' : 'Esmeralda ' + g.id + ' ') + g.nombre);
     b.innerHTML = '<img src="' + g.img + '" alt="" loading="lazy" /><span>' + g.nombre + '</span>' + (listoDe(g.id) ? '<em>Listo</em>' : '');
-    b.addEventListener('click', () => { ringBtn.classList.remove('is-on'); ringBtn.setAttribute('aria-pressed', 'false'); elegirGema(g); });
+    b.addEventListener('click', () => elegirGema(g));
     gemsBox.appendChild(b);
   });
 
@@ -471,14 +463,12 @@ if (gemsBox && stage && stageImg) {
   stage.appendChild(nav);
   // pointerdown se detiene aquí para que tocar una flecha no active el zoom de la foto
   nav.addEventListener('pointerdown', (e) => e.stopPropagation());
-  nav.querySelector('.stage-nav__btn--prev').addEventListener('click', () => mostrarAnillo(fotoAnillo - 1));
-  nav.querySelector('.stage-nav__btn--next').addEventListener('click', () => mostrarAnillo(fotoAnillo + 1));
-  nav.querySelectorAll('.stage-dots button').forEach((d, k) => d.addEventListener('click', () => mostrarAnillo(k)));
+  nav.querySelector('.stage-nav__btn--prev').addEventListener('click', () => mostrarFotoAnillo(fotoAnillo - 1));
+  nav.querySelector('.stage-nav__btn--next').addEventListener('click', () => mostrarFotoAnillo(fotoAnillo + 1));
+  nav.querySelectorAll('.stage-dots button').forEach((d, k) => d.addEventListener('click', () => mostrarFotoAnillo(k)));
 
-  // Al cargar: se ve la primera foto del anillo y la esmeralda 01 queda elegida (con su ficha)
+  // Al cargar: queda elegido el anillo ya hecho (primera foto de la galería, con su ficha)
   elegirGema(GEMS[0], true);
-  mostrarAnillo(0, true);
-  gemsBox.querySelector('.gem[data-gem="' + GEMS[0].id + '"]').classList.add('is-on'); // mostrarAnillo no la apaga, pero se asegura
 
   // ── Deslizar con el dedo (celular) para pasar de foto del anillo ──
   let toque = null;
@@ -486,7 +476,7 @@ if (gemsBox && stage && stageImg) {
   stage.addEventListener('pointerup', (e) => {
     if (!toque || !verAnillo) { toque = null; return; }
     const dx = e.clientX - toque.x, dy = e.clientY - toque.y; toque = null;
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) { stage.classList.remove('is-zoomed'); mostrarAnillo(fotoAnillo + (dx < 0 ? 1 : -1)); }
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) { stage.classList.remove('is-zoomed'); mostrarFotoAnillo(fotoAnillo + (dx < 0 ? 1 : -1)); }
   });
   stage.addEventListener('pointercancel', () => { toque = null; });
 
@@ -509,8 +499,8 @@ if (gemsBox && stage && stageImg) {
   });
   stage.addEventListener('keydown', (e) => { // teclado: Enter o espacio acerca; flechas cambian la foto del anillo
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stageImg.style.transformOrigin = '50% 50%'; stage.classList.toggle('is-zoomed'); }
-    else if (verAnillo && e.key === 'ArrowRight') { e.preventDefault(); mostrarAnillo(fotoAnillo + 1); }
-    else if (verAnillo && e.key === 'ArrowLeft') { e.preventDefault(); mostrarAnillo(fotoAnillo - 1); }
+    else if (verAnillo && e.key === 'ArrowRight') { e.preventDefault(); mostrarFotoAnillo(fotoAnillo + 1); }
+    else if (verAnillo && e.key === 'ArrowLeft') { e.preventDefault(); mostrarFotoAnillo(fotoAnillo - 1); }
   });
 }
 
@@ -535,7 +525,7 @@ const tallaSel = document.getElementById('talla');
 const buyBtnText = document.getElementById('buyBtnText');
 // Arma el texto del pedido (esmeralda, talla, modo, precio y cupón) para WhatsApp y para la página de gracias
 function armarPedido() {
-  let p = 'Hola FURÁE, quiero comprar FLOAT 01 · Esmeralda ' + gemElegida.id + ' ' + gemElegida.nombre + ' · Talla ' + tallaSel.value + ' · ' + (estado.modo === 'listo' ? 'Anillo ya hecho (entrega desde 5 días hábiles)' : 'Sobre pedido (~10 días hábiles)') + ' · Envío incluido · ' + formatoCOP(precioFinal());
+  let p = 'Hola FURÁE, quiero comprar FLOAT 01 · ' + (gemElegida.tipo === 'anillo' ? 'Anillo ' + gemElegida.nombre : 'Esmeralda ' + gemElegida.id + ' ' + gemElegida.nombre) + ' · Talla ' + tallaSel.value + ' · ' + (estado.modo === 'listo' ? 'Anillo ya hecho (entrega desde 5 días hábiles)' : 'Sobre pedido (~10 días hábiles)') + ' · Envío incluido · ' + formatoCOP(precioFinal());
   if (cuponVale()) p += ' · Cupón ' + estado.cupon;
   p += estado.pagoTotal ? ' · Pago total' : ' · Apartado 50 % (' + formatoCOP(apartadoDe()) + ')';
   return p;
@@ -735,7 +725,7 @@ function abrirResumen() {
   const set = (id, t) => { const e = document.getElementById(id); if (e) e.textContent = t; };
   const cupon = cuponVale();
   document.getElementById('ckImg').src = gemElegida.img;
-  set('ckNombre', 'FLOAT 01 · Esmeralda ' + gemElegida.nombre);
+  set('ckNombre', 'FLOAT 01 · ' + (gemElegida.tipo === 'anillo' ? 'Anillo ' : 'Esmeralda ') + gemElegida.nombre);
   set('ckDetalle', 'Talla ' + tallaSel.value + ' · ' + (estado.modo === 'listo' ? 'Ya hecho, entrega desde 5 días hábiles' : 'Sobre pedido, ~10 días hábiles'));
   // precio: si hay cupón, se ve el precio normal tachado y el nuevo al lado
   document.getElementById('ckPrecio').innerHTML = cupon ? '<s>' + formatoCOP(PRECIO_FLOAT) + '</s> ' + formatoCOP(precioFinal()) : formatoCOP(precioFinal());
