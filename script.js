@@ -132,9 +132,9 @@ const PASARELA_LINK = '';              // link de pago del apartado (Wompi / Bol
 // crea links nuevos en Mercado Pago y pégalos aquí. Vacío = el botón de tarjeta/PSE se oculta.
 const MP_LINKS = {
   620000: 'https://mpago.li/1NEHZUB',  // apartado normal (50 % de $1.240.000)
-  541500: 'https://mpago.li/1CrR8yy'   // apartado con cupón FURAVIDAD (50 % de $1.083.000)
-  // Pago completo (pendiente de crear en Mercado Pago): 1240000: '<link>', 1083000: '<link>'.
-  // Mientras no existan, "Pagar todo de una vez" con tarjeta se confirma por WhatsApp.
+  541500: 'https://mpago.li/1CrR8yy',  // apartado con cupón FURAVIDAD (50 % de $1.083.000)
+  1240000: 'https://mpago.li/11VeJtZ', // pago completo, precio normal
+  1083000: 'https://mpago.li/2FJnSwd'  // pago completo con cupón FURAVIDAD (también anillos ya hechos)
 };
 const PEDIDOS_URL = '';                // (opcional) URL de Google Apps Script para guardar cada pedido en la hoja
 
