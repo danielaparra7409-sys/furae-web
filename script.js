@@ -148,7 +148,7 @@ const ENVIO_VALOR = 35000;             // valor REAL aproximado del envío asegu
 const FECHA_LIMITE_NAVIDAD = '15 de diciembre'; // fecha límite de pedidos sobre medida para Navidad. '' = no mostrar el aviso.
 const FECHA_LIMITE_NAVIDAD_ISO = '2026-12-15';  // la misma fecha en formato año-mes-día (para saber si ya pasó)
 const META_PIXEL_ID = '';              // ID del Pixel de Meta (vacío = no se carga nada)
-const WHATSAPP_NUMERO = '573124539112';            // ej. '573001234567' (57 + celular, sin + ni espacios). Vacío = se usa Instagram.
+const WHATSAPP_NUMERO = '573118509507';            // ej. '573001234567' (57 + celular, sin + ni espacios). Vacío = se usa Instagram.
 const PASARELA_LINK = '';              // link de pago del apartado (Wompi / Bold / Mercado Pago). Vacío = se confirma por chat.
 // Links de pago de Mercado Pago. Cada uno cobra un monto FIJO: si cambias el precio o el cupón,
 // crea links nuevos en Mercado Pago y pégalos aquí. Vacío = el botón de tarjeta/PSE se oculta.
@@ -657,6 +657,10 @@ if (heroVideo) {
   const listoV = () => { if (!heroVideo.paused && heroVideo.currentTime > 0) heroVideo.classList.add('is-playing'); };
   ['playing', 'timeupdate', 'canplay', 'loadeddata'].forEach((ev) => heroVideo.addEventListener(ev, listoV));
   listoV();
+  // Red de seguridad: durante los primeros 10 s se revisa cada segundo. Si el video ya corre pero sigue sin la marca
+  // (por un evento perdido o un cambio futuro), se marca a la fuerza para que nunca vuelva a quedar invisible.
+  let vueltas = 0;
+  const vigia = setInterval(() => { listoV(); if (heroVideo.classList.contains('is-playing') || ++vueltas > 10) clearInterval(vigia); }, 1000);
   heroVideo.addEventListener('timeupdate', () => {
     const d = heroVideo.duration; if (!d) return;
     heroVideo.classList.toggle('is-ending', d - heroVideo.currentTime < 0.7);

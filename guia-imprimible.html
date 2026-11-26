@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Guía de talla para imprimir · FURÁE</title>
+<link rel="icon" href="assets/favicon.png">
+<style>
+/* Guía de talla imprimible de FURÁE.
+   Todo se dibuja en milímetros (unidad "mm" de CSS): al imprimir en "Tamaño real / 100 %" las medidas salen exactas.
+   En pantalla se ve como vista previa; lo que vale es la hoja impresa. */
+@page{size:A4;margin:12mm}
+*{box-sizing:border-box}
+body{margin:0;background:#efe9df;color:#1b1712;font-family:Inter,Arial,sans-serif;line-height:1.45}
+.barra{position:sticky;top:0;background:#0c0b0a;color:#f3ead9;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;z-index:2}
+.barra a{color:#f3ead9;font-size:12px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none}
+.barra button{background:#f3ead9;color:#1b1712;border:0;padding:10px 16px;font:600 11px Inter,Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.hoja{width:186mm;margin:16px auto;background:#fff;padding:10mm;box-shadow:0 2px 14px rgba(0,0,0,.12)}
+@media (max-width:760px){.hoja{transform-origin:top left;width:186mm}.envoltura{overflow-x:auto;padding:0 8px}}
+h1{font-family:Georgia,serif;font-weight:400;font-size:9mm;margin:0 0 1mm}
+.marca{letter-spacing:.3em;font-size:3.2mm;margin:0 0 4mm}
+h2{font-family:Georgia,serif;font-weight:400;font-size:5.5mm;margin:6mm 0 2mm}
+p,li{font-size:3.3mm;margin:0 0 1.5mm}
+ol{padding-left:5mm;margin:0}
+.aviso{border:0.4mm solid #1b1712;padding:3mm;margin:3mm 0}
+/* Control de escala: si estas dos medidas no coinciden con una regla o una tarjeta, la impresora cambió el tamaño */
+.control{display:flex;gap:8mm;align-items:flex-end;margin:3mm 0}
+.linea{width:50mm;height:0;border-top:0.5mm solid #1b1712;position:relative}
+.linea::before,.linea::after{content:"";position:absolute;top:-2mm;width:0.5mm;height:4mm;background:#1b1712}
+.linea::before{left:0}.linea::after{right:0}
+.tarjeta{width:85.6mm;height:53.98mm;border:0.4mm dashed #1b1712;border-radius:3mm;display:flex;align-items:center;justify-content:center;font-size:3mm;text-align:center;padding:4mm}
+.circulos{display:grid;grid-template-columns:repeat(5,1fr);gap:3mm 2mm;margin-top:2mm;break-inside:avoid}
+.circulos div{display:flex;flex-direction:column;align-items:center;gap:1.5mm}
+.circulos i{display:block;border:0.3mm solid #1b1712;border-radius:50%;position:relative}
+.circulos i::after{content:"";position:absolute;left:50%;top:50%;width:1mm;height:1mm;margin:-0.5mm;background:#1b1712;border-radius:50%}
+.circulos b{font-size:3.2mm}
+.circulos small{font-size:2.6mm;color:#555}
+/* Tira medidora: se recorta, se enrolla en el dedo y se lee la talla donde cruza la punta */
+.tira{position:relative;width:90mm;height:12mm;border:0.3mm solid #1b1712;margin-top:2mm}
+.tabla-c{border-collapse:collapse;margin-top:3mm}
+.tabla-c td,.tabla-c th{border:0.2mm solid #999;padding:1mm 2.5mm;font-size:3mm;text-align:center}
+.tira span{position:absolute;bottom:0;width:0.2mm;background:#1b1712}
+.tira em{position:absolute;top:0.8mm;font:normal 2.4mm Arial,sans-serif;transform:translateX(-50%)}
+.tira strong{position:absolute;bottom:4.6mm;font:600 2.3mm Arial,sans-serif;transform:translateX(-50%);color:#1b1712}
+.corte{font-size:2.6mm;color:#555;margin-top:1mm}
+@media print{
+  body{background:#fff}
+  .barra{display:none}
+  .hoja{margin:0;box-shadow:none;padding:0;width:auto}
+  .salto{break-before:page}
+}
+</style>
+</head>
+<body>
+<div class="barra">
+  <a href="guia-de-talla.html">← Guía en el celular</a>
+  <button type="button" onclick="window.print()">Imprimir</button>
+</div>
+<div class="envoltura">
+<div class="hoja">
+  <p class="marca">FURÁE</p>
+  <h1>Guía de talla FLOAT para imprimir</h1>
+  <p>Para quien prefiere medir en papel. Imprime esta hoja en <b>tamaño real (100 %)</b>: en la ventana de impresión desactiva "Ajustar a la página" o "Escalar".</p>
+
+  <div class="aviso">
+    <p><b>Antes de medir, revisa la escala.</b> La línea de abajo debe medir exactamente 5 cm con una regla, y una tarjeta bancaria o la cédula debe caber justa en el recuadro punteado. Si no coinciden, la hoja se imprimió con otro tamaño y la medida no sirve.</p>
+    <div class="control">
+      <div><div class="linea"></div><p style="margin-top:3mm">5 cm</p></div>
+      <div class="tarjeta">Tu tarjeta debe caber justa aquí</div>
+    </div>
+  </div>
+
+  <h2>Opción 1 · Tengo un anillo que me queda bien</h2>
+  <ol>
+    <li>Apoya el anillo sobre los círculos, acostado.</li>
+    <li>Busca el círculo cuya línea quede justo en el <b>borde interno</b> del anillo, el hueco por donde pasa el dedo.</li>
+    <li>Si queda entre dos, elige el mayor. FLOAT tiene una banda ancha y se siente más justa.</li>
+  </ol>
+  <div class="circulos" id="circulos"></div>
+
+  <h2 class="salto">Opción 2 · No tengo anillos</h2>
+  <ol>
+    <li>Recorta la tira por la línea exterior.</li>
+    <li>Enróllala en la base del dedo donde usarás FLOAT, con los números hacia afuera.</li>
+    <li>Marca con lápiz donde el extremo del 0 se cruza con la tira. Debe pasar el nudillo con un poco de esfuerzo.</li>
+    <li>Lee los milímetros en la marca y busca tu talla en la tabla de abajo.</li>
+    <li>Mídete al final del día y con la mano tibia. Repite 2 o 3 veces.</li>
+  </ol>
+  <div class="tira" id="tira"></div>
+  <p class="corte">✂ Recorta por el borde. Los números son centímetros; cada rayita, un milímetro.</p>
+  <table class="tabla-c" id="tablaC"><tr><th>Tu medida (mm)</th><th>Talla US</th></tr></table>
+
+  <h2>Envíanos tu talla</h2>
+  <p>Escríbenos por WhatsApp al <b>311 850 9507</b> o por Instagram a <b>@furae.co</b>. Como FLOAT es rígido, confirmamos la talla contigo antes de fabricarlo. Tallas disponibles (✦): US 5, 6, 7 y 8; otras se consultan.</p>
+</div>
+</div>
+
+<script>
+// Misma tabla de la guía del celular: talla US → diámetro interior en mm (contorno = π × diámetro)
+const TABLA = [[4,14.9],[4.5,15.3],[5,15.6],[5.5,16.1],[6,16.5],[6.5,16.9],[7,17.2],[7.5,17.8],[8,18.1],[8.5,18.5],[9,19.1],[9.5,19.5],[10,19.8],[10.5,20.2],[11,20.6]];
+const fmt = (n) => String(n).replace('.5', '½');
+// Círculos de tamaño real: el ancho del círculo es el diámetro interior en mm
+const c = document.getElementById('circulos');
+TABLA.forEach(([t, d]) => {
+  const div = document.createElement('div');
+  div.innerHTML = '<i style="width:' + d + 'mm;height:' + d + 'mm"></i><b>US ' + fmt(t) + '</b><small>' + d.toFixed(1).replace('.', ',') + ' mm</small>';
+  c.appendChild(div);
+});
+// Tira medidora de 100 mm: marcas cada milímetro, números cada centímetro y la talla en su contorno exacto (π × diámetro)
+const tira = document.getElementById('tira');
+for (let mm = 0; mm <= 90; mm++) {
+  const s = document.createElement('span');
+  s.style.left = mm + 'mm';
+  s.style.height = mm % 10 === 0 ? '4mm' : mm % 5 === 0 ? '3mm' : '1.8mm';
+  s.style.top = '0'; s.style.bottom = 'auto';
+  tira.appendChild(s);
+  if (mm % 10 === 0 && mm > 0 && mm < 90) { const e = document.createElement('em'); e.style.left = mm + 'mm'; e.style.top = '4.4mm'; e.textContent = mm / 10; tira.appendChild(e); }
+}
+// Tabla contorno → talla: cada talla cubre desde la mitad con la anterior hasta la mitad con la siguiente
+const tc = document.getElementById('tablaC');
+TABLA.forEach(([t, d], k) => {
+  const c = Math.PI * d;
+  const desde = k ? (c + Math.PI * TABLA[k - 1][1]) / 2 : c - 1.2;
+  const hasta = k < TABLA.length - 1 ? (c + Math.PI * TABLA[k + 1][1]) / 2 : c + 1.2;
+  const tr = document.createElement('tr');
+  tr.innerHTML = '<td>' + desde.toFixed(1).replace('.', ',') + ' a ' + hasta.toFixed(1).replace('.', ',') + '</td><td>US ' + fmt(t) + ([5, 6, 7, 8].includes(t) ? ' ✦' : '') + '</td>';
+  tc.appendChild(tr);
+});
+</script>
+</body>
+</html>

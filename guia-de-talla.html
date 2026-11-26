@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<!-- Sin zoom a propósito: con zoom los milímetros de la pantalla dejan de ser reales y la medida sale mal -->
 <meta name="theme-color" content="#0c0b0a">
 <title>Guía de talla · FURÁE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -56,10 +57,22 @@ h2{font-family:"Cormorant Garamond",Georgia,serif;font-weight:400;font-size:28px
 a{color:var(--fg)}
 .cta--alt{margin-top:12px;background:none;color:var(--fg);border:1px solid var(--line)}
 .cta{display:block;margin-top:30px;padding:16px;background:var(--fg);color:#1b1712;text-align:center;text-decoration:none;font:600 11px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase}
+/* Bloquea el gesto de pellizcar (zoom) en navegadores que ignoran user-scalable=no (Safari de iPhone) */
+html,body{touch-action:pan-x pan-y;overflow-x:hidden}
+/* La tarjeta necesita casi todo el ancho del celular (su lado corto mide 54 mm y la pantalla ~60-70 mm):
+   el escenario se sale del margen del recuadro y ocupa el ancho completo de la pantalla */
+.stage--full{width:100vw;margin-left:calc(50% - 50vw);padding:6px 4px}
+.fine{display:flex;gap:10px;align-items:center;margin-top:6px}
+.fine input[type=range]{margin:0}
+.fine button{flex:none;width:44px;height:44px;border:1px solid var(--line);background:none;color:var(--fg);font:400 22px Inter,sans-serif;cursor:pointer;touch-action:manipulation}
+.zoom-warn{display:none;position:fixed;left:12px;right:12px;top:12px;z-index:9;padding:14px 16px;background:#b08b4f;color:#1b1712;font-size:13px;line-height:1.4}
+.zoom-warn.on{display:block}
+.print-link{display:block;text-align:center;margin:14px 0 0;font-size:12px;letter-spacing:.08em;color:var(--soft)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
+<div class="zoom-warn" id="zoomWarn" role="alert">Tienes la pantalla con zoom. Pellizca hacia adentro para volver al tamaño normal: con zoom la medida no es real.</div>
 <main class="wrap">
   <a class="back" id="back1" href="index.html#access">← Volver a FLOAT</a>
   <p class="logo">FURÁE</p>
@@ -75,8 +88,13 @@ a{color:var(--fg)}
   <section class="tool" aria-label="Calibrar pantalla">
     <h4>Paso 0 · Calibra tu pantalla</h4>
     <p class="note" style="margin:0 0 10px">Pon una tarjeta bancaria (o cédula) <strong>de pie</strong> sobre la pantalla, con el lado corto hacia los lados, y mueve el control hasta que el recuadro verde tenga el mismo ancho y alto que la tarjeta. Así funciona en cualquier celular, aunque sea angosto.</p>
-    <div class="stage"><div class="card" id="card">Tarjeta</div></div>
-    <input type="range" id="calib" min="110" max="250" value="204" aria-label="Ancho de la tarjeta en pantalla">
+    <div class="stage stage--full"><div class="card" id="card">Tarjeta</div></div>
+    <div class="fine">
+      <button type="button" id="calibMenos" aria-label="Achicar un poco">−</button>
+      <input type="range" id="calib" min="110" max="520" value="204" aria-label="Ancho de la tarjeta en pantalla">
+      <button type="button" id="calibMas" aria-label="Agrandar un poco">+</button>
+    </div>
+    <p class="note" id="calibNota" style="margin:8px 0 0">Usa − y + para el ajuste fino.</p>
   </section>
 
   <section class="panel" id="p1" role="tabpanel" aria-labelledby="t1">
@@ -120,7 +138,8 @@ a{color:var(--fg)}
   <p class="note">Talla US, diámetro interior y contorno del dedo. Las tallas con ✦ son las disponibles de FLOAT (US 5, 6, 7 y 8); las demás las confirmamos contigo antes de fabricar.</p>
   <table id="tabla"><thead><tr><th>Talla US</th><th>Diámetro</th><th>Contorno</th></tr></thead><tbody></tbody></table>
 
-  <a class="cta" id="cta" href="https://ig.me/m/furae.co" target="_blank" rel="noopener">Confirmar mi talla con FURÁE</a>
+  <a class="cta" id="cta" href="https://wa.me/573118509507" target="_blank" rel="noopener">Confirmar mi talla por WhatsApp</a>
+  <a class="print-link" href="guia-imprimible.html">¿Prefieres papel? Abre la versión para imprimir →</a>
   <a class="cta cta--alt" id="back2" href="index.html#access">← Volver a FLOAT y comprar</a>
 </main>
 
@@ -148,8 +167,15 @@ const $ = (id) => document.getElementById(id);
 // Calibración con el LADO CORTO de la tarjeta (53,98 mm): cabe en cualquier celular, incluso en los más angostos
 // (el lado largo de 85,6 mm es más ancho que la pantalla de muchos teléfonos, y por eso antes fallaba)
 const LADO_CORTO_MM = 53.98;
+// Máximo del control: el ancho de la pantalla (menos un margen), sin pasar de 520 px (más grande no existe en ningún celular real)
+function maxTarjeta() { return Math.max(250, Math.min(520, Math.floor((window.visualViewport ? visualViewport.width : innerWidth) - 8))); }
 function calibrar() {
-  const px = +$('calib').value;
+  $('calib').max = maxTarjeta();                          // el control llega hasta el ancho completo de esta pantalla
+  const px = Math.min(+$('calib').value, +$('calib').max);
+  // Si el control está al tope en un celular, la pantalla es más angosta que la tarjeta: se sugiere la versión imprimible
+  $('calibNota').textContent = px >= +$('calib').max && innerWidth < 600
+    ? 'Tu pantalla es más angosta que la tarjeta. Usa la versión para imprimir o una regla real.'
+    : 'Usa − y + para el ajuste fino.';
   $('card').style.width = px + 'px';
   pxPorMm = px / LADO_CORTO_MM;
   try { localStorage.setItem('furae_pxmm2', pxPorMm); } catch (e) {}
@@ -182,8 +208,7 @@ function mostrar(n, d) {
   $('sizeDetail').textContent = 'Diámetro ≈ ' + mmDeTalla(t).toFixed(1).replace('.', ',') + ' mm · contorno ≈ ' + (Math.PI * mmDeTalla(t)).toFixed(0) + ' mm. ' + (DISPONIBLES.includes(t) ? 'Es una de las tallas disponibles de FLOAT.' : 'Esta talla la confirmamos contigo antes de fabricar.') + ' Si estás entre dos, elige la mayor.';
   document.querySelectorAll('#tabla tr').forEach((tr) => tr.classList.toggle('on', tr.dataset.t === String(t)));
   const msg = 'Hola FURÁE, mi talla aproximada es US ' + fmt(t) + '. ¿Me ayudan a confirmarla?';
-  $('cta').href = 'https://ig.me/m/furae.co'; // si hay WhatsApp, cambiar aquí por https://wa.me/57XXXXXXXXXX?text=
-  $('cta').dataset.msg = msg;
+  $('cta').href = 'https://wa.me/573118509507?text=' + encodeURIComponent(msg); // WhatsApp de FURÁE con la talla ya escrita
 }
 function resultado() {
   const conAnillo = !$('p1').hidden;
@@ -200,13 +225,26 @@ TABLA.forEach(([n, d]) => {
   tb.appendChild(tr);
 });
 $('calib').addEventListener('input', calibrar);
+// Botones − y +: mueven la tarjeta 1 píxel para el ajuste fino (el deslizador solo es muy brusco en celular)
+$('calibMenos').addEventListener('click', () => { $('calib').value = +$('calib').value - 1; calibrar(); });
+$('calibMas').addEventListener('click', () => { $('calib').value = +$('calib').value + 1; calibrar(); });
+// Safari de iPhone permite pellizcar aunque se pida que no: se cancela el gesto aquí
+['gesturestart', 'gesturechange'].forEach((ev) => document.addEventListener(ev, (e) => e.preventDefault(), { passive: false }));
+// Si de todos modos hay zoom (ej. zoom de accesibilidad), se avisa arriba porque la medida dejaría de ser real
+function revisarZoom() { const z = window.visualViewport ? visualViewport.scale : 1; $('zoomWarn').classList.toggle('on', z > 1.02); }
+if (window.visualViewport) { visualViewport.addEventListener('resize', revisarZoom); visualViewport.addEventListener('scroll', revisarZoom); }
 $('diam').addEventListener('input', () => { circulo(); resultado(); });
 $('circ').addEventListener('input', resultado);
-try { const g = parseFloat(localStorage.getItem('furae_pxmm2')); if (g > 2 && g < 4.7) $('calib').value = Math.round(g * LADO_CORTO_MM); } catch (e) {}
+// Punto de partida: si la persona ya calibró antes, se usa su medida. Si no, en celular se empieza cerca del tamaño real
+// (el lado corto de la tarjeta suele ocupar ~84 % del ancho de un celular), así solo hay que hacer un ajuste fino.
+let guardado = 0;
+try { guardado = parseFloat(localStorage.getItem('furae_pxmm2')); } catch (e) {}
+if (guardado > 2 && guardado < 9.7) $('calib').value = Math.round(guardado * LADO_CORTO_MM);
+else if (matchMedia('(pointer: coarse)').matches && innerWidth < 600) $('calib').value = Math.round(innerWidth * 0.84);
 // Volver a la página de compra: en el sitio es un enlace relativo; si la guía se descargó, va a la dirección completa
-['back1', 'back2'].forEach((id) => { $(id).href = location.protocol.startsWith('http') ? '/#access' : 'https://furae-co.netlify.app/#access'; });
+['back1', 'back2'].forEach((id) => { $(id).href = location.protocol.startsWith('http') ? '/#access' : 'https://furae.co/#access'; });
 calibrar();
-window.addEventListener('resize', regla);
+window.addEventListener('resize', () => { calibrar(); });
 </script>
 </body>
 </html>
