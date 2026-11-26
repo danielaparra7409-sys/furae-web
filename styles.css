@@ -525,14 +525,18 @@ html:not(.no-intro) .chat-fab{animation:heroFade .8s 3.2s both}
 
 /* ===== Inicio más limpio: sin desenfoque ni zoom; el video aparece con fundido y se oculta justo antes de repetirse ===== */
 @keyframes heroFade{from{opacity:0}to{opacity:1}}
-.hero{background:linear-gradient(rgba(12,11,10,.3),rgba(12,11,10,.3)),#0c0b0a url("assets/hero-furae-poster.jpg") center/cover no-repeat}
-.hero-video,html:not(.no-intro) .hero-video{animation:none;opacity:0;transition:opacity 1.2s ease}
-.hero-video.is-playing,html:not(.no-intro) .hero-video.is-playing{opacity:1!important} /* !important: ninguna otra regla (intro, animaciones futuras) puede volver a esconder el video cuando ya está corriendo */ /* la 2.ª parte iguala la especificidad de la regla de arriba: sin ella, en la primera visita el video quedaba invisible */
-.hero-video.is-playing.is-ending,html:not(.no-intro) .hero-video.is-playing.is-ending{opacity:0!important;transition-duration:.6s}
+.hero{background:linear-gradient(rgba(12,11,10,.3),rgba(12,11,10,.3)),#0c0b0a url("assets/hero-loop-poster.jpg") center/cover no-repeat}
+/* VIDEO DEL INICIO: siempre visible y a opacidad 1 (nunca se esconde ni se desvanece: iOS puede negarse a reproducir un video transparente,
+   y un fundido en cada vuelta se ve como parpadeo). El loop ya viene "sin costura" desde el propio archivo.
+   Debajo hay una foto (el primer cuadro) para que nunca haya fondo vacío. */
+.hero-video,html:not(.no-intro) .hero-video{animation:none;opacity:1;filter:none;transform:none}
+/* Se oculta el botón nativo de play que Safari de iPhone dibuja cuando bloquea el autoplay (usamos el nuestro) */
+.hero-video::-webkit-media-controls,.hero-video::-webkit-media-controls-start-playback-button,.hero-video::-webkit-media-controls-overlay-play-button,.hero-video::-webkit-media-controls-panel{display:none!important;-webkit-appearance:none}
+.hero-scrim{background:linear-gradient(rgba(12,11,10,.28),rgba(12,11,10,.28)),linear-gradient(180deg,rgba(12,11,10,.55) 0%,rgba(12,11,10,.25) 35%,rgba(12,11,10,.35) 65%,rgba(12,11,10,.8) 100%)} /* el oscurecido que antes hacía filter:brightness sobre el video (los filtros sobre video pueden fallar en iOS) */
 .hero-logo,.hero-copy,.scroll-cue{animation-name:heroFade}
 html:not(.no-intro) .site-header{animation:heroFade 1s 2.7s both}
-.intro{animation:introOut .9s 2.2s ease forwards}
-@keyframes introOut{to{opacity:0;visibility:hidden}}
+.intro{animation:none;transition:opacity .9s ease,visibility 0s .9s}
+html.intro-out .intro{opacity:0;visibility:hidden;pointer-events:none}   /* el telón se abre cuando el JS añade intro-out (video listo) */
 .intro__logo{width:min(46vw,340px);animation-delay:.1s}
 .intro__line{animation-delay:.6s}
 .intro__float{animation-delay:1s;animation-duration:1.2s}
@@ -667,7 +671,7 @@ html.has-modal{overflow:hidden}
 .ck-plan__opt small{display:block;margin-top:3px;font-size:12px;color:rgba(243,234,217,.65)}
 
 /* Plan B del video del inicio: foto con zoom lento + botón de play cuando el celular bloquea el autoplay */
-.hero.hero-sin-video::before{content:"";position:absolute;inset:0;background:url("assets/hero-furae-poster.jpg") center/cover no-repeat;animation:heroKen 20s ease-in-out infinite alternate}
+.hero.hero-sin-video::before{content:"";position:absolute;inset:0;background:url("assets/hero-loop-poster.jpg") center/cover no-repeat;animation:heroKen 20s ease-in-out infinite alternate}
 @keyframes heroKen{from{transform:scale(1)}to{transform:scale(1.14) translate(-1.5%,-1%)}}
 .hero-play{position:absolute;z-index:3;left:50%;bottom:120px;transform:translateX(-50%);width:58px;height:58px;border-radius:50%;border:1px solid rgba(240,230,210,.65);background:rgba(12,11,10,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);cursor:pointer;display:grid;place-items:center;padding:0}
 .hero-play[hidden]{display:none}
@@ -692,3 +696,12 @@ html.has-modal{overflow:hidden}
 .stage-dots button.is-on{background:var(--gold);border-color:var(--gold)}
 @media (max-width:900px){.stage-nav__btn{width:40px;height:40px;margin-top:-20px}.stage-nav__btn--prev{left:8px}.stage-nav__btn--next{right:8px}}
 
+/* ===== Entrada del inicio sincronizada con el telón =====
+   Mientras el telón está cerrado (intro-wait sin intro-out) las animaciones del logo, el texto, la flecha y el menú esperan en pausa;
+   al abrirse arrancan con retrasos cortos. Así nada se "gasta" detrás del telón y se ve la entrada completa. */
+html.intro-wait:not(.intro-out) .hero-logo,html.intro-wait:not(.intro-out) .hero-copy,html.intro-wait:not(.intro-out) .scroll-cue,html.intro-wait:not(.intro-out) .site-header,html.intro-wait:not(.intro-out) .chat-fab{animation-play-state:paused}
+html.intro-wait .hero-logo{animation-delay:.25s}
+html.intro-wait .hero-copy{animation-delay:.8s}
+html.intro-wait .scroll-cue{animation-delay:1.4s}
+html.intro-wait .site-header{animation-delay:.4s}
+html.intro-wait .chat-fab{animation-delay:1s}
