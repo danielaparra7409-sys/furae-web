@@ -88,7 +88,7 @@
       <!-- CONTROLADOR DEL PRELOADER: va justo después del video para empezar a trabajar en cuanto el navegador lo conoce.
            Idea: el video se pide y se reproduce DEBAJO del telón; el telón no se abre hasta que (a) pasó la animación del logo,
            (b) el video está reproduciéndose y tiene al menos 3 s de búfer por delante. Si el celular bloquea el autoplay,
-           o la conexión es lenta (6 s), se abre igual: se ve la foto (primer cuadro) y un botón de play. -->
+           o la conexión es lenta (6 s), se abre igual: se ve la foto (primer cuadro) en movimiento, nunca un botón de play. -->
       <script>
       (function () {
         var h = document.documentElement, v = document.querySelector('.hero-video');
@@ -99,7 +99,11 @@
         v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
         function pedirPlay() {
           var p = v.play();
-          if (p && p.catch) p.catch(function () { bloqueado = true; });   // iPhone en ahorro de batería, Instagram/WhatsApp interno, etc.
+          if (p && p.catch) p.catch(function () {   // iPhone en ahorro de batería, Instagram/WhatsApp interno, etc.
+            bloqueado = true;
+            // Se esconde el <video> de una vez (se ve la foto) para que el sistema no alcance a dibujar su flechita de play
+            var hs = document.getElementById('hero'); if (hs && v.paused) hs.classList.add('hero-sin-video');
+          });
         }
         function bufer() {          // segundos de video ya descargados por delante del punto actual
           var b = v.buffered; if (!b.length) return 0;

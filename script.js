@@ -102,24 +102,40 @@ const desbloquearVideos = () => enPantalla.forEach((v) => { if (v.paused) reprod
 ['touchend', 'pointerup', 'click', 'keydown'].forEach((ev) => document.addEventListener(ev, desbloquearVideos, { passive: true }));
 document.addEventListener('visibilitychange', () => { if (!document.hidden) desbloquearVideos(); });
 
-// Plan B del video del inicio: si el celular bloquea el autoplay (ahorro de batería/datos, navegador interno de Instagram o WhatsApp),
-// pasados 2,5 s la foto se mueve despacio (efecto de zoom, para que no se vea congelada) y aparece un botón de play.
-// En cuanto el video arranca, todo vuelve a la normalidad.
+// Plan B del video del inicio, SIN botón de play: si el celular bloquea la reproducción automática
+// (iPhone con "Modo de bajo consumo", ahorro de datos, navegador interno de Instagram o WhatsApp):
+//  1) se esconde el elemento <video>, así el sistema nunca puede dibujar su flechita de play encima;
+//  2) en su lugar se ve la foto del primer cuadro con un zoom lento (no se ve congelada);
+//  3) en Safari se intenta además mostrar el mismo video como IMAGEN animada (<img src="...mp4">), que Safari
+//     reproduce sola como si fuera un GIF; si el navegador no lo soporta, se queda la foto en movimiento;
+//  4) con el primer toque en cualquier parte de la página, el video real arranca y todo vuelve a la normalidad.
 const heroSec = document.getElementById('hero');
 if (heroVideo && heroSec) {
-  const botonPlay = document.createElement('button');
-  botonPlay.type = 'button'; botonPlay.className = 'hero-play'; botonPlay.hidden = true;
-  botonPlay.setAttribute('aria-label', 'Reproducir video');
-  botonPlay.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
-  heroSec.appendChild(botonPlay);
-  botonPlay.addEventListener('click', (e) => { e.stopPropagation(); reproducir(heroVideo); });
-  const revisarHero = () => {
-    const parado = heroVideo.paused && !document.hidden;
-    heroSec.classList.toggle('hero-sin-video', parado);
-    botonPlay.hidden = !parado;
+  let imgAnim = null;
+  const esSafari = /^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent) || /iP(hone|ad|od)/.test(navigator.userAgent);
+  const ponerImagenAnimada = () => {
+    if (imgAnim || !esSafari) return;
+    imgAnim = new Image();
+    imgAnim.className = 'hero-anim';
+    imgAnim.alt = ''; imgAnim.setAttribute('aria-hidden', 'true');
+    imgAnim.onload = () => { if (heroSec.classList.contains('hero-sin-video')) heroSec.classList.add('hero-con-anim'); };
+    imgAnim.onerror = () => { imgAnim.remove(); };   // no soportado: se queda la foto con zoom
+    imgAnim.src = 'assets/hero-loop-720.mp4';
+    heroVideo.after(imgAnim);
   };
-  heroVideo.addEventListener('playing', () => { heroSec.classList.remove('hero-sin-video'); botonPlay.hidden = true; });
-  setTimeout(revisarHero, 2500); setTimeout(revisarHero, 6000);
+  const revisarHero = () => {
+    const parado = heroVideo.paused && !document.hidden && enPantalla.has(heroVideo);
+    if (!parado) return;
+    heroSec.classList.add('hero-sin-video');
+    ponerImagenAnimada();
+  };
+  // Cuando el video real por fin corre, se quita todo el plan B
+  heroVideo.addEventListener('playing', () => { heroSec.classList.remove('hero-sin-video', 'hero-con-anim'); });
+  // Se revisa justo al abrir el telón y unos segundos después (por si el sistema lo pausó al revelar la página)
+  const revisarTrasAbrir = () => { setTimeout(revisarHero, 900); setTimeout(revisarHero, 3000); };
+  if (document.documentElement.classList.contains('intro-out') || !document.documentElement.classList.contains('intro-wait')) revisarTrasAbrir();
+  else new MutationObserver((m, o) => { if (document.documentElement.classList.contains('intro-out')) { o.disconnect(); revisarTrasAbrir(); } })
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 }
 
 // Los videos con .lazy-video (ORIGEN) solo se descargan y reproducen cuando
@@ -652,6 +668,54 @@ if (intro) {
 }
 
 // Video del inicio: ya no se esconde ni se desvanece (el loop viene sin costura desde el archivo y el telón de carga lo controla index.html).
+
+// ── Botón "Pagar el apartado con tarjeta o PSE" (Mercado Pago) ──
+// 1) exige talla de las que se fabrican sin confirmar (US 5 a 8)
+// 2) busca el link cuyo monto coincide con el apartado (normal o con cupón)
+// 3) guarda el pedido en esta pestaña para que la página de gracias lo mande por WhatsApp
+// 4) lleva al pago. Si algo no cuadra, manda a WhatsApp para no cobrar un monto equivocado.
+const payCardBtn = document.getElementById('payCardBtn');
+if (payCardBtn) {
+  const linkMp = () => MP_LINKS[montoHoy()] || '';
+  if (!Object.keys(MP_LINKS).length) payCardBtn.hidden = true;
+  payCardBtn.addEventListener('click', () => {
+    if (!tallaSel || !tallaSel.value) {
+      buyStatus.textContent = 'Elige tu talla para continuar.';
+      if (tallaSel) tallaSel.focus();
+      return;
+    }
+    const pedido = armarPedido();
+    const link = linkMp();
+    if (!/^US [5-8]$/.test(tallaSel.value) || !link) {
+      // talla especial o monto sin link: lo confirmamos por chat antes de cobrar
+      buyStatus.textContent = 'Esta opción la confirmamos por WhatsApp antes de cobrar. Te llevamos al chat.';
+      setTimeout(() => { window.location.href = urlChat(pedido); }, 1400);
+      return;
+    }
+    try { sessionStorage.setItem('furae_pedido', JSON.stringify({ pedido, ref: 'Mercado Pago', env: 'mp', apartado: apartadoDe(), total: estado.pagoTotal, monto: montoHoy() })); } catch (e) {}
+    if (PEDIDOS_URL) {
+      try { navigator.sendBeacon(PEDIDOS_URL, new URLSearchParams({ pedido, esmeralda: gemElegida.nombre, talla: tallaSel.value, cupon: cuponVale() ? estado.cupon : '', precio: precioFinal(), modo: estado.modo, pago: 'mercadopago' })); } catch (e) {}
+    }
+    pixel('InitiateCheckout');
+    buyStatus.textContent = 'Te llevamos al pago seguro ' + (estado.pagoTotal ? 'de tu FLOAT' : 'del apartado') + ' (' + formatoCOP(montoHoy()) + '). Al terminar, envíanos el comprobante por WhatsApp.';
+    // Se le pide al servidor un pago NUEVO con número de pedido propio (así el webhook sabe qué pedido se pagó).
+    // Si el servidor no responde, se usa el link fijo de siempre: nunca se pierde una venta.
+    const irAPagar = async () => {
+      let destino = link;
+      try {
+        const r = await fetch('/.netlify/functions/crear-pedido', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ esmeralda: gemElegida.nombre, talla: tallaSel.value, cupon: cuponVale() ? estado.cupon : '', pagoTotal: estado.pagoTotal, modo: estado.modo }),
+        });
+        const j = await r.json();
+        if (r.ok && j.url && Number(j.monto) === montoHoy()) destino = j.url; // solo si el monto coincide con lo que se mostró
+      } catch (e) {}
+      window.location.href = destino;
+    };
+    setTimeout(irAPagar, 800);
+  });
+}
 
 // ── Resumen del pedido ("carrito") ──
 // Se abre con "Comprar". Muestra todo lo que se va a pagar, con el envío ($35.000) incluido.
