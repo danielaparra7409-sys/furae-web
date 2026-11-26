@@ -35,7 +35,10 @@ exports.handler = async (event) => {
   if (!/^US [5-8]$/.test(talla)) return resp(400, { error: 'Talla no válida para pago en línea' });
   const esmeralda = String(p.esmeralda || '').replace(/[^\p{L}\p{N} ·-]/gu, '').slice(0, 30);
   const modo = p.modo === 'listo' ? 'Ya hecho' : 'Sobre pedido';
-  const conCupon = String(p.cupon || '').toUpperCase() === CUPON;
+  // El cupón vale hasta el 1 de diciembre (hora Colombia) en pedidos sobre pedido; en anillos ya hechos no vence.
+  // Se revisa aquí en el servidor porque la revisión de la página se puede saltar.
+  const cuponVigente = modo === 'Ya hecho' || Date.now() <= Date.parse('2026-12-01T23:59:59-05:00');
+  const conCupon = String(p.cupon || '').toUpperCase() === CUPON && cuponVigente;
   const pagoTotal = p.pagoTotal === true;
 
   // Precios calculados en el servidor
