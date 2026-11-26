@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0c0b0a" />
   <meta name="robots" content="noindex" />
-  <title>Gracias · furae.float</title>
+  <title>Gracias · FURÁE</title>
   <link rel="icon" href="assets/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,14 +24,14 @@
     <h1>Gracias.</h1>
     <p id="estado">Estamos confirmando tu pago. Esto puede tardar unos segundos.</p>
     <p>El siguiente paso es confirmar tu talla y tu dirección de entrega contigo. Escríbenos por WhatsApp con tu pedido ya listo; así empezamos a preparar tu anillo.</p>
-    <p><a class="size-btn" id="wa" href="https://wa.me/573124539112" target="_blank" rel="noopener">Escribir por WhatsApp <span>↗</span></a></p>
+    <p><a class="size-btn" id="wa" href="https://wa.me/573118509507" target="_blank" rel="noopener">Escribir por WhatsApp <span>↗</span></a></p>
     <p style="margin-top:48px"><a href="index.html">← Volver a FLOAT</a> · <a href="terminos.html">Términos de compra</a></p>
   </main>
 
   <script>
     // Lee el pedido guardado al salir al pago y consulta a Wompi el estado de la transacción (el id llega en ?id=)
     (function () {
-      var NUMERO = '573124539112';
+      var NUMERO = '573118509507';
       var id = new URLSearchParams(location.search).get('id') || '';
       var pedido = {};
       try { pedido = JSON.parse(sessionStorage.getItem('furae_pedido') || '{}'); } catch (e) {}
