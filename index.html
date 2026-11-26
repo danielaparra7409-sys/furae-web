@@ -19,8 +19,17 @@
   <meta property="og:locale" content="es_CO" />
   <meta name="twitter:card" content="summary_large_image" />
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"FURÁE","url":"https://furae.co/","logo":"https://furae.co/assets/favicon.png","sameAs":["https://www.instagram.com/furae.co/"]}</script>
-  <!-- Si ya vio la intro en esta visita, se salta (evita parpadeo) -->
-  <script>try{if(sessionStorage.getItem('furae_intro'))document.documentElement.classList.add('no-intro')}catch(e){}</script>
+  <!-- PRELOADER: si ya vio la intro en esta visita, se salta (evita parpadeo). Si no, la página queda "en espera" (intro-wait)
+       hasta que el video del inicio esté listo; ahí se añade intro-out y el telón se abre.
+       Seguro de vida: pase lo que pase, a los 7,5 s se abre igual para que nadie quede atrapado en la pantalla de carga. -->
+  <script>
+  (function(){var h=document.documentElement;
+    try{if(sessionStorage.getItem('furae_intro')){h.classList.add('no-intro');return;}}catch(e){}
+    h.classList.add('intro-wait');
+    setTimeout(function(){h.classList.add('intro-out');},7500);
+  })();
+  </script>
+  <noscript><style>.intro{display:none!important}</style></noscript>
 
   <link rel="icon" href="assets/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -65,15 +74,59 @@
 
   <main id="top">
 
-    <!-- 1. HERO / TERRITORIO: video propio de FURÁE (original 4K de 75 MB, convertido a 1080p y 720p para web)
-         preload="metadata": solo descarga lo mínimo al inicio.
-         <source media="...">: en pantallas de hasta 900px (celular) el navegador toma la versión de 720p (~3 MB);
-         si no aplica, usa la de 1080p (~6,5 MB). El video no tiene audio porque en la web siempre va silenciado. -->
+    <!-- 1. HERO / TERRITORIO: video propio de FURÁE. Es el recurso MÁS IMPORTANTE de la carga: no es perezoso (lazy).
+         autoplay muted loop playsinline preload="auto": se descarga desde el primer instante y arranca solo (iPhone y Android lo exigen silenciado y "en línea").
+         <source media="...">: en pantallas de hasta 900 px (celular) se baja la versión de 720p (~2 MB); si no, la de 1080p (~5,4 MB).
+         Es un loop sin costura (el final se disuelve en el inicio) y no tiene audio.
+         poster = primer cuadro del video: si no carga o el celular bloquea el autoplay, se ve igual de bien. -->
     <section class="hero" id="hero">
-      <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="assets/hero-furae-poster.jpg">
-        <source src="assets/hero-furae-720.mp4" type="video/mp4" media="(max-width: 900px)" />
-        <source src="assets/hero-furae-1080.mp4" type="video/mp4" />
+      <video class="hero-video" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="assets/hero-loop-poster.jpg"
+             disablepictureinpicture disableremoteplayback x-webkit-airplay="deny" controlslist="nodownload nofullscreen noremoteplayback" tabindex="-1" aria-hidden="true">
+        <source src="assets/hero-loop-720.mp4" type="video/mp4" media="(max-width: 900px)" />
+        <source src="assets/hero-loop-1080.mp4" type="video/mp4" />
       </video>
+      <!-- CONTROLADOR DEL PRELOADER: va justo después del video para empezar a trabajar en cuanto el navegador lo conoce.
+           Idea: el video se pide y se reproduce DEBAJO del telón; el telón no se abre hasta que (a) pasó la animación del logo,
+           (b) el video está reproduciéndose y tiene al menos 3 s de búfer por delante. Si el celular bloquea el autoplay,
+           o la conexión es lenta (6 s), se abre igual: se ve la foto (primer cuadro) y un botón de play. -->
+      <script>
+      (function () {
+        var h = document.documentElement, v = document.querySelector('.hero-video');
+        if (!h.classList.contains('intro-wait') || !v) { h.classList.add('intro-out'); return; }
+        var MIN = 2300, MAX = 6000, abierto = false, bloqueado = false, timer;
+        // Atributos por código también: algunos navegadores solo leen la propiedad, no el atributo HTML
+        v.muted = true; v.defaultMuted = true; v.playsInline = true; v.preload = 'auto';
+        v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
+        function pedirPlay() {
+          var p = v.play();
+          if (p && p.catch) p.catch(function () { bloqueado = true; });   // iPhone en ahorro de batería, Instagram/WhatsApp interno, etc.
+        }
+        function bufer() {          // segundos de video ya descargados por delante del punto actual
+          var b = v.buffered; if (!b.length) return 0;
+          return b.end(b.length - 1) - v.currentTime;
+        }
+        function abrir() {
+          if (abierto) return; abierto = true; clearInterval(timer);
+          // Se vuelve al primer cuadro DEBAJO del telón (en pausa, así el salto no se ve) y solo entonces se abre y se reproduce.
+          // Así el video arranca desde su primer instante justo cuando aparece la página.
+          var salir = function () { v.removeEventListener('seeked', salir); clearTimeout(corte); pedirPlay(); h.classList.add('intro-out'); };
+          var corte = setTimeout(salir, 400);   // si el navegador no avisa 'seeked', se abre igual
+          try { if (v.readyState >= 2 && v.currentTime > 0.05) { v.pause(); v.addEventListener('seeked', salir); v.currentTime = 0; return; } } catch (e) {}
+          salir();
+        }
+        window.furaeAbrir = abrir;   // el toque sobre el telón también lo abre
+        function revisar() {
+          if (abierto) return;
+          var t = performance.now(), d = v.duration || 0;
+          var listo = !v.paused && v.readyState >= 3 && (bufer() >= Math.min(3, d ? d - 0.2 : 3) || (d && v.buffered.length && v.buffered.end(v.buffered.length - 1) >= d - 0.2));
+          if (t >= MIN && (listo || (bloqueado && t >= MIN + 400) || t >= MAX)) abrir();
+        }
+        ['loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough', 'playing', 'progress', 'error'].forEach(function (e) { v.addEventListener(e, revisar); });
+        v.addEventListener('canplay', function () { if (v.paused && !abierto) pedirPlay(); });
+        pedirPlay();
+        timer = setInterval(revisar, 150);
+      })();
+      </script>
       <div class="hero-scrim" aria-hidden="true"></div>
       <div class="hero-inner">
         <img class="hero-logo" src="assets/wordmark_on_dark.png" alt="FURÁE" />
@@ -89,7 +142,7 @@
     <section class="reveal-section" id="float">
       <canvas class="dust" id="dust" aria-hidden="true"></canvas>
       <!-- Primero la hoja: aparece con un fundido de opacidad a medida que se baja desde el video (script.js) -->
-      <img class="reveal-ring"
+      <img loading="lazy" decoding="async" class="reveal-ring"
            src="assets/fotos/float-hoja-2000.jpg"
            srcset="assets/fotos/float-hoja-1100.jpg 1100w, assets/fotos/float-hoja-2000.jpg 2000w"
            sizes="(max-width: 900px) 100vw, 80vw"
@@ -108,7 +161,7 @@
     <section class="sticky-story" aria-label="Detalles de FLOAT" id="object">
       <div class="sticky-visual">
         <div class="visual-frame visual-frame--zero is-visible">
-          <img src="assets/fotos/float-blanco.jpg" alt="Anillo FLOAT sobre fondo claro, con su sombra" />
+          <img loading="lazy" decoding="async" src="assets/fotos/float-blanco.jpg" alt="Anillo FLOAT sobre fondo claro, con su sombra" />
         </div>
         <div class="visual-frame visual-frame--one">
           <img src="assets/fotos/float-perfil.jpg" alt="FLOAT de perfil: el volumen transparente" loading="lazy" />
@@ -223,7 +276,7 @@ Los anillos YA HECHOS y el cupón se configuran en script.js → const LISTOS y 
 <section class="buy-section" id="access">
 <div class="buy-stage">
 <div class="zoom-stage" id="zoomStage" tabindex="0" aria-label="Foto de la esmeralda. Pasa el cursor o toca para acercar">
-<img id="stageImg" src="assets/fotos/gema-claro.jpg" alt="Anillo FLOAT con la esmeralda elegida" />
+<img loading="lazy" decoding="async" id="stageImg" src="assets/fotos/gema-claro.jpg" alt="Anillo FLOAT con la esmeralda elegida" />
 <span class="stage-mark" id="stageMark">FLOAT 01</span>
 <span class="stage-ready" id="stageReady" hidden>Listo para entrega</span>
 <span class="zoom-hint" id="zoomHint">Pasa el cursor para acercar</span>
@@ -366,7 +419,7 @@ Los anillos YA HECHOS y el cupón se configuran en script.js → const LISTOS y 
 <p class="checkout__tag">Tu pedido</p>
 <h3 class="checkout__title" id="ckTitle">Resumen</h3>
 <div class="checkout__item">
-<img id="ckImg" src="assets/fotos/gema-claro.jpg" alt="" />
+<img loading="lazy" decoding="async" id="ckImg" src="assets/fotos/gema-claro.jpg" alt="" />
 <div><b id="ckNombre">FLOAT 01 · Selva</b><span id="ckDetalle">Talla US 7 · Sobre pedido</span></div>
 </div>
 <div class="ck-plan" role="radiogroup" aria-label="Cómo quieres pagar">

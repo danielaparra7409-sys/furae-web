@@ -647,74 +647,11 @@ alScroll();
 const intro = document.getElementById('intro');
 if (intro) {
   try { sessionStorage.setItem('furae_intro', '1'); } catch (e) {}
-  intro.addEventListener('click', () => { intro.style.display = 'none'; });
+  // Un toque sobre el telón lo abre ya (y de paso cuenta como toque del usuario para que iPhone deje arrancar el video)
+  intro.addEventListener('click', () => { if (window.furaeAbrir) window.furaeAbrir(); else document.documentElement.classList.add('intro-out'); });
 }
 
-// Video del inicio: aparece con un fundido y se oculta un instante antes de repetirse (así no se nota el salto)
-if (heroVideo) {
-  // Se marca "is-playing" en cuanto el video realmente avanza. Se escuchan varios eventos (no uno solo) porque en conexiones
-  // lentas el evento 'playing' podía llegar antes o repetirse, y el video se quedaba invisible mostrando solo la foto.
-  const listoV = () => { if (!heroVideo.paused && heroVideo.currentTime > 0) heroVideo.classList.add('is-playing'); };
-  ['playing', 'timeupdate', 'canplay', 'loadeddata'].forEach((ev) => heroVideo.addEventListener(ev, listoV));
-  listoV();
-  // Red de seguridad: durante los primeros 10 s se revisa cada segundo. Si el video ya corre pero sigue sin la marca
-  // (por un evento perdido o un cambio futuro), se marca a la fuerza para que nunca vuelva a quedar invisible.
-  let vueltas = 0;
-  const vigia = setInterval(() => { listoV(); if (heroVideo.classList.contains('is-playing') || ++vueltas > 10) clearInterval(vigia); }, 1000);
-  heroVideo.addEventListener('timeupdate', () => {
-    const d = heroVideo.duration; if (!d) return;
-    heroVideo.classList.toggle('is-ending', d - heroVideo.currentTime < 0.7);
-  });
-}
-
-
-// ── Botón "Pagar el apartado con tarjeta o PSE" (Mercado Pago) ──
-// 1) exige talla de las que se fabrican sin confirmar (US 5 a 8)
-// 2) busca el link cuyo monto coincide con el apartado (normal o con cupón)
-// 3) guarda el pedido en esta pestaña para que la página de gracias lo mande por WhatsApp
-// 4) lleva al pago. Si algo no cuadra, manda a WhatsApp para no cobrar un monto equivocado.
-const payCardBtn = document.getElementById('payCardBtn');
-if (payCardBtn) {
-  const linkMp = () => MP_LINKS[montoHoy()] || '';
-  if (!Object.keys(MP_LINKS).length) payCardBtn.hidden = true;
-  payCardBtn.addEventListener('click', () => {
-    if (!tallaSel || !tallaSel.value) {
-      buyStatus.textContent = 'Elige tu talla para continuar.';
-      if (tallaSel) tallaSel.focus();
-      return;
-    }
-    const pedido = armarPedido();
-    const link = linkMp();
-    if (!/^US [5-8]$/.test(tallaSel.value) || !link) {
-      // talla especial o monto sin link: lo confirmamos por chat antes de cobrar
-      buyStatus.textContent = 'Esta opción la confirmamos por WhatsApp antes de cobrar. Te llevamos al chat.';
-      setTimeout(() => { window.location.href = urlChat(pedido); }, 1400);
-      return;
-    }
-    try { sessionStorage.setItem('furae_pedido', JSON.stringify({ pedido, ref: 'Mercado Pago', env: 'mp', apartado: apartadoDe(), total: estado.pagoTotal, monto: montoHoy() })); } catch (e) {}
-    if (PEDIDOS_URL) {
-      try { navigator.sendBeacon(PEDIDOS_URL, new URLSearchParams({ pedido, esmeralda: gemElegida.nombre, talla: tallaSel.value, cupon: cuponVale() ? estado.cupon : '', precio: precioFinal(), modo: estado.modo, pago: 'mercadopago' })); } catch (e) {}
-    }
-    pixel('InitiateCheckout');
-    buyStatus.textContent = 'Te llevamos al pago seguro ' + (estado.pagoTotal ? 'de tu FLOAT' : 'del apartado') + ' (' + formatoCOP(montoHoy()) + '). Al terminar, envíanos el comprobante por WhatsApp.';
-    // Se le pide al servidor un pago NUEVO con número de pedido propio (así el webhook sabe qué pedido se pagó).
-    // Si el servidor no responde, se usa el link fijo de siempre: nunca se pierde una venta.
-    const irAPagar = async () => {
-      let destino = link;
-      try {
-        const r = await fetch('/.netlify/functions/crear-pedido', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ esmeralda: gemElegida.nombre, talla: tallaSel.value, cupon: cuponVale() ? estado.cupon : '', pagoTotal: estado.pagoTotal, modo: estado.modo }),
-        });
-        const j = await r.json();
-        if (r.ok && j.url && Number(j.monto) === montoHoy()) destino = j.url; // solo si el monto coincide con lo que se mostró
-      } catch (e) {}
-      window.location.href = destino;
-    };
-    setTimeout(irAPagar, 800);
-  });
-}
+// Video del inicio: ya no se esconde ni se desvanece (el loop viene sin costura desde el archivo y el telón de carga lo controla index.html).
 
 // ── Resumen del pedido ("carrito") ──
 // Se abre con "Comprar". Muestra todo lo que se va a pagar, con el envío ($35.000) incluido.
