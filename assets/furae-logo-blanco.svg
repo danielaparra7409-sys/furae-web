@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="385 176 827 144" role="img" aria-label="FURÁE">
+  <g fill="none" stroke="#fff" stroke-width="7.5" stroke-linejoin="miter" stroke-linecap="butt">
+    <!-- F -->
+    <path d="M401.5 223V310M401.5 226.5H461M401.5 265H449"/>
+    <!-- U -->
+    <path d="M573.8 223V270.5A35.7 35.7 0 0 0 645.2 270.5V223"/>
+    <!-- R -->
+    <path d="M769 223V310M769 227H806A20.7 20.7 0 0 1 806 268.5H769"/>
+    <path d="M797 268.5L828 307" stroke-width="9"/>
+    <!-- E -->
+    <path d="M1135 223V310M1135 226.5H1198M1135 265H1187M1135 306.3H1198"/>
+  </g>
+  <g fill="#fff">
+    <!-- Á: pierna derecha gruesa, pierna izquierda fina y tilde -->
+    <polygon points="975.5,220 985,220 1023,309 1012,309"/>
+    <polygon points="975.8,221 977.7,222.6 940.5,309 936.4,309"/>
+    <polygon points="987.5,191 997.5,191 983.5,212.5 977.5,212.5"/>
+  </g>
+</svg>
