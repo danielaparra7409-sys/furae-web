@@ -161,7 +161,7 @@ const PRECIO_FLOAT = 1240000;          // precio de preventa (pendiente de aprob
 const PORCENTAJE_APARTADO = 0.5;       // se aparta con el 50 %
 const INSTAGRAM_DM = 'https://ig.me/m/furae.co';
 const ENVIO_VALOR = 35000;             // valor REAL aproximado del envío asegurado (flete + seguro). Confirmar con la cotización de Coordinadora.
-const FECHA_LIMITE_NAVIDAD = '15 de diciembre'; // fecha límite de pedidos sobre medida para Navidad. '' = no mostrar el aviso.
+const FECHA_LIMITE_NAVIDAD = '15 de diciembre'; // referencia interna para el aviso de Navidad (no es una promesa de entrega). '' = no mostrar el aviso.
 const FECHA_LIMITE_NAVIDAD_ISO = '2026-12-15';  // la misma fecha en formato año-mes-día (para saber si ya pasó)
 const META_PIXEL_ID = '';              // ID del Pixel de Meta (vacío = no se carga nada)
 const WHATSAPP_NUMERO = '573118509507';            // ej. '573001234567' (57 + celular, sin + ni espacios). Vacío = se usa Instagram.
@@ -325,7 +325,7 @@ function pintarNavidad() {
   const paso = new Date() > new Date(FECHA_LIMITE_NAVIDAD_ISO + 'T23:59:59-05:00');
   xm.innerHTML = '✦ ' + (paso
     ? 'El plazo para pedidos sobre medida antes de Navidad ya cerró. '
-    : 'Para recibirlo antes de Navidad, confirma tu pedido hasta el ' + FECHA_LIMITE_NAVIDAD + '. Después de esa fecha solo llega a tiempo un anillo ya hecho. ')
+    : 'Se hace sobre pedido, en unos 10 días hábiles. ¿Lo quieres para Navidad? Escríbenos antes del ' + FECHA_LIMITE_NAVIDAD + ' y lo coordinamos contigo. ')
     + (LISTOS.length
       ? '<button type="button" class="linkbtn" id="xmasListos">Ver anillos ya hechos</button>'
       : '<a class="linkbtn" target="_blank" rel="noopener" href="' + urlChat('Hola FURÁE, ¿tienen anillos FLOAT ya hechos para Navidad?') + '">Pregúntanos si hay modelos ya armados</a>');

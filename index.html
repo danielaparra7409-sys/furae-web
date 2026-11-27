@@ -41,13 +41,13 @@
 <body>
   <!-- INTRO: logo + línea + FLOAT, igual que en la pauta. Se quita sola (CSS) y se salta con un toque. -->
   <div class="intro" id="intro" aria-hidden="true">
-    <img class="intro__logo" src="assets/wordmark_on_dark.png" alt="" />
+    <img class="intro__logo" src="assets/furae-logo-blanco.svg" alt="" />
     <span class="intro__line"></span>
     <span class="intro__float">FLOAT</span>
   </div>
   <header class="site-header" id="siteHeader">
     <a class="brand" href="#top" aria-label="Inicio FURÁE">
-      <img src="assets/wordmark_on_dark.png" alt="FURÁE" />
+      <img src="assets/furae-logo-blanco.svg" alt="FURÁE" />
     </a>
     <nav class="desktop-nav" aria-label="Navegación principal">
       <a href="#float">FLOAT</a>
@@ -133,7 +133,7 @@
       </script>
       <div class="hero-scrim" aria-hidden="true"></div>
       <div class="hero-inner">
-        <img class="hero-logo" src="assets/wordmark_on_dark.png" alt="FURÁE" />
+        <img class="hero-logo" src="assets/furae-logo-blanco.svg" alt="FURÁE" />
         <p class="hero-copy">Desde la tierra.</p>
       </div>
       <div class="scroll-cue">
@@ -197,7 +197,10 @@
 
     <!-- 4. LA ESMERALDA -->
     <section class="stone-section" id="stone">
-      <img class="stone-image" src="assets/fotos/float-estuche-hojas.jpg" alt="FLOAT en su estuche FURÁE, entre hojas" loading="lazy" />
+      <picture>
+        <source media="(max-width: 900px)" srcset="assets/fotos/estuche-esmeralda-cristal-vertical.jpg" />
+        <img class="stone-image" src="assets/fotos/estuche-esmeralda-cristal.jpg" alt="Esmeralda colombiana natural en su cristal, con la veta verde translúcida" width="2560" height="1440" loading="lazy" decoding="async" />
+      </picture>
       <div class="stone-scrim" aria-hidden="true"></div>
       <div class="stone-copy reveal">
         <p class="stone-lead">No hay dos piedras iguales.</p>
